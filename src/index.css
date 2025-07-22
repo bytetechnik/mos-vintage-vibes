@@ -9,34 +9,57 @@ All colors MUST be HSL.
 @layer base {
   :root {
     --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    --foreground: 20 14.3% 4.1%;
 
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 20 14.3% 4.1%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover-foreground: 20 14.3% 4.1%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    --primary: 24 9.8% 10%;
+    --primary-foreground: 60 9.1% 97.8%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 60 4.8% 95.9%;
+    --secondary-foreground: 24 9.8% 10%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted: 60 4.8% 95.9%;
+    --muted-foreground: 25 5.3% 44.7%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --accent: 60 4.8% 95.9%;
+    --accent-foreground: 24 9.8% 10%;
 
     --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive-foreground: 60 9.1% 97.8%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --border: 20 5.9% 90%;
+    --input: 20 5.9% 90%;
+    --ring: 24 5.4% 63.9%;
 
     --radius: 0.5rem;
+
+    /* Street style color palette */
+    --vintage-orange: 25 95% 53%;
+    --vintage-orange-foreground: 0 0% 100%;
+    --street-black: 20 14.3% 4.1%;
+    --street-white: 60 9.1% 97.8%;
+    --urban-gray: 215 16.3% 46.9%;
+    --neon-accent: 142 76% 36%;
+    --warm-beige: 30 25% 88%;
+
+    /* Gradients */
+    --gradient-hero: linear-gradient(135deg, hsl(var(--vintage-orange)), hsl(25 85% 45%));
+    --gradient-card: linear-gradient(145deg, hsl(var(--background)), hsl(var(--warm-beige)));
+    --gradient-overlay: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.3));
+
+    /* Shadows */
+    --shadow-street: 0 10px 30px -10px hsl(var(--vintage-orange) / 0.3);
+    --shadow-card: 0 4px 20px -4px hsl(var(--street-black) / 0.1);
+    --shadow-hover: 0 20px 40px -10px hsl(var(--vintage-orange) / 0.4);
+
+    /* Animations */
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-bounce: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 
     --sidebar-background: 0 0% 98%;
 
