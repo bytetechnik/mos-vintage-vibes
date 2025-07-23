@@ -4,6 +4,10 @@ import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import heroImage1 from '@/assets/hero-street-1.jpg';
 import heroImage2 from '@/assets/hero-street-2.jpg';
+import heroImage3 from '@/assets/hero-streetwear.jpg';
+import heroImage4 from '@/assets/product-showcase.jpg';
+import heroImage5 from '@/assets/hero-section-1.jpg';
+import heroImage6 from '@/assets/hero-section-2.jpg';
 
 const slides = [
   {
@@ -23,6 +27,54 @@ const slides = [
     description: "Quality-graded items from condition 7-10, authentic streetwear for every style",
     cta: "Explore Now",
     link: "/products?featured=true"
+  },
+  {
+    id: 3,
+    image: heroImage3,
+    badge: "Premium Streetwear Kollektion",
+    title: "MO'S VINTAGEWORLD",
+    subtitle: "Wo Vintage auf Street trifft",
+    description: "Entdecke Premium-Streetwear-Stücke, die Vintage-Ästhetik mit moderner urbaner Kultur verbinden. Kuratiert für alle, die sich trauen aufzufallen.",
+    primaryBtn: "Kollektion shoppen",
+    secondaryBtn: "Lookbook entdecken",
+    stats: [
+      { number: "500+", label: "Premium Stücke" },
+      { number: "10K+", label: "Zufriedene Kunden" },
+      { number: "24/7", label: "Schneller Versand" }
+    ],
+    overlay: "from-background/95 via-background/70 to-transparent"
+  },
+  {
+    id: 4,
+    image: heroImage4,
+    badge: "Neue Winter Kollektion 2024",
+    title: "WINTER DROPS",
+    subtitle: "Wärme trifft auf Style",
+    description: "Unsere neuesten Winter-Essentials vereinen Komfort mit urbanem Flair. Perfekt für die kalte Jahreszeit ohne Kompromisse beim Style.",
+    primaryBtn: "Winter Kollektion",
+    secondaryBtn: "Style Guide",
+    stats: [
+      { number: "50+", label: "Neue Designs" },
+      { number: "Premium", label: "Materialien" },
+      { number: "Limited", label: "Edition" }
+    ],
+    overlay: "from-background/90 via-background/60 to-background/20"
+  },
+  {
+    id: 5,
+    image: heroImage5,
+    badge: "Exklusive Vintage Stücke",
+    title: "VINTAGE FINDS",
+    subtitle: "Einzigartig und authentisch",
+    description: "Handverlesene Vintage-Pieces mit Geschichte. Jedes Stück erzählt seine eigene Story und macht dich zum Trendsetter.",
+    primaryBtn: "Vintage entdecken",
+    secondaryBtn: "Über Vintage",
+    stats: [
+      { number: "Unikat", label: "Pieces" },
+      { number: "80s-90s", label: "Ära" },
+      { number: "Authentisch", label: "Garantiert" }
+    ],
+    overlay: "from-background/85 via-background/50 to-transparent"
   }
 ];
 
@@ -62,10 +114,15 @@ const HeroSlider = () => {
               className="w-full h-full object-cover"
             />
             <div className="absolute inset-0 bg-gradient-overlay" />
-            
             {/* Content */}
             <div className="absolute inset-0 flex items-center justify-center">
               <div className="text-center text-white max-w-4xl px-4">
+                {/* Badge */}
+                {slide.badge && (
+                  <div className="mb-2 text-sm md:text-base font-semibold uppercase tracking-widest bg-vintage-orange/80 text-white inline-block px-4 py-1 rounded-full animate-fade-in">
+                    {slide.badge}
+                  </div>
+                )}
                 <h1 className="text-4xl md:text-6xl font-bold mb-4 animate-fade-in">
                   {slide.title}
                 </h1>
@@ -75,11 +132,38 @@ const HeroSlider = () => {
                 <p className="text-lg md:text-xl mb-8 max-w-2xl mx-auto animate-fade-in delay-200">
                   {slide.description}
                 </p>
-                <Link to={slide.link}>
-                  <Button variant="street" size="xl" className="animate-fade-in delay-300">
-                    {slide.cta}
-                  </Button>
-                </Link>
+                {/* Stats */}
+                {slide.stats && (
+                  <div className="flex justify-center gap-8 mb-8 animate-fade-in delay-300">
+                    {slide.stats.map((stat, i) => (
+                      <div key={i} className="text-center">
+                        <div className="text-2xl md:text-3xl font-bold">{stat.number}</div>
+                        <div className="text-sm md:text-base opacity-80">{stat.label}</div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                {/* Buttons */}
+                <div className="flex flex-col md:flex-row gap-4 justify-center animate-fade-in delay-400">
+                  {slide.primaryBtn && (
+                    <Button variant="street" size="xl">
+                      {slide.primaryBtn}
+                    </Button>
+                  )}
+                  {slide.secondaryBtn && (
+                    <Button variant="outline" size="xl" className="text-black">
+                      {slide.secondaryBtn}
+                    </Button>
+                  )}
+                  {/* Fallback for old slides */}
+                  {!slide.primaryBtn && slide.cta && slide.link && (
+                    <Link to={slide.link}>
+                      <Button variant="street" size="xl">
+                        {slide.cta}
+                      </Button>
+                    </Link>
+                  )}
+                </div>
               </div>
             </div>
           </div>

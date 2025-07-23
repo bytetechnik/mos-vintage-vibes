@@ -39,9 +39,7 @@ const Header = () => {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-gradient-hero rounded-lg flex items-center justify-center">
-              <span className="text-vintage-orange-foreground font-bold text-sm">MV</span>
-            </div>
+            <img src="/logo.jpeg" alt="Mo's VintageWorld Logo" className="w-8 h-8 object-contain rounded" />
             <span className="text-xl font-bold text-foreground">Mo's VintageWorld</span>
           </Link>
 

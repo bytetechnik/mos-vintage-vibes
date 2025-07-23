@@ -1,9 +1,11 @@
 import { Link } from 'react-router-dom';
 import { Facebook, Instagram, Twitter, Mail } from 'lucide-react';
+import React from 'react';
 
 const Footer = () => {
+  const year = new Date().getFullYear();
   return (
-    <footer className="bg-street-black text-street-white mt-20">
+    <footer className="bg-background text-center py-6 text-muted-foreground text-sm">
       <div className="container mx-auto px-4 py-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Brand */}
@@ -60,7 +62,12 @@ const Footer = () => {
         </div>
 
         <div className="border-t border-urban-gray/30 mt-8 pt-8 text-center text-urban-gray">
-          <p>&copy; 2024 Mo's VintageWorld. All rights reserved.</p>
+          <div className="mt-2">
+            Developed by <a href="https://bytetechnik.de" target="_blank" rel="noopener noreferrer" className="underline">Bytetechnik.de</a>
+          </div>
+          <div className="mt-1">
+            &copy; {year} Mo's VintageWorld. All rights reserved.
+          </div>
         </div>
       </div>
     </footer>
