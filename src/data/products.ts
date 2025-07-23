@@ -1,12 +1,12 @@
 import { Product, Brand } from '@/types/product';
 
 export const brands: Brand[] = [
-  { id: '1', name: 'Nike', logo: '/placeholder.svg' },
-  { id: '2', name: 'Adidas', logo: '/placeholder.svg' },
-  { id: '3', name: 'Supreme', logo: '/placeholder.svg' },
-  { id: '4', name: 'Off-White', logo: '/placeholder.svg' },
-  { id: '5', name: 'Stone Island', logo: '/placeholder.svg' },
-  { id: '6', name: 'Carhartt', logo: '/placeholder.svg' },
+  { id: '1', name: 'Nike', logo: '/src/assets/brands/nike-logo.png' },
+  { id: '2', name: 'Adidas', logo: '/src/assets/brands/adidas-logo.png' },
+  { id: '3', name: 'Supreme', logo: '/src/assets/brands/supreme-logo.png' },
+  { id: '4', name: 'Off-White', logo: '/src/assets/brands/off-white-logo.png' },
+  { id: '5', name: 'Stone Island', logo: '/src/assets/brands/stone-island-logo.png' },
+  { id: '6', name: 'Carhartt', logo: '/src/assets/brands/carhartt-logo.png' },
 ];
 
 export const products: Product[] = [

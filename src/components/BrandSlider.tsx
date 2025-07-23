@@ -1,8 +1,23 @@
 import { useState, useEffect } from 'react';
 import { brands } from '@/data/products';
+import nikeLogo from '@/assets/brands/nike-logo.png';
+import adidasLogo from '@/assets/brands/adidas-logo.png';
+import supremeLogo from '@/assets/brands/supreme-logo.png';
+import offWhiteLogo from '@/assets/brands/off-white-logo.png';
+import stoneIslandLogo from '@/assets/brands/stone-island-logo.png';
+import carhartLogo from '@/assets/brands/carhartt-logo.png';
 
 const BrandSlider = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
+
+  const brandLogos = {
+    'Nike': nikeLogo,
+    'Adidas': adidasLogo,
+    'Supreme': supremeLogo,
+    'Off-White': offWhiteLogo,
+    'Stone Island': stoneIslandLogo,
+    'Carhartt': carhartLogo,
+  };
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -29,9 +44,13 @@ const BrandSlider = () => {
           {brands.map((brand) => (
             <div
               key={brand.id}
-              className="flex items-center justify-center w-32 h-20 bg-white rounded-lg shadow-card-custom hover:shadow-hover-street transition-all duration-300 hover:scale-110 cursor-pointer"
+              className="flex items-center justify-center w-32 h-20 bg-white rounded-lg shadow-card-custom hover:shadow-hover-street transition-all duration-300 hover:scale-110 cursor-pointer p-4"
             >
-              <span className="font-bold text-xl text-street-black">{brand.name}</span>
+              <img 
+                src={brandLogos[brand.name as keyof typeof brandLogos]} 
+                alt={`${brand.name} logo`}
+                className="max-w-full max-h-full object-contain"
+              />
             </div>
           ))}
         </div>
@@ -39,10 +58,12 @@ const BrandSlider = () => {
         {/* Mobile view - sliding brands */}
         <div className="md:hidden">
           <div className="flex justify-center">
-            <div className="flex items-center justify-center w-40 h-24 bg-white rounded-lg shadow-card-custom">
-              <span className="font-bold text-xl text-street-black">
-                {brands[currentIndex].name}
-              </span>
+            <div className="flex items-center justify-center w-40 h-24 bg-white rounded-lg shadow-card-custom p-4">
+              <img 
+                src={brandLogos[brands[currentIndex].name as keyof typeof brandLogos]} 
+                alt={`${brands[currentIndex].name} logo`}
+                className="max-w-full max-h-full object-contain"
+              />
             </div>
           </div>
 
