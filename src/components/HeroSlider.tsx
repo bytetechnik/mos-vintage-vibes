@@ -36,7 +36,6 @@ const slides = [
     subtitle: "Wo Vintage auf Street trifft",
     description: "Entdecke Premium-Streetwear-Stücke, die Vintage-Ästhetik mit moderner urbaner Kultur verbinden. Kuratiert für alle, die sich trauen aufzufallen.",
     primaryBtn: "Kollektion shoppen",
-    secondaryBtn: "Lookbook entdecken",
     stats: [
       { number: "500+", label: "Premium Stücke" },
       { number: "10K+", label: "Zufriedene Kunden" },
@@ -52,7 +51,6 @@ const slides = [
     subtitle: "Wärme trifft auf Style",
     description: "Unsere neuesten Winter-Essentials vereinen Komfort mit urbanem Flair. Perfekt für die kalte Jahreszeit ohne Kompromisse beim Style.",
     primaryBtn: "Winter Kollektion",
-    secondaryBtn: "Style Guide",
     stats: [
       { number: "50+", label: "Neue Designs" },
       { number: "Premium", label: "Materialien" },
@@ -68,7 +66,6 @@ const slides = [
     subtitle: "Einzigartig und authentisch",
     description: "Handverlesene Vintage-Pieces mit Geschichte. Jedes Stück erzählt seine eigene Story und macht dich zum Trendsetter.",
     primaryBtn: "Vintage entdecken",
-    secondaryBtn: "Über Vintage",
     stats: [
       { number: "Unikat", label: "Pieces" },
       { number: "80s-90s", label: "Ära" },
@@ -150,11 +147,11 @@ const HeroSlider = () => {
                       {slide.primaryBtn}
                     </Button>
                   )}
-                  {slide.secondaryBtn && (
+                  {/* {slide.secondaryBtn && (
                     <Button variant="outline" size="xl" className="text-black">
                       {slide.secondaryBtn}
                     </Button>
-                  )}
+                  )} */}
                   {/* Fallback for old slides */}
                   {!slide.primaryBtn && slide.cta && slide.link && (
                     <Link to={slide.link}>
