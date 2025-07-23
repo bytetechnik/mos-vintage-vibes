@@ -8,9 +8,10 @@ import { useState } from 'react';
 
 interface ProductCardProps {
   product: Product;
+  imageIndex?: number;
 }
 
-const ProductCard = ({ product }: ProductCardProps) => {
+const ProductCard = ({ product, imageIndex = 0 }: ProductCardProps) => {
   const { addItem } = useCart();
   const [isLiked, setIsLiked] = useState(false);
 
@@ -41,7 +42,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
         {/* Image */}
         <div className="relative aspect-square overflow-hidden">
           <img
-            src={product.images[0]}
+            src={product.images[imageIndex % product.images.length]}
             alt={product.name}
             className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
           />

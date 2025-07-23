@@ -9,6 +9,14 @@ export const brands: Brand[] = [
   { id: '6', name: 'Carhartt', logo: '/src/assets/brands/carhartt-logo.png' },
 ];
 
+const dummyImages = [
+  "https://images.unsplash.com/photo-1556821840-3a63f95609a7?w=500&h=640&fit=crop",
+  "https://images.unsplash.com/photo-1551028719-00167b16eac5?w=500&h=640&fit=crop",
+  "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=500&h=640&fit=crop",
+  "https://images.unsplash.com/photo-1602810318383-e386cc2a3ccf?w=500&h=640&fit=crop",
+  "https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?w=500&h=640&fit=crop"
+];
+
 export const products: Product[] = [
   {
     id: '1',
@@ -21,7 +29,10 @@ export const products: Product[] = [
     condition: { rating: 9, description: 'Item is in perfect condition, no signs of wear, looks like new' },
     size: 'L',
     color: 'Black',
-    images: ['/placeholder.svg', '/placeholder.svg', '/placeholder.svg'],
+    images: [
+      ...dummyImages,
+      '/placeholder.svg', '/placeholder.svg', '/placeholder.svg'
+    ],
     inStock: true,
     featured: true,
     tags: ['vintage', 'streetwear', 'nike'],
@@ -38,7 +49,10 @@ export const products: Product[] = [
     condition: { rating: 8, description: 'Item is used but in mint condition, has 2-3 small signs of wear' },
     size: '32/32',
     color: 'Blue',
-    images: ['/placeholder.svg', '/placeholder.svg'],
+    images: [
+      ...dummyImages,
+      '/placeholder.svg', '/placeholder.svg'
+    ],
     inStock: true,
     featured: true,
     tags: ['vintage', 'denim', 'levis'],
@@ -54,7 +68,10 @@ export const products: Product[] = [
     condition: { rating: 9, description: 'Item is in perfect condition, no signs of wear, looks like new' },
     size: 'M',
     color: 'Navy',
-    images: ['/placeholder.svg', '/placeholder.svg'],
+    images: [
+      ...dummyImages,
+      '/placeholder.svg', '/placeholder.svg'
+    ],
     inStock: true,
     featured: false,
     tags: ['adidas', 'track', 'sporty'],
@@ -70,7 +87,10 @@ export const products: Product[] = [
     condition: { rating: 10, description: 'Completely new with tags' },
     size: 'L',
     color: 'White',
-    images: ['/placeholder.svg'],
+    images: [
+      ...dummyImages,
+      '/placeholder.svg'
+    ],
     inStock: true,
     featured: true,
     tags: ['supreme', 'rare', 'streetwear'],
@@ -87,7 +107,10 @@ export const products: Product[] = [
     condition: { rating: 8, description: 'Item is used but in mint condition, has 2-3 small signs of wear' },
     size: 'L',
     color: 'Gray',
-    images: ['/placeholder.svg', '/placeholder.svg'],
+    images: [
+      ...dummyImages,
+      '/placeholder.svg', '/placeholder.svg'
+    ],
     inStock: true,
     featured: false,
     tags: ['nike', 'tech', 'comfort'],
@@ -103,7 +126,10 @@ export const products: Product[] = [
     condition: { rating: 9, description: 'Item is in perfect condition, no signs of wear, looks like new' },
     size: 'L',
     color: 'Black',
-    images: ['/placeholder.svg', '/placeholder.svg', '/placeholder.svg'],
+    images: [
+      ...dummyImages,
+      '/placeholder.svg', '/placeholder.svg', '/placeholder.svg'
+    ],
     inStock: true,
     featured: true,
     tags: ['stone-island', 'luxury', 'tracksuit'],
@@ -119,7 +145,10 @@ export const products: Product[] = [
     condition: { rating: 7, description: 'Item is in okay condition, has several signs of wear' },
     size: 'One Size',
     color: 'Black/Red',
-    images: ['/placeholder.svg'],
+    images: [
+      ...dummyImages,
+      '/placeholder.svg'
+    ],
     inStock: true,
     featured: false,
     tags: ['vintage', 'cap', 'accessory'],
@@ -136,7 +165,10 @@ export const products: Product[] = [
     condition: { rating: 8, description: 'Item is used but in mint condition, has 2-3 small signs of wear' },
     size: 'XL',
     color: 'Brown',
-    images: ['/placeholder.svg', '/placeholder.svg'],
+    images: [
+      ...dummyImages,
+      '/placeholder.svg', '/placeholder.svg'
+    ],
     inStock: true,
     featured: false,
     tags: ['carhartt', 'workwear', 'vintage'],

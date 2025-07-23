@@ -11,9 +11,7 @@ const Footer = () => {
           {/* Brand */}
           <div>
             <div className="flex items-center space-x-2 mb-4">
-              <div className="w-8 h-8 bg-gradient-hero rounded-lg flex items-center justify-center">
-                <span className="text-vintage-orange-foreground font-bold text-sm">MV</span>
-              </div>
+              <img src="/logo.jpeg" alt="Mo's VintageWorld Logo" className="w-8 h-8 object-contain rounded" />
               <span className="text-xl font-bold">Mo's VintageWorld</span>
             </div>
             <p className="text-urban-gray mb-4">
