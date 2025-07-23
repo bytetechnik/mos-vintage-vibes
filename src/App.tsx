@@ -31,11 +31,11 @@ const App = () => (
               <Route path="product/:id" element={<ProductDetail />} />
               <Route path="cart" element={<Cart />} />
               <Route path="checkout" element={<Checkout />} />
+              <Route path="login" element={<Login />} />
               <Route path="dashboard" element={<Dashboard />} />
               <Route path="order-confirmation" element={<OrderConfirmation />} />
+              <Route path="*" element={<NotFound />} />
             </Route>
-            <Route path="login" element={<Login />} />
-            <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
       </TooltipProvider>
