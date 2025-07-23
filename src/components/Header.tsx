@@ -1,72 +1,60 @@
-import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { Search, ShoppingCart, User, Menu, X } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import { ShoppingCart, User, Menu } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { useCart } from '@/contexts/CartContext';
+import { SidebarTrigger, useSidebar } from '@/components/ui/sidebar';
 
 const Header = () => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
-  const navigate = useNavigate();
+  const [isScrolled, setIsScrolled] = useState(false);
   const { items } = useCart();
 
   const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      navigate(`/products?search=${encodeURIComponent(searchQuery)}`);
-      setSearchQuery('');
-    }
-  };
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 100);
+    };
 
-  const categories = [
-    { name: 'Sweaters & Hoodies', path: '/products?category=sweaters-hoodies' },
-    { name: 'Jeans', path: '/products?category=jeans' },
-    { name: 'Jackets', path: '/products?category=jackets' },
-    { name: 'Shirts & Polos', path: '/products?category=shirts-polos' },
-    { name: 'Trackpants & Joggers', path: '/products?category=trackpants-joggers' },
-    { name: 'Accessories', path: '/products?category=accessories' },
-    { name: 'Tracksuits', path: '/products?category=tracksuits' },
-  ];
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   return (
-    <header className="bg-background border-b border-border sticky top-0 z-50 backdrop-blur-md bg-background/95">
+    <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+      isScrolled 
+        ? 'bg-background/95 backdrop-blur-md border-b border-border' 
+        : 'bg-transparent'
+    }`}>
       <div className="container mx-auto px-4">
-        {/* Top bar */}
         <div className="flex items-center justify-between h-16">
-          {/* Logo */}
-          <Link to="/" className="flex items-center space-x-2">
-            <img src="/logo.jpeg" alt="Mo's VintageWorld Logo" className="w-8 h-8 object-contain rounded" />
-            <span className="text-xl font-bold text-foreground">Mo's VintageWorld</span>
-          </Link>
+          {/* Left: Hamburger menu */}
+          <div className="flex items-center">
+            <SidebarTrigger className="mr-4">
+              <Menu className="w-6 h-6" />
+            </SidebarTrigger>
+          </div>
 
-          {/* Search bar - Desktop */}
-          <form onSubmit={handleSearch} className="hidden md:flex flex-1 max-w-md mx-8">
-            <div className="relative w-full">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-              <Input
-                type="text"
-                placeholder="Search for vintage streetwear..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 pr-4 w-full"
+          {/* Center: Logo */}
+          <div className="absolute left-1/2 transform -translate-x-1/2">
+            <Link to="/" className="flex items-center">
+              <img 
+                src="/logo.jpeg" 
+                alt="Mo's VintageWorld Logo" 
+                className="w-10 h-10 object-contain rounded"
               />
-            </div>
-          </form>
+            </Link>
+          </div>
 
-          {/* Right section */}
+          {/* Right: User and Cart */}
           <div className="flex items-center space-x-4">
-            {/* User account */}
             <Link to="/login">
               <Button variant="ghost" size="icon" className="relative">
                 <User className="w-5 h-5" />
               </Button>
             </Link>
 
-            {/* Cart */}
             <Link to="/cart">
               <Button variant="ghost" size="icon" className="relative">
                 <ShoppingCart className="w-5 h-5" />
@@ -77,74 +65,8 @@ const Header = () => {
                 )}
               </Button>
             </Link>
-
-            {/* Mobile menu button */}
-            <Button
-              variant="ghost"
-              size="icon"
-              className="md:hidden"
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-            >
-              {isMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-            </Button>
           </div>
         </div>
-
-        {/* Desktop Navigation */}
-        <nav className="hidden md:flex items-center space-x-8 py-4 border-t border-border">
-          <Link to="/products" className="text-foreground hover:text-vintage-orange transition-colors">
-            All Products
-          </Link>
-          {categories.map((category) => (
-            <Link
-              key={category.name}
-              to={category.path}
-              className="text-foreground hover:text-vintage-orange transition-colors whitespace-nowrap"
-            >
-              {category.name}
-            </Link>
-          ))}
-        </nav>
-
-        {/* Mobile menu */}
-        {isMenuOpen && (
-          <div className="md:hidden py-4 border-t border-border">
-            {/* Mobile search */}
-            <form onSubmit={handleSearch} className="mb-4">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-                <Input
-                  type="text"
-                  placeholder="Search..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10 pr-4 w-full"
-                />
-              </div>
-            </form>
-
-            {/* Mobile navigation */}
-            <nav className="space-y-2">
-              <Link
-                to="/products"
-                className="block py-2 text-foreground hover:text-vintage-orange transition-colors"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                All Products
-              </Link>
-              {categories.map((category) => (
-                <Link
-                  key={category.name}
-                  to={category.path}
-                  className="block py-2 text-foreground hover:text-vintage-orange transition-colors"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  {category.name}
-                </Link>
-              ))}
-            </nav>
-          </div>
-        )}
       </div>
     </header>
   );
