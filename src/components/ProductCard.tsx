@@ -18,12 +18,6 @@ const ProductCard = ({ product, imageIndex = 0 }: ProductCardProps) => {
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    
-    // Add cart animation
-    const button = e.currentTarget as HTMLElement;
-    button.classList.add('animate-bounce');
-    setTimeout(() => button.classList.remove('animate-bounce'), 600);
-    
     addItem(product, 1);
   };
 
@@ -59,7 +53,7 @@ const ProductCard = ({ product, imageIndex = 0 }: ProductCardProps) => {
               variant="vintage"
               size="icon"
               onClick={handleAddToCart}
-              className="rounded-full transform transition-transform duration-200 hover:scale-110"
+              className="rounded-full"
             >
               <ShoppingCart className="w-4 h-4" />
             </Button>
