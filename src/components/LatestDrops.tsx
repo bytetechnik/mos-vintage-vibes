@@ -49,7 +49,7 @@ const LatestDropCard = ({ product, imageIndex = 0 }: LatestDropCardProps) => {
 
   return (
     <Link to={`/product/${product.id}`}>
-      <div className="group bg-card rounded-lg overflow-hidden shadow-card-custom hover:shadow-hover-street transition-all duration-300 hover:scale-105 flex-shrink-0 w-64">
+      <div className="group bg-card rounded-lg overflow-hidden shadow-card-custom hover:shadow-hover-street transition-all duration-300 hover:scale-105 flex-shrink-0 w-48 sm:w-56 md:w-64">
         {/* Image */}
         <div className="relative aspect-square overflow-hidden">
           <img
@@ -161,13 +161,13 @@ const LatestDrops = () => {
   }, [isPaused]);
 
   return (
-    <section className="py-12 px-4 bg-gradient-to-br from-background to-warm-beige/30">
+    <section className="py-8 sm:py-10 md:py-12 px-2 sm:px-4 bg-gradient-to-br from-background to-warm-beige/30">
       <div className="container mx-auto">
-        <div className="text-center mb-8">
-          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-3">
+        <div className="text-center mb-6 md:mb-8">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-2 md:mb-3">
             Latest Drops
           </h2>
-          <p className="text-lg text-muted-foreground">
+          <p className="text-base sm:text-lg text-muted-foreground px-4">
             Fresh arrivals hitting the streets right now
           </p>
         </div>
@@ -179,7 +179,7 @@ const LatestDrops = () => {
         >
           <div 
             ref={scrollContainerRef}
-            className="flex space-x-4 overflow-x-hidden"
+            className="flex space-x-3 sm:space-x-4 overflow-x-hidden"
             style={{ scrollBehavior: 'auto' }}
           >
             {infiniteProducts.map((product, idx) => (
@@ -192,13 +192,13 @@ const LatestDrops = () => {
           </div>
           
           {/* Gradient fade edges */}
-          <div className="absolute inset-y-0 left-0 w-8 bg-gradient-to-r from-background to-transparent pointer-events-none" />
-          <div className="absolute inset-y-0 right-0 w-8 bg-gradient-to-l from-background to-transparent pointer-events-none" />
+          <div className="absolute inset-y-0 left-0 w-4 sm:w-6 md:w-8 bg-gradient-to-r from-background to-transparent pointer-events-none" />
+          <div className="absolute inset-y-0 right-0 w-4 sm:w-6 md:w-8 bg-gradient-to-l from-background to-transparent pointer-events-none" />
         </div>
 
-        <div className="text-center mt-6">
-          <p className="text-sm text-muted-foreground">
-            Hover to pause • Scroll automatically
+        <div className="text-center mt-4 md:mt-6">
+          <p className="text-xs sm:text-sm text-muted-foreground">
+            <span className="hidden sm:inline">Hover to pause • </span>Scroll automatically
           </p>
         </div>
       </div>
