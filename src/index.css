@@ -6,6 +6,48 @@
 All colors MUST be HSL.
 */
 
+@keyframes gradient-move {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.animate-gradient-move {
+  background-size: 200% 200%;
+  animation: gradient-move 6s ease-in-out infinite;
+}
+
+@keyframes float-slow {
+  0% { transform: translateY(0) scale(1) rotate(-5deg); }
+  50% { transform: translateY(-30px) scale(1.05) rotate(5deg); }
+  100% { transform: translateY(0) scale(1) rotate(-5deg); }
+}
+@keyframes float-medium {
+  0% { transform: translateY(0) scale(1) rotate(3deg); }
+  50% { transform: translateY(-20px) scale(1.08) rotate(-3deg); }
+  100% { transform: translateY(0) scale(1) rotate(3deg); }
+}
+@keyframes float-fast {
+  0% { transform: translateY(0) scale(1) rotate(-8deg); }
+  50% { transform: translateY(-15px) scale(1.12) rotate(8deg); }
+  100% { transform: translateY(0) scale(1) rotate(-8deg); }
+}
+.animate-float-slow {
+  animation: float-slow 5s ease-in-out infinite;
+}
+.animate-float-medium {
+  animation: float-medium 3.5s ease-in-out infinite;
+}
+.animate-float-fast {
+  animation: float-fast 2.5s ease-in-out infinite;
+}
+
 @layer base {
   :root {
     --background: 0 0% 100%;

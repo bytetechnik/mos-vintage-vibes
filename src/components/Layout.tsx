@@ -2,11 +2,12 @@ import { Outlet } from 'react-router-dom';
 import Header from './Header';
 import Footer from './Footer';
 import AppSidebar from './AppSidebar';
+import FloatingCartButton from './FloatingCartButton';
 import { SidebarProvider } from '@/components/ui/sidebar';
 
 const Layout = () => {
   return (
-    <SidebarProvider>
+    <SidebarProvider defaultOpen={false}>
       <div className="min-h-screen flex w-full bg-background">
         <AppSidebar />
         <div className="flex-1 flex flex-col">
@@ -15,6 +16,7 @@ const Layout = () => {
             <Outlet />
           </main>
           <Footer />
+          <FloatingCartButton />
         </div>
       </div>
     </SidebarProvider>

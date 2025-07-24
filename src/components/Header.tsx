@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { ShoppingCart, User, Menu } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -9,6 +9,7 @@ import { SidebarTrigger, useSidebar } from '@/components/ui/sidebar';
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const { items } = useCart();
+  const location = useLocation();
 
   const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
 
@@ -28,41 +29,34 @@ const Header = () => {
         : 'bg-transparent'
     }`}>
       <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between h-16">
+        <div className="flex items-center justify-between h-16 relative">
           {/* Left: Hamburger menu */}
           <div className="flex items-center">
-            <SidebarTrigger className="mr-4">
-              <Menu className="w-6 h-6" />
+            <SidebarTrigger
+              className={`mr-4 transition-colors duration-300 ${isScrolled ? 'bg-white text-black' : 'bg-black text-white'}`}
+              style={{ borderRadius: '8px' }}
+            >
+              <Menu className={`w-6 h-6 transition-colors duration-300 ${isScrolled ? 'text-black' : 'text-white'}`} />
             </SidebarTrigger>
           </div>
 
           {/* Center: Logo */}
-          <div className="absolute left-1/2 transform -translate-x-1/2">
+          <div className="absolute left-1/2 transform -translate-x-1/2 z-20" style={{ bottom: '-48px' }}>
             <Link to="/" className="flex items-center">
               <img 
                 src="/logo.jpeg" 
                 alt="Mo's VintageWorld Logo" 
-                className="w-10 h-10 object-contain rounded"
+                className="w-24 h-24 object-contain shadow-lg rounded-none bg-white"
+                style={{ boxShadow: '0 4px 24px rgba(0,0,0,0.10)' }}
               />
             </Link>
           </div>
 
-          {/* Right: User and Cart */}
+          {/* Right: User only */}
           <div className="flex items-center space-x-4">
             <Link to="/login">
               <Button variant="ghost" size="icon" className="relative">
-                <User className="w-5 h-5" />
-              </Button>
-            </Link>
-
-            <Link to="/cart">
-              <Button variant="ghost" size="icon" className="relative">
-                <ShoppingCart className="w-5 h-5" />
-                {totalItems > 0 && (
-                  <Badge className="absolute -top-2 -right-2 w-5 h-5 flex items-center justify-center p-0 text-xs bg-vintage-orange">
-                    {totalItems}
-                  </Badge>
-                )}
+                <User className={`w-5 h-5 transition-colors duration-300 ${isScrolled ? 'text-black' : 'text-white'}`} />
               </Button>
             </Link>
           </div>
