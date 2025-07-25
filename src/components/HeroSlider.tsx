@@ -2,12 +2,11 @@ import { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
-import heroImage1 from '@/assets/hero-street-1.jpg';
-import heroImage2 from '@/assets/hero-street-2.jpg';
-import heroImage3 from '@/assets/hero-streetwear.jpg';
-import heroImage4 from '@/assets/product-showcase.jpg';
-import heroImage5 from '@/assets/hero-section-1.jpg';
-import heroImage6 from '@/assets/hero-section-2.jpg';
+import heroImage1 from '@/assets/heroimages/1.png';
+import heroImage2 from '@/assets/heroimages/2.png';
+import heroImage3 from '@/assets/heroimages/3.png';
+import heroImage4 from '@/assets/heroimages/4.png';
+import heroImage5 from '@/assets/heroimages/5.png';
 
 const slides = [
   {
