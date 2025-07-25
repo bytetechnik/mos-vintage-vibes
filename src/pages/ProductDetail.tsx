@@ -67,14 +67,14 @@ const ProductDetail = () => {
   const availableSizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-2 sm:px-4 py-8">
       {/* Back button */}
-      <Link to="/products" className="inline-flex items-center text-muted-foreground hover:text-vintage-orange mb-6">
+      <Link to="/products" className="inline-flex items-center text-muted-foreground hover:text-vintage-orange mb-4 sm:mb-6 text-sm sm:text-base">
         <ArrowLeft className="w-4 h-4 mr-2" />
         Back to Products
       </Link>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-12">
         {/* Product Images */}
         <div className="space-y-4">
           {/* Main image with zoom */}

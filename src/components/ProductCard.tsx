@@ -86,21 +86,21 @@ const ProductCard = ({ product, imageIndex = 0 }: ProductCardProps) => {
         </div>
 
         {/* Content */}
-        <div className="p-4">
-          <div className="mb-2">
-            <h3 className="font-semibold text-foreground group-hover:text-vintage-orange transition-colors line-clamp-2">
+        <div className="p-2 sm:p-4">
+          <div className="mb-1 sm:mb-2">
+            <h3 className="font-semibold text-foreground group-hover:text-vintage-orange transition-colors line-clamp-2 text-base sm:text-lg">
               {product.name}
             </h3>
-            <p className="text-sm text-muted-foreground">{product.brand}</p>
+            <p className="text-xs sm:text-sm text-muted-foreground">{product.brand}</p>
           </div>
 
-          <div className="flex items-center justify-between mb-2">
-            <div className="flex items-center space-x-2">
-              <span className="text-lg font-bold text-foreground">
+          <div className="flex items-center justify-between mb-1 sm:mb-2">
+            <div className="flex items-center space-x-1 sm:space-x-2">
+              <span className="text-base sm:text-lg font-bold text-foreground">
                 €{product.price.toFixed(2)}
               </span>
               {product.originalPrice && (
-                <span className="text-sm text-muted-foreground line-through">
+                <span className="text-xs sm:text-sm text-muted-foreground line-through">
                   €{product.originalPrice.toFixed(2)}
                 </span>
               )}

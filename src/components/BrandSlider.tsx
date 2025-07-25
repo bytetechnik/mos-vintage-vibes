@@ -28,19 +28,19 @@ const BrandSlider = () => {
   }, []);
 
   return (
-    <section className="py-16 bg-warm-beige">
-      <div className="container mx-auto px-4">
-        <div className="text-center mb-12">
-          <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-4">
+    <section className="py-8 sm:py-16 bg-warm-beige">
+      <div className="container mx-auto px-2 sm:px-4">
+        <div className="text-center mb-8 sm:mb-12">
+          <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground mb-2 sm:mb-4">
             Featured Brands
           </h2>
-          <p className="text-muted-foreground">
+          <p className="text-xs sm:text-base text-muted-foreground">
             Authentic pieces from the world's most iconic streetwear brands
           </p>
         </div>
 
         {/* Desktop view - all brands visible */}
-        <div className="hidden md:flex items-center justify-center space-x-12">
+        <div className="hidden md:flex items-center justify-center space-x-6 sm:space-x-12">
           {brands.map((brand) => (
             <div
               key={brand.id}
@@ -58,7 +58,7 @@ const BrandSlider = () => {
         {/* Mobile view - sliding brands */}
         <div className="md:hidden">
           <div className="flex justify-center">
-            <div className="flex items-center justify-center w-40 h-24 bg-white rounded-lg shadow-card-custom p-4">
+            <div className="flex items-center justify-center w-32 h-16 sm:w-40 sm:h-24 bg-white rounded-lg shadow-card-custom p-2 sm:p-4">
               <img 
                 src={brandLogos[brands[currentIndex].name as keyof typeof brandLogos]} 
                 alt={`${brands[currentIndex].name} logo`}

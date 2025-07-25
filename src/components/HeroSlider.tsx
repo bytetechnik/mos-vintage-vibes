@@ -95,7 +95,7 @@ const HeroSlider = () => {
   };
 
   return (
-    <div className="relative h-screen overflow-hidden -mt-16">
+    <div className="relative h-screen min-h-screen overflow-hidden -mt-16">
       {slides.map((slide, index) => (
         <div
           key={slide.id}
@@ -104,44 +104,44 @@ const HeroSlider = () => {
             index < currentSlide ? '-translate-x-full' : 'translate-x-full'
           }`}
         >
-          <div className="relative h-full">
+          <div className="relative w-full h-full min-h-screen">
             <img
               src={slide.image}
               alt={slide.title}
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover object-center"
             />
             <div className="absolute inset-0 bg-gradient-overlay" />
             {/* Content */}
             <div className="absolute inset-0 flex items-center justify-center">
-              <div className="text-center text-white max-w-4xl px-4">
+              <div className="text-center text-white max-w-4xl px-2 sm:px-4">
                 {/* Badge */}
                 {slide.badge && (
-                  <div className="mb-2 text-sm md:text-base font-semibold uppercase tracking-widest bg-vintage-orange/80 text-white inline-block px-4 py-1 rounded-full animate-fade-in">
+                  <div className="mb-2 text-xs sm:text-sm md:text-base font-semibold uppercase tracking-widest bg-vintage-orange/80 text-white inline-block px-2 sm:px-4 py-1 rounded-full animate-fade-in">
                     {slide.badge}
                   </div>
                 )}
-                <h1 className="text-4xl md:text-6xl font-bold mb-4 animate-fade-in">
+                <h1 className="text-2xl sm:text-4xl md:text-6xl font-bold mb-2 sm:mb-4 animate-fade-in">
                   {slide.title}
                 </h1>
-                <h2 className="text-xl md:text-2xl font-medium mb-6 text-vintage-orange animate-fade-in delay-100">
+                <h2 className="text-lg sm:text-xl md:text-2xl font-medium mb-4 sm:mb-6 text-vintage-orange animate-fade-in delay-100">
                   {slide.subtitle}
                 </h2>
-                <p className="text-lg md:text-xl mb-8 max-w-2xl mx-auto animate-fade-in delay-200">
+                <p className="text-base sm:text-lg md:text-xl mb-4 sm:mb-8 max-w-2xl mx-auto animate-fade-in delay-200">
                   {slide.description}
                 </p>
                 {/* Stats */}
                 {slide.stats && (
-                  <div className="flex justify-center gap-8 mb-8 animate-fade-in delay-300">
+                  <div className="flex flex-col sm:flex-row justify-center gap-4 sm:gap-8 mb-4 sm:mb-8 animate-fade-in delay-300">
                     {slide.stats.map((stat, i) => (
                       <div key={i} className="text-center">
-                        <div className="text-2xl md:text-3xl font-bold">{stat.number}</div>
-                        <div className="text-sm md:text-base opacity-80">{stat.label}</div>
+                        <div className="text-lg sm:text-2xl md:text-3xl font-bold">{stat.number}</div>
+                        <div className="text-xs sm:text-sm md:text-base opacity-80">{stat.label}</div>
                       </div>
                     ))}
                   </div>
                 )}
                 {/* Buttons */}
-                <div className="flex flex-col md:flex-row gap-4 justify-center animate-fade-in delay-400">
+                <div className="flex flex-col md:flex-row gap-2 md:gap-4 justify-center animate-fade-in delay-400">
                   {slide.primaryBtn && (
                     <Button variant="street" size="xl">
                       {slide.primaryBtn}

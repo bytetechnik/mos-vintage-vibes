@@ -5,9 +5,9 @@ import React from 'react';
 const Footer = () => {
   const year = new Date().getFullYear();
   return (
-    <footer className="bg-background text-center py-6 text-muted-foreground text-sm">
-      <div className="container mx-auto px-4 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+    <footer className="bg-background text-center py-6 text-muted-foreground text-xs sm:text-sm">
+      <div className="container mx-auto px-2 sm:px-4 py-8 sm:py-12">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 sm:gap-8">
           {/* Brand */}
           <div>
             <div className="flex items-center space-x-2 mb-4">

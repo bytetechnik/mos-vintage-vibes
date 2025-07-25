@@ -139,7 +139,7 @@ const Products = () => {
     (priceRange.min ? 1 : 0) + (priceRange.max ? 1 : 0) + (searchQuery ? 1 : 0);
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-2 sm:px-4 py-8">
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
@@ -151,7 +151,7 @@ const Products = () => {
       </div>
 
       {/* Search and Controls */}
-      <div className="flex flex-col md:flex-row gap-4 mb-6">
+      <div className="flex flex-col md:flex-row gap-2 md:gap-4 mb-6">
         <div className="flex-1">
           <Input
             type="text"
@@ -164,7 +164,7 @@ const Products = () => {
         
         <div className="flex items-center gap-2">
           <Select value={sortBy} onValueChange={setSortBy}>
-            <SelectTrigger className="w-48">
+            <SelectTrigger className="w-32 sm:w-48">
               <SelectValue placeholder="Sort by" />
             </SelectTrigger>
             <SelectContent>
@@ -209,11 +209,11 @@ const Products = () => {
         </div>
       </div>
 
-      <div className="flex gap-8">
+      <div className="flex flex-col md:flex-row gap-4 md:gap-8">
         {/* Filters Sidebar */}
         {showFilters && (
-          <div className="w-64 shrink-0">
-            <div className="bg-card p-6 rounded-lg shadow-card-custom">
+          <div className="w-full md:w-64 shrink-0 mb-4 md:mb-0">
+            <div className="bg-card p-4 md:p-6 rounded-lg shadow-card-custom">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="font-semibold">Filters</h3>
                 {activeFiltersCount > 0 && (
@@ -310,23 +310,23 @@ const Products = () => {
 
         {/* Products Grid */}
         <div className="flex-1">
-          <div className="mb-4 text-sm text-muted-foreground">
+          <div className="mb-2 sm:mb-4 text-xs sm:text-sm text-muted-foreground">
             Showing {filteredProducts.length} products
           </div>
 
           {filteredProducts.length === 0 ? (
-            <div className="text-center py-16">
-              <Filter className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-xl font-semibold mb-2">No products found</h3>
+            <div className="text-center py-8 sm:py-16">
+              <Filter className="w-12 h-12 sm:w-16 sm:h-16 text-muted-foreground mx-auto mb-4" />
+              <h3 className="text-lg sm:text-xl font-semibold mb-2">No products found</h3>
               <p className="text-muted-foreground mb-4">
                 Try adjusting your filters or search terms
               </p>
               <Button onClick={clearFilters}>Clear Filters</Button>
             </div>
           ) : (
-            <div className={`grid gap-6 ${
+            <div className={`grid gap-3 sm:gap-6 ${
               viewMode === 'grid' 
-                ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3' 
+                ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3' 
                 : 'grid-cols-1'
             }`}>
               {filteredProducts.map((product, idx) => (
