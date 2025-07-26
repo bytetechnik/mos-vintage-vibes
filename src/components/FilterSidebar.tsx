@@ -2,8 +2,10 @@ import { useState } from 'react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { ChevronDown, ChevronUp } from 'lucide-react';
+import { ChevronDown, ChevronUp, X } from 'lucide-react';
 import { ProductCategory } from '@/types/product';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Label } from '@/components/ui/label';
 
 interface FilterSidebarProps {
   selectedSizes: string[];
@@ -12,19 +14,18 @@ interface FilterSidebarProps {
   onInStockChange: (checked: boolean) => void;
   outOfStock: boolean;
   onOutOfStockChange: (checked: boolean) => void;
-  selectedCategories: ProductCategory[];
-  onCategoryChange: (category: ProductCategory, checked: boolean) => void;
-  selectedBrands: string[];
-  onBrandChange: (brand: string, checked: boolean) => void;
   selectedConditions: number[];
   onConditionChange: (condition: number, checked: boolean) => void;
   priceRange: { min: string; max: string };
   onPriceRangeChange: (range: { min: string; max: string }) => void;
-  categoryNames: Record<string, string>;
-  brands: string[];
   conditions: number[];
   activeFiltersCount: number;
   onClearFilters: () => void;
+  isMobile?: boolean;
+  onClose?: () => void;
+  isMobileOpen?: boolean;
+  sortBy?: string;
+  onSortByChange?: (value: string) => void;
 }
 
 const FilterSidebar = ({
@@ -34,30 +35,158 @@ const FilterSidebar = ({
   onInStockChange,
   outOfStock,
   onOutOfStockChange,
-  selectedCategories,
-  onCategoryChange,
-  selectedBrands,
-  onBrandChange,
   selectedConditions,
   onConditionChange,
   priceRange,
   onPriceRangeChange,
-  categoryNames,
-  brands,
   conditions,
   activeFiltersCount,
-  onClearFilters
+  onClearFilters,
+  isMobile = false,
+  onClose,
+  isMobileOpen = false,
+  sortBy = 'newest',
+  onSortByChange
 }: FilterSidebarProps) => {
   const [showMoreSizes, setShowMoreSizes] = useState(false);
 
   const sizes = [
     'XS', 'xS', 'S', 'M', 'L', 'XL', 'XXL',
-    'Damen', 'Damen L', 'Damen M'
+    'ladies', 'Women\'s L'
   ];
 
   const displayedSizes = showMoreSizes ? sizes : sizes.slice(0, 7);
 
-  return (
+  const mobileContent = (
+    <>
+      {/* Backdrop */}
+      <div 
+        className={`fixed inset-0 bg-black/50 backdrop-blur-sm z-40 transition-all duration-300 ${
+          isMobileOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
+        }`}
+        onClick={onClose}
+      />
+      
+      {/* Filter Overlay */}
+      <div className={`fixed inset-0 z-50 bg-white transition-transform duration-300 w-full max-w-full ${
+        isMobileOpen ? 'translate-x-0' : 'translate-x-full'
+      }`}>
+        {/* Header */}
+        <div className="flex items-center p-4 border-b border-gray-200">
+          <Button variant="ghost" size="icon" onClick={onClose} className="p-0">
+            <X className="w-5 h-5" />
+          </Button>
+          <h3 className="font-bold text-lg ml-4">filter</h3>
+        </div>
+
+        {/* Content */}
+        <div className="p-4 space-y-8 overflow-y-auto h-full w-full max-w-full">
+
+          {/* Sort By Section */}
+          <div className="space-y-4">
+            <div className="flex items-center">
+              <h4 className="font-bold text-black text-sm uppercase">sort by</h4>
+              <div className="flex-1 border-t border-gray-200 ml-4"></div>
+              <div className="w-1 h-1 bg-gray-400 ml-2"></div>
+            </div>
+            <RadioGroup value={sortBy} onValueChange={onSortByChange}>
+              <div className="space-y-3">
+                <div className="flex items-center space-x-3">
+                  <RadioGroupItem value="newest" id="sort-newest" />
+                  <Label htmlFor="sort-newest" className="text-sm text-black cursor-pointer">
+                    Date, new to old
+                  </Label>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <RadioGroupItem value="price-low" id="sort-price-low" />
+                  <Label htmlFor="sort-price-low" className="text-sm text-black cursor-pointer">
+                    Price, low to high
+                  </Label>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <RadioGroupItem value="price-high" id="sort-price-high" />
+                  <Label htmlFor="sort-price-high" className="text-sm text-black cursor-pointer">
+                    Price, high to low
+                  </Label>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <RadioGroupItem value="name" id="sort-name" />
+                  <Label htmlFor="sort-name" className="text-sm text-black cursor-pointer">
+                    Alphabetically, A-Z
+                  </Label>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <RadioGroupItem value="condition" id="sort-condition" />
+                  <Label htmlFor="sort-condition" className="text-sm text-black cursor-pointer">
+                    Best quality
+                  </Label>
+                </div>
+              </div>
+            </RadioGroup>
+          </div>
+
+          {/* Availability Section */}
+          <div className="space-y-4">
+            <div className="flex items-center">
+              <h4 className="font-bold text-black text-sm uppercase">availability</h4>
+              <div className="flex-1 border-t border-gray-200 ml-4"></div>
+              <div className="w-1 h-1 bg-gray-400 ml-2"></div>
+            </div>
+            <div className="space-y-3">
+              <div className="flex items-center space-x-3">
+                <Checkbox
+                  id="in-stock"
+                  checked={inStockOnly}
+                  onCheckedChange={onInStockChange}
+                  className="border-gray-300"
+                />
+                <Label htmlFor="in-stock" className="text-sm text-black cursor-pointer">
+                  In stock
+                </Label>
+              </div>
+              <div className="flex items-center space-x-3">
+                <Checkbox
+                  id="out-of-stock"
+                  checked={outOfStock}
+                  onCheckedChange={onOutOfStockChange}
+                  className="border-gray-300"
+                />
+                <Label htmlFor="out-of-stock" className="text-sm text-black cursor-pointer">
+                  Not in stock
+                </Label>
+              </div>
+            </div>
+          </div>
+
+          {/* Size Section */}
+          <div className="space-y-4">
+            <div className="flex items-center">
+              <h4 className="font-bold text-black text-sm uppercase">size</h4>
+              <div className="flex-1 border-t border-gray-200 ml-4"></div>
+              <div className="w-1 h-1 bg-gray-400 ml-2"></div>
+            </div>
+            <div className="space-y-3">
+              {sizes.map((size) => (
+                <div key={size} className="flex items-center space-x-3">
+                  <Checkbox
+                    id={`size-${size}`}
+                    checked={selectedSizes.includes(size)}
+                    onCheckedChange={(checked) => onSizeChange(size, checked as boolean)}
+                    className="border-gray-300"
+                  />
+                  <Label htmlFor={`size-${size}`} className="text-sm text-black cursor-pointer">
+                    {size}
+                  </Label>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+
+  const desktopContent = (
     <div className="w-full lg:w-64 shrink-0 bg-white p-4 rounded-lg shadow-sm border">
       {/* Header with Clear All */}
       <div className="flex items-center justify-between mb-6">
@@ -67,48 +196,6 @@ const FilterSidebar = ({
             Clear All
           </Button>
         )}
-      </div>
-
-      {/* Categories Section */}
-      <div className="mb-6">
-        <h4 className="font-semibold text-gray-900 mb-3">Categories</h4>
-        <div className="space-y-2">
-          {Object.entries(categoryNames).map(([key, name]) => (
-            <div key={key} className="flex items-center space-x-2">
-              <Checkbox
-                id={key}
-                checked={selectedCategories.includes(key as ProductCategory)}
-                onCheckedChange={(checked) => 
-                  onCategoryChange(key as ProductCategory, checked as boolean)
-                }
-              />
-              <label htmlFor={key} className="text-sm text-gray-700 cursor-pointer">
-                {name}
-              </label>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Brands Section */}
-      <div className="mb-6">
-        <h4 className="font-semibold text-gray-900 mb-3">Brands</h4>
-        <div className="space-y-2">
-          {brands.map(brand => (
-            <div key={brand} className="flex items-center space-x-2">
-              <Checkbox
-                id={`brand-${brand}`}
-                checked={selectedBrands.includes(brand)}
-                onCheckedChange={(checked) => 
-                  onBrandChange(brand, checked as boolean)
-                }
-              />
-              <label htmlFor={`brand-${brand}`} className="text-sm text-gray-700 cursor-pointer">
-                {brand}
-              </label>
-            </div>
-          ))}
-        </div>
       </div>
 
       {/* Availability Section */}
@@ -121,9 +208,9 @@ const FilterSidebar = ({
               checked={inStockOnly}
               onCheckedChange={onInStockChange}
             />
-            <label htmlFor="in-stock" className="text-sm text-gray-700 cursor-pointer">
+            <Label htmlFor="in-stock" className="text-sm text-gray-700 cursor-pointer">
               Auf Lager
-            </label>
+            </Label>
           </div>
           <div className="flex items-center space-x-2">
             <Checkbox
@@ -131,9 +218,9 @@ const FilterSidebar = ({
               checked={outOfStock}
               onCheckedChange={onOutOfStockChange}
             />
-            <label htmlFor="out-of-stock" className="text-sm text-gray-700 cursor-pointer">
+            <Label htmlFor="out-of-stock" className="text-sm text-gray-700 cursor-pointer">
               Nicht vorrätig
-            </label>
+            </Label>
           </div>
         </div>
       </div>
@@ -149,9 +236,9 @@ const FilterSidebar = ({
                 checked={selectedSizes.includes(size)}
                 onCheckedChange={(checked) => onSizeChange(size, checked as boolean)}
               />
-              <label htmlFor={`size-${size}`} className="text-sm text-gray-700 cursor-pointer">
+              <Label htmlFor={`size-${size}`} className="text-sm text-gray-700 cursor-pointer">
                 {size}
-              </label>
+              </Label>
             </div>
           ))}
         </div>
@@ -191,9 +278,9 @@ const FilterSidebar = ({
                   onConditionChange(condition, checked as boolean)
                 }
               />
-              <label htmlFor={`condition-${condition}`} className="text-sm text-gray-700 cursor-pointer">
+              <Label htmlFor={`condition-${condition}`} className="text-sm text-gray-700 cursor-pointer">
                 {condition}/10 {condition === 10 ? '(New)' : condition >= 9 ? '(Like New)' : condition >= 8 ? '(Excellent)' : '(Good)'}
-              </label>
+              </Label>
             </div>
           ))}
         </div>
@@ -219,6 +306,14 @@ const FilterSidebar = ({
       </div>
     </div>
   );
+
+  // Only render mobile content if isMobile is true
+  if (isMobile) {
+    return mobileContent;
+  }
+
+  // Return desktop content for non-mobile
+  return desktopContent;
 };
 
 export default FilterSidebar; 

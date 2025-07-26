@@ -14,27 +14,27 @@ interface NavigationMenuProps {
 const NavigationMenu = ({ isScrolled = false }: NavigationMenuProps) => {
   const location = useLocation();
   const kategorien = [
-    { name: 'TRACKPANTS', href: '/trackpants' },
-    { name: 'JACKEN', href: '/jackets' },
-    { name: 'TRACKSUITS', href: '/tracksuits' },
-    { name: 'PULLIS & HOODIES', href: '/hoodies' },
-    { name: 'SHIRTS & POLOS', href: '/shirts' },
-    { name: 'JEANS', href: '/jeans' },
-    { name: 'SHORTS', href: '/shorts' },
-    { name: 'WESTEN', href: '/vests' },
-    { name: 'SCHUHE', href: '/shoes' },
-    { name: 'ACCESSOIRES', href: '/accessories' }
+    { name: 'TRACKPANTS', href: '/products?category=trackpants-joggers' },
+    { name: 'JACKEN', href: '/products?category=jackets' },
+    { name: 'TRACKSUITS', href: '/products?category=tracksuits' },
+    { name: 'PULLIS & HOODIES', href: '/products?category=sweaters-hoodies' },
+    { name: 'SHIRTS & POLOS', href: '/products?category=shirts-polos' },
+    { name: 'JEANS', href: '/products?category=jeans' },
+    { name: 'SHORTS', href: '/products?category=trackpants-joggers' },
+    { name: 'WESTEN', href: '/products?category=jackets' },
+    { name: 'SCHUHE', href: '/products?category=accessories' },
+    { name: 'ACCESSOIRES', href: '/products?category=accessories' }
   ];
 
   const groessen = [
-    { name: 'FRAUEN', href: '/women' },
-    { name: 'KINDER', href: '/kids' },
-    { name: 'XS', href: '/xs' },
-    { name: 'S', href: '/s' },
-    { name: 'M', href: '/m' },
-    { name: 'L', href: '/l' },
-    { name: 'XL', href: '/xl' },
-    { name: 'XXL', href: '/xxl' }
+    { name: 'FRAUEN', href: '/products?size=FRAUEN' },
+    { name: 'KINDER', href: '/products?size=KINDER' },
+    { name: 'XS', href: '/products?size=XS' },
+    { name: 'S', href: '/products?size=S' },
+    { name: 'M', href: '/products?size=M' },
+    { name: 'L', href: '/products?size=L' },
+    { name: 'XL', href: '/products?size=XL' },
+    { name: 'XXL', href: '/products?size=XXL' }
   ];
 
   const textColor = location.pathname === '/' ? (isScrolled ? 'text-black' : 'text-white') : 'text-black';
@@ -56,10 +56,10 @@ const NavigationMenu = ({ isScrolled = false }: NavigationMenuProps) => {
       </Link>
       
       <Link 
-        to="/last-drop" 
+        to="/latest-drops" 
         className={`text-xs font-medium hover:text-vintage-orange transition-colors ${textColor}`}
       >
-        LETZTER DROP
+        LATEST DROPS
       </Link>
       
       <DropdownMenu>

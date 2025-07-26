@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { X, Plus, Minus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { useCart } from '@/contexts/CartContext';
 
 interface MobileSidebarProps {
@@ -12,34 +11,33 @@ interface MobileSidebarProps {
 
 const MobileSidebar = ({ isOpen, onClose }: MobileSidebarProps) => {
   const sidebarRef = useRef<HTMLDivElement>(null);
-  const { items } = useCart();
   const [expandedCategories, setExpandedCategories] = useState(false);
   const [expandedSizes, setExpandedSizes] = useState(false);
-  
-  const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
 
+  // Updated categories to match actual product categories
   const kategorien = [
-    { name: 'TRACKPANTS', href: '/trackpants' },
-    { name: 'JACKEN', href: '/jackets' },
-    { name: 'TRACKSUITS', href: '/tracksuits' },
-    { name: 'PULLIS & HOODIES', href: '/hoodies' },
-    { name: 'SHIRTS & POLOS', href: '/shirts' },
-    { name: 'JEANS', href: '/jeans' },
-    { name: 'SHORTS', href: '/shorts' },
-    { name: 'WESTEN', href: '/vests' },
-    { name: 'SCHUHE', href: '/shoes' },
-    { name: 'ACCESSOIRES', href: '/accessories' }
+    { name: 'TRACKPANTS', href: '/products?category=trackpants' },
+    { name: 'JACKEN', href: '/products?category=jackets' },
+    { name: 'TRACKSUITS', href: '/products?category=tracksuits' },
+    { name: 'PULLIS & HOODIES', href: '/products?category=hoodies' },
+    { name: 'SHIRTS & POLOS', href: '/products?category=shirts' },
+    { name: 'JEANS', href: '/products?category=jeans' },
+    { name: 'SHORTS', href: '/products?category=shorts' },
+    { name: 'WESTEN', href: '/products?category=vests' },
+    { name: 'SCHUHE', href: '/products?category=shoes' },
+    { name: 'ACCESSOIRES', href: '/products?category=accessories' }
   ];
 
+  // Updated sizes to match actual size filters
   const groessen = [
-    { name: 'FRAUEN', href: '/women' },
-    { name: 'KINDER', href: '/kids' },
-    { name: 'XS', href: '/xs' },
-    { name: 'S', href: '/s' },
-    { name: 'M', href: '/m' },
-    { name: 'L', href: '/l' },
-    { name: 'XL', href: '/xl' },
-    { name: 'XXL', href: '/xxl' }
+    { name: 'FRAUEN', href: '/products?gender=women' },
+    { name: 'KINDER', href: '/products?gender=kids' },
+    { name: 'XS', href: '/products?size=xs' },
+    { name: 'S', href: '/products?size=s' },
+    { name: 'M', href: '/products?size=m' },
+    { name: 'L', href: '/products?size=l' },
+    { name: 'XL', href: '/products?size=xl' },
+    { name: 'XXL', href: '/products?size=xxl' }
   ];
 
   // Handle escape key to close sidebar
@@ -157,7 +155,7 @@ const MobileSidebar = ({ isOpen, onClose }: MobileSidebarProps) => {
               </Link>
               
               <Link 
-                to="/available" 
+                to="/products" 
                 className="block text-lg font-semibold text-black hover:text-gray-600 transition-colors"
                 onClick={handleLinkClick}
               >
@@ -165,7 +163,7 @@ const MobileSidebar = ({ isOpen, onClose }: MobileSidebarProps) => {
               </Link>
               
               <Link 
-                to="/last-drop" 
+                to="/latest-drops" 
                 className="block text-lg font-semibold text-black hover:text-gray-600 transition-colors"
                 onClick={handleLinkClick}
               >

@@ -4,16 +4,119 @@ import { Filter, Grid, List, ChevronDown } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
 import ProductCard from '@/components/ProductCard';
 import CategoryNavigation from '@/components/CategoryNavigation';
 import FilterSidebar from '@/components/FilterSidebar';
-import { products, categoryNames } from '@/data/products';
+import { categoryNames } from '@/data/products';
 import { ProductCategory } from '@/types/product';
 
-const Products = () => {
+// Unique products for Latest Drops
+const latestDropsProducts = [
+  {
+    id: 'ld1',
+    name: 'Palace Skateboards Shell Jacket',
+    brand: 'Palace',
+    price: 210.00,
+    originalPrice: 260.00,
+    description: 'Limited edition Palace shell jacket, water-resistant and lightweight.',
+    category: 'jackets' as ProductCategory,
+    condition: { rating: 10, description: 'Completely new with tags' },
+    size: 'M',
+    color: 'Green',
+    images: [
+      'https://images.unsplash.com/photo-1512436991641-6745cdb1723f?w=500&h=640&fit=crop',
+      '/placeholder.svg',
+    ],
+    inStock: true,
+    featured: true,
+    tags: ['palace', 'skate', 'jacket'],
+    createdAt: '2024-02-01',
+  },
+  {
+    id: 'ld2',
+    name: 'Bape Shark Hoodie',
+    brand: 'Bape',
+    price: 320.00,
+    originalPrice: 400.00,
+    description: 'Iconic Bape Shark hoodie, camo print, full zip.',
+    category: 'sweaters-hoodies' as ProductCategory,
+    condition: { rating: 9, description: 'Item is in perfect condition, no signs of wear, looks like new' },
+    size: 'L',
+    color: 'Camo',
+    images: [
+      'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=500&h=640&fit=crop',
+      '/placeholder.svg',
+    ],
+    inStock: true,
+    featured: true,
+    tags: ['bape', 'shark', 'hoodie'],
+    createdAt: '2024-02-02',
+  },
+  {
+    id: 'ld3',
+    name: 'Yeezy Boost 350 V2',
+    brand: 'Adidas',
+    price: 280.00,
+    originalPrice: 350.00,
+    description: 'Adidas Yeezy Boost 350 V2, "Zebra" colorway, deadstock.',
+    category: 'accessories' as ProductCategory, // shoes is not a valid ProductCategory, using accessories as closest
+    condition: { rating: 10, description: 'Completely new with tags' },
+    size: '44',
+    color: 'White/Black',
+    images: [
+      'https://images.unsplash.com/photo-1517260911205-8c6b8b6b7c5c?w=500&h=640&fit=crop',
+      '/placeholder.svg',
+    ],
+    inStock: true,
+    featured: false,
+    tags: ['yeezy', 'adidas', 'shoes'],
+    createdAt: '2024-02-03',
+  },
+  {
+    id: 'ld4',
+    name: 'Off-White Industrial Belt',
+    brand: 'Off-White',
+    price: 120.00,
+    originalPrice: 180.00,
+    description: 'Signature yellow Off-White industrial belt, new in packaging.',
+    category: 'accessories' as ProductCategory,
+    condition: { rating: 10, description: 'Completely new with tags' },
+    size: 'One Size',
+    color: 'Yellow',
+    images: [
+      'https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?w=500&h=640&fit=crop',
+      '/placeholder.svg',
+    ],
+    inStock: true,
+    featured: false,
+    tags: ['off-white', 'belt', 'accessory'],
+    createdAt: '2024-02-04',
+  },
+  {
+    id: 'ld5',
+    name: 'Fear of God Essentials Sweatpants',
+    brand: 'Fear of God',
+    price: 140.00,
+    originalPrice: 180.00,
+    description: 'Essentials sweatpants by Fear of God, relaxed fit, sand color.',
+    category: 'trackpants-joggers' as ProductCategory,
+    condition: { rating: 9, description: 'Item is in perfect condition, no signs of wear, looks like new' },
+    size: 'M',
+    color: 'Sand',
+    images: [
+      'https://images.unsplash.com/photo-1515378791036-0648a3ef77b2?w=500&h=640&fit=crop',
+      '/placeholder.svg',
+    ],
+    inStock: true,
+    featured: true,
+    tags: ['essentials', 'fear-of-god', 'sweatpants'],
+    createdAt: '2024-02-05',
+  },
+];
+
+const LatestDrops = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
@@ -23,7 +126,6 @@ const Products = () => {
   const initialCategory = searchParams.get('category') as ProductCategory | null;
   const initialSearch = searchParams.get('search') || '';
   const initialFeatured = searchParams.get('featured') === 'true';
-  const initialSize = searchParams.get('size');
 
   // Filter states
   const [selectedCategories, setSelectedCategories] = useState<ProductCategory[]>(
@@ -31,85 +133,51 @@ const Products = () => {
   );
   const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
   const [selectedConditions, setSelectedConditions] = useState<number[]>([]);
-  const [selectedSizes, setSelectedSizes] = useState<string[]>(
-    initialSize ? [initialSize] : []
-  );
+  const [selectedSizes, setSelectedSizes] = useState<string[]>([]);
   const [inStockOnly, setInStockOnly] = useState(false);
   const [outOfStock, setOutOfStock] = useState(false);
   const [priceRange, setPriceRange] = useState({ min: '', max: '' });
   const [searchQuery, setSearchQuery] = useState(initialSearch);
   const [sortBy, setSortBy] = useState(searchParams.get('sort') || 'newest');
 
-  // Sync URL params with state
   useEffect(() => {
     const sortParam = searchParams.get('sort');
-    const categoryParam = searchParams.get('category') as ProductCategory | null;
-    const sizeParam = searchParams.get('size');
-    const genderParam = searchParams.get('gender');
-    
     if (sortParam) {
       setSortBy(sortParam);
-    }
-    
-    if (categoryParam) {
-      setSelectedCategories([categoryParam]);
-    }
-    
-    if (sizeParam) {
-      setSelectedSizes([sizeParam]);
-    }
-    
-    // Handle gender parameter (map to appropriate filter)
-    if (genderParam) {
-      // You might want to add gender filtering logic here
-      // For now, we'll just store it in the URL
     }
   }, [searchParams]);
 
   // Get unique brands and conditions
-  const brands = [...new Set(products.map(p => p.brand))];
-  const conditions = [...new Set(products.map(p => p.condition.rating))].sort((a, b) => b - a);
+  const brands = [...new Set(latestDropsProducts.map(p => p.brand))];
+  const conditions = [...new Set(latestDropsProducts.map(p => p.condition.rating))].sort((a, b) => b - a);
 
   // Filter and sort products
   const filteredProducts = useMemo(() => {
-    let filtered = products.filter(product => {
-      // Category filter
+    let filtered = latestDropsProducts.filter(product => {
       if (selectedCategories.length > 0 && !selectedCategories.includes(product.category)) {
         return false;
       }
-
-      // Brand filter
       if (selectedBrands.length > 0 && !selectedBrands.includes(product.brand)) {
         return false;
       }
-
-      // Condition filter
       if (selectedConditions.length > 0 && !selectedConditions.includes(product.condition.rating)) {
         return false;
       }
-
-      // Size filter
       if (selectedSizes.length > 0 && !selectedSizes.includes(product.size)) {
         return false;
       }
-
-      // Stock filter
       if (inStockOnly && !product.inStock) {
         return false;
       }
       if (outOfStock && product.inStock) {
         return false;
       }
-
-      // Price range filter
       if (priceRange.min && product.price < parseFloat(priceRange.min)) {
         return false;
       }
       if (priceRange.max && product.price > parseFloat(priceRange.max)) {
         return false;
       }
-
-      // Search filter
       if (searchQuery) {
         const query = searchQuery.toLowerCase();
         return (
@@ -119,16 +187,11 @@ const Products = () => {
           product.tags.some(tag => tag.toLowerCase().includes(query))
         );
       }
-
-      // Featured filter
       if (initialFeatured) {
         return product.featured;
       }
-
       return true;
     });
-
-    // Sort products
     switch (sortBy) {
       case 'price-low':
         filtered.sort((a, b) => a.price - b.price);
@@ -147,29 +210,14 @@ const Products = () => {
         filtered.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
         break;
     }
-
     return filtered;
   }, [selectedCategories, selectedBrands, selectedConditions, selectedSizes, inStockOnly, outOfStock, priceRange, searchQuery, sortBy, initialFeatured]);
 
   const handleCategoryChange = (category: ProductCategory, checked: boolean) => {
     if (checked) {
-      const newCategories = [...selectedCategories, category];
-      setSelectedCategories(newCategories);
-      // Update URL params
-      const params = new URLSearchParams(searchParams);
-      params.set('category', category);
-      setSearchParams(params);
+      setSelectedCategories([...selectedCategories, category]);
     } else {
-      const newCategories = selectedCategories.filter(c => c !== category);
-      setSelectedCategories(newCategories);
-      // Update URL params
-      const params = new URLSearchParams(searchParams);
-      if (newCategories.length === 0) {
-        params.delete('category');
-      } else {
-        params.set('category', newCategories[0]);
-      }
-      setSearchParams(params);
+      setSelectedCategories(selectedCategories.filter(c => c !== category));
     }
   };
 
@@ -191,23 +239,9 @@ const Products = () => {
 
   const handleSizeChange = (size: string, checked: boolean) => {
     if (checked) {
-      const newSizes = [...selectedSizes, size];
-      setSelectedSizes(newSizes);
-      // Update URL params
-      const params = new URLSearchParams(searchParams);
-      params.set('size', size);
-      setSearchParams(params);
+      setSelectedSizes([...selectedSizes, size]);
     } else {
-      const newSizes = selectedSizes.filter(s => s !== size);
-      setSelectedSizes(newSizes);
-      // Update URL params
-      const params = new URLSearchParams(searchParams);
-      if (newSizes.length === 0) {
-        params.delete('size');
-      } else {
-        params.set('size', newSizes[0]);
-      }
-      setSearchParams(params);
+      setSelectedSizes(selectedSizes.filter(s => s !== size));
     }
   };
 
@@ -241,10 +275,10 @@ const Products = () => {
       {/* Header */}
       <div className="mb-6">
         <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-4">
-          {initialCategory ? categoryNames[initialCategory] : 'All Products'}
+          {initialCategory ? categoryNames[initialCategory] : 'Latest Drops'}
         </h1>
         <p className="text-muted-foreground text-sm sm:text-base">
-          Discover our curated collection of vintage and contemporary streetwear
+          Check out the freshest arrivals and exclusive drops!
         </p>
       </div>
 
@@ -256,41 +290,11 @@ const Products = () => {
         <div className="flex-1">
           <Input
             type="text"
-            placeholder="Search products..."
+            placeholder="Search latest drops..."
             value={searchQuery}
-            onChange={(e) => {
-              const query = e.target.value;
-              setSearchQuery(query);
-              // Update URL params
-              const params = new URLSearchParams(searchParams);
-              if (query) {
-                params.set('search', query);
-              } else {
-                params.delete('search');
-              }
-              setSearchParams(params);
-            }}
+            onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full"
           />
-        </div>
-      </div>
-
-      {/* Sort Dropdown (Desktop Only) */}
-      <div className="flex justify-end mb-4">
-        <div className="flex items-center gap-2">
-          <span className="text-sm font-medium text-gray-700 hidden sm:inline">Sortieren nach</span>
-          <Select value={sortBy} onValueChange={handleSortByChange}>
-            <SelectTrigger className="w-32 border-0 bg-transparent p-0 h-auto">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="newest">Neueste</SelectItem>
-              <SelectItem value="price-low">Preis: Niedrig zu Hoch</SelectItem>
-              <SelectItem value="price-high">Preis: Hoch zu Niedrig</SelectItem>
-              <SelectItem value="name">Name A-Z</SelectItem>
-              <SelectItem value="condition">Beste Qualität</SelectItem>
-            </SelectContent>
-          </Select>
         </div>
       </div>
 
@@ -331,11 +335,10 @@ const Products = () => {
             </div>
           )}
 
-          {/* Products Grid */}
           {filteredProducts.length === 0 ? (
             <div className="text-center py-8 sm:py-16">
               <Filter className="w-12 h-12 sm:w-16 sm:h-16 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-lg sm:text-xl font-semibold mb-2">No products found</h3>
+              <h3 className="text-lg sm:text-xl font-semibold mb-2">No drops found</h3>
               <p className="text-muted-foreground mb-4">
                 Try adjusting your filters or search terms
               </p>
@@ -382,4 +385,4 @@ const Products = () => {
   );
 };
 
-export default Products;
+export default LatestDrops; 

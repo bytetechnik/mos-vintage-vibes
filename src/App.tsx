@@ -21,6 +21,9 @@ import heroStreetwear from './assets/hero-streetwear.jpg';
 import productShowcase from './assets/product-showcase.jpg';
 import heroSection1 from './assets/hero-section-1.jpg';
 import heroSection2 from './assets/hero-section-2.jpg';
+import LatestDrops from "./pages/LatestDrops";
+import Archiv from "./pages/Archiv";
+import GiftCards from "./pages/GiftCards";
 
 const queryClient = new QueryClient();
 
@@ -44,13 +47,13 @@ function SplashScreen() {
         backgroundImage: 'repeating-linear-gradient(135deg, rgba(255,255,255,0.04) 0 2px, transparent 2px 40px)',
         opacity: 0.5
       }} />
-      {/* Logo with glow, square */}
+      {/* Logo */}
       <img 
         src="/logo.jpeg" 
         alt="Mo's VintageWorld Logo" 
         className="w-40 h-40 z-10 animate-fade-in shadow-2xl object-contain"
         style={{
-          filter: 'drop-shadow(0 0 32px #ff914d) drop-shadow(0 4px 24px rgba(0,0,0,0.20))',
+          filter: 'drop-shadow(0 4px 24px rgba(0,0,0,0.20))',
           background: 'rgba(255,255,255,0.10)',
           borderRadius: '0.75rem'
         }}
@@ -77,6 +80,9 @@ const App = () => (
               <Route path="login" element={<Login />} />
               <Route path="dashboard" element={<Dashboard />} />
               <Route path="order-confirmation" element={<OrderConfirmation />} />
+              <Route path="latest-drops" element={<LatestDrops />} />
+              <Route path="archive" element={<Archiv />} />
+              <Route path="gift-cards" element={<GiftCards />} />
               <Route path="*" element={<NotFound />} />
             </Route>
           </Routes>

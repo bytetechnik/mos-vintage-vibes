@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { ShoppingCart, User, Menu, X } from 'lucide-react';
+import { ShoppingCart, User, Menu, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { useCart } from '@/contexts/CartContext';
 import NavigationMenu from './NavigationMenu';
 import MobileSidebar from './MobileSidebar';
@@ -12,8 +11,6 @@ const Header = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { items } = useCart();
   const location = useLocation();
-
-  const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -86,11 +83,17 @@ const Header = () => {
             </Link>
           </div>
 
-          {/* Right: User only */}
-          <div className="flex items-center justify-end flex-1">
-            <Link to="/login">
+          {/* Right: Search and Cart */}
+          <div className="flex items-center justify-end flex-1 space-x-2">
+            {/* Search Button */}
+            <Button variant="ghost" size="icon" className="relative">
+              <Search className={`w-5 h-5 transition-colors duration-300 ${location.pathname === '/' ? (isScrolled ? 'text-black' : 'text-white') : 'text-black'}`} />
+            </Button>
+            
+            {/* Cart Button */}
+            <Link to="/cart">
               <Button variant="ghost" size="icon" className="relative">
-                <User className={`w-5 h-5 transition-colors duration-300 ${location.pathname === '/' ? (isScrolled ? 'text-black' : 'text-white') : 'text-black'}`} />
+                <ShoppingCart className={`w-5 h-5 transition-colors duration-300 ${location.pathname === '/' ? (isScrolled ? 'text-black' : 'text-white') : 'text-black'}`} />
               </Button>
             </Link>
           </div>
