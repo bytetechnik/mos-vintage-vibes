@@ -271,7 +271,7 @@ const LatestDrops = () => {
     (priceRange.min ? 1 : 0) + (priceRange.max ? 1 : 0) + (searchQuery ? 1 : 0);
 
   return (
-    <div className="w-full px-4 sm:px-6 lg:px-8 py-6 mt-12">
+    <div className="w-full max-w-full overflow-x-hidden px-2 sm:px-4 lg:px-8 py-6 mt-12">
       {/* Header */}
       <div className="mb-6">
         <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-4">
@@ -298,7 +298,7 @@ const LatestDrops = () => {
         </div>
       </div>
 
-      <div className="flex flex-col lg:flex-row gap-3 md:gap-6">
+      <div className="flex flex-col lg:flex-row gap-2 md:gap-6 w-full max-w-full">
         {/* Left Sidebar Filters - Only show on desktop */}
         {!isMobile && (
           <FilterSidebar
@@ -320,7 +320,7 @@ const LatestDrops = () => {
         )}
 
         {/* Products Grid */}
-        <div className="flex-1 w-full min-w-0">
+        <div className="flex-1 w-full max-w-full min-w-0 overflow-hidden">
           {/* Mobile Filter Button - Top right of products section */}
           {isMobile && (
             <div className="flex justify-end mb-4">
@@ -345,10 +345,10 @@ const LatestDrops = () => {
               <Button onClick={clearFilters}>Clear Filters</Button>
             </div>
           ) : (
-            <div className={`grid gap-2 sm:gap-3 md:gap-4 ${
+            <div className={`w-full max-w-full grid ${
               viewMode === 'grid' 
-                ? 'grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4' 
-                : 'grid-cols-1'
+                ? 'grid-cols-2 gap-1 sm:gap-2 md:gap-3 lg:gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4' 
+                : 'grid-cols-1 gap-2'
             }`}>
               {filteredProducts.map((product, idx) => (
                 <ProductCard key={product.id} product={product} imageIndex={idx} />
