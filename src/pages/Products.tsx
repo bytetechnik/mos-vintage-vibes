@@ -1,18 +1,19 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Filter, SlidersHorizontal, Grid, List } from 'lucide-react';
+import { Filter, Grid, List } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
 import ProductCard from '@/components/ProductCard';
+import CategoryNavigation from '@/components/CategoryNavigation';
+import FilterSidebar from '@/components/FilterSidebar';
 import { products, categoryNames } from '@/data/products';
 import { ProductCategory } from '@/types/product';
 
 const Products = () => {
   const [searchParams, setSearchParams] = useSearchParams();
-  const [showFilters, setShowFilters] = useState(false);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
 
   // Get initial values from URL params
@@ -26,9 +27,20 @@ const Products = () => {
   );
   const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
   const [selectedConditions, setSelectedConditions] = useState<number[]>([]);
+  const [selectedSizes, setSelectedSizes] = useState<string[]>([]);
+  const [inStockOnly, setInStockOnly] = useState(false);
+  const [outOfStock, setOutOfStock] = useState(false);
   const [priceRange, setPriceRange] = useState({ min: '', max: '' });
   const [searchQuery, setSearchQuery] = useState(initialSearch);
-  const [sortBy, setSortBy] = useState('newest');
+  const [sortBy, setSortBy] = useState(searchParams.get('sort') || 'newest');
+
+  // Sync sortBy with URL params
+  useEffect(() => {
+    const sortParam = searchParams.get('sort');
+    if (sortParam) {
+      setSortBy(sortParam);
+    }
+  }, [searchParams]);
 
   // Get unique brands and conditions
   const brands = [...new Set(products.map(p => p.brand))];
@@ -49,6 +61,19 @@ const Products = () => {
 
       // Condition filter
       if (selectedConditions.length > 0 && !selectedConditions.includes(product.condition.rating)) {
+        return false;
+      }
+
+      // Size filter
+      if (selectedSizes.length > 0 && !selectedSizes.includes(product.size)) {
+        return false;
+      }
+
+      // Stock filter
+      if (inStockOnly && !product.inStock) {
+        return false;
+      }
+      if (outOfStock && product.inStock) {
         return false;
       }
 
@@ -100,7 +125,7 @@ const Products = () => {
     }
 
     return filtered;
-  }, [selectedCategories, selectedBrands, selectedConditions, priceRange, searchQuery, sortBy, initialFeatured]);
+  }, [selectedCategories, selectedBrands, selectedConditions, selectedSizes, inStockOnly, outOfStock, priceRange, searchQuery, sortBy, initialFeatured]);
 
   const handleCategoryChange = (category: ProductCategory, checked: boolean) => {
     if (checked) {
@@ -126,20 +151,32 @@ const Products = () => {
     }
   };
 
+  const handleSizeChange = (size: string, checked: boolean) => {
+    if (checked) {
+      setSelectedSizes([...selectedSizes, size]);
+    } else {
+      setSelectedSizes(selectedSizes.filter(s => s !== size));
+    }
+  };
+
   const clearFilters = () => {
     setSelectedCategories([]);
     setSelectedBrands([]);
     setSelectedConditions([]);
+    setSelectedSizes([]);
+    setInStockOnly(false);
+    setOutOfStock(false);
     setPriceRange({ min: '', max: '' });
     setSearchQuery('');
     setSearchParams({});
   };
 
   const activeFiltersCount = selectedCategories.length + selectedBrands.length + selectedConditions.length + 
+    selectedSizes.length + (inStockOnly ? 1 : 0) + (outOfStock ? 1 : 0) +
     (priceRange.min ? 1 : 0) + (priceRange.max ? 1 : 0) + (searchQuery ? 1 : 0);
 
   return (
-    <div className="container mx-auto px-2 sm:px-4 py-8">
+    <div className="container mx-auto px-2 sm:px-4 py-8 max-w-7xl">
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
@@ -150,7 +187,10 @@ const Products = () => {
         </p>
       </div>
 
-      {/* Search and Controls */}
+      {/* Category Navigation */}
+      <CategoryNavigation totalProducts={filteredProducts.length} />
+
+      {/* Search and Additional Controls */}
       <div className="flex flex-col md:flex-row gap-2 md:gap-4 mb-6">
         <div className="flex-1">
           <Input
@@ -163,33 +203,6 @@ const Products = () => {
         </div>
         
         <div className="flex items-center gap-2">
-          <Select value={sortBy} onValueChange={setSortBy}>
-            <SelectTrigger className="w-32 sm:w-48">
-              <SelectValue placeholder="Sort by" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="newest">Newest First</SelectItem>
-              <SelectItem value="price-low">Price: Low to High</SelectItem>
-              <SelectItem value="price-high">Price: High to Low</SelectItem>
-              <SelectItem value="name">Name A-Z</SelectItem>
-              <SelectItem value="condition">Best Condition</SelectItem>
-            </SelectContent>
-          </Select>
-
-          <Button
-            variant="outline"
-            onClick={() => setShowFilters(!showFilters)}
-            className="flex items-center gap-2"
-          >
-            <SlidersHorizontal className="w-4 h-4" />
-            Filters
-            {activeFiltersCount > 0 && (
-              <Badge variant="default" className="ml-1">
-                {activeFiltersCount}
-              </Badge>
-            )}
-          </Button>
-
           <div className="flex border rounded-md">
             <Button
               variant={viewMode === 'grid' ? 'default' : 'ghost'}
@@ -209,107 +222,32 @@ const Products = () => {
         </div>
       </div>
 
-      <div className="flex flex-col md:flex-row gap-4 md:gap-8">
-        {/* Filters Sidebar */}
-        {showFilters && (
-          <div className="w-full md:w-64 shrink-0 mb-4 md:mb-0">
-            <div className="bg-card p-4 md:p-6 rounded-lg shadow-card-custom">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="font-semibold">Filters</h3>
-                {activeFiltersCount > 0 && (
-                  <Button variant="ghost" size="sm" onClick={clearFilters}>
-                    Clear All
-                  </Button>
-                )}
-              </div>
-
-              {/* Categories */}
-              <div className="mb-6">
-                <h4 className="font-medium mb-3">Categories</h4>
-                <div className="space-y-2">
-                  {Object.entries(categoryNames).map(([key, name]) => (
-                    <div key={key} className="flex items-center space-x-2">
-                      <Checkbox
-                        id={key}
-                        checked={selectedCategories.includes(key as ProductCategory)}
-                        onCheckedChange={(checked) => 
-                          handleCategoryChange(key as ProductCategory, checked as boolean)
-                        }
-                      />
-                      <label htmlFor={key} className="text-sm cursor-pointer">
-                        {name}
-                      </label>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Brands */}
-              <div className="mb-6">
-                <h4 className="font-medium mb-3">Brands</h4>
-                <div className="space-y-2">
-                  {brands.map(brand => (
-                    <div key={brand} className="flex items-center space-x-2">
-                      <Checkbox
-                        id={`brand-${brand}`}
-                        checked={selectedBrands.includes(brand)}
-                        onCheckedChange={(checked) => 
-                          handleBrandChange(brand, checked as boolean)
-                        }
-                      />
-                      <label htmlFor={`brand-${brand}`} className="text-sm cursor-pointer">
-                        {brand}
-                      </label>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Condition */}
-              <div className="mb-6">
-                <h4 className="font-medium mb-3">Condition</h4>
-                <div className="space-y-2">
-                  {conditions.map(condition => (
-                    <div key={condition} className="flex items-center space-x-2">
-                      <Checkbox
-                        id={`condition-${condition}`}
-                        checked={selectedConditions.includes(condition)}
-                        onCheckedChange={(checked) => 
-                          handleConditionChange(condition, checked as boolean)
-                        }
-                      />
-                      <label htmlFor={`condition-${condition}`} className="text-sm cursor-pointer">
-                        {condition}/10 {condition === 10 ? '(New)' : condition >= 9 ? '(Like New)' : condition >= 8 ? '(Excellent)' : '(Good)'}
-                      </label>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Price Range */}
-              <div>
-                <h4 className="font-medium mb-3">Price Range</h4>
-                <div className="flex gap-2">
-                  <Input
-                    type="number"
-                    placeholder="Min"
-                    value={priceRange.min}
-                    onChange={(e) => setPriceRange({ ...priceRange, min: e.target.value })}
-                  />
-                  <Input
-                    type="number"
-                    placeholder="Max"
-                    value={priceRange.max}
-                    onChange={(e) => setPriceRange({ ...priceRange, max: e.target.value })}
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
+      <div className="flex flex-col lg:flex-row gap-4 md:gap-8">
+        {/* Left Sidebar Filters */}
+        <FilterSidebar
+          selectedSizes={selectedSizes}
+          onSizeChange={handleSizeChange}
+          inStockOnly={inStockOnly}
+          onInStockChange={setInStockOnly}
+          outOfStock={outOfStock}
+          onOutOfStockChange={setOutOfStock}
+          selectedCategories={selectedCategories}
+          onCategoryChange={handleCategoryChange}
+          selectedBrands={selectedBrands}
+          onBrandChange={handleBrandChange}
+          selectedConditions={selectedConditions}
+          onConditionChange={handleConditionChange}
+          priceRange={priceRange}
+          onPriceRangeChange={setPriceRange}
+          categoryNames={categoryNames}
+          brands={brands}
+          conditions={conditions}
+          activeFiltersCount={activeFiltersCount}
+          onClearFilters={clearFilters}
+        />
 
         {/* Products Grid */}
-        <div className="flex-1">
+        <div className="flex-1 min-w-0">
           <div className="mb-2 sm:mb-4 text-xs sm:text-sm text-muted-foreground">
             Showing {filteredProducts.length} products
           </div>

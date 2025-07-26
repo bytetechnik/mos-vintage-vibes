@@ -1,13 +1,15 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { ShoppingCart, User, Menu } from 'lucide-react';
+import { ShoppingCart, User, Menu, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useCart } from '@/contexts/CartContext';
-import { SidebarTrigger, useSidebar } from '@/components/ui/sidebar';
+import NavigationMenu from './NavigationMenu';
+import MobileSidebar from './MobileSidebar';
 
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { items } = useCart();
   const location = useLocation();
 
@@ -22,38 +24,70 @@ const Header = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // Prevent body scroll when sidebar is open
+  useEffect(() => {
+    if (isMobileMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isMobileMenuOpen]);
+
   return (
-    <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-      isScrolled 
-        ? 'bg-background/95 backdrop-blur-md border-b border-border' 
-        : 'bg-transparent'
-    }`}>
-      <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between h-16 relative">
-          {/* Left: Hamburger menu */}
-          <div className="flex items-center">
-            <SidebarTrigger
-              className={`mr-4 transition-colors duration-300 ${isScrolled ? 'bg-white text-black' : 'bg-black text-white'}`}
-              style={{ borderRadius: '8px' }}
+    <>
+      {/* Announcement Bar */}
+      <div className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+        isScrolled 
+          ? 'bg-background/95 backdrop-blur-md border-b border-border' 
+          : 'bg-white border-b border-gray-200'
+      }`}>
+        <div className="flex items-center justify-center h-10 px-4">
+          <p className={`text-sm font-medium transition-colors duration-300 ${
+            isScrolled ? 'text-foreground' : 'text-gray-900'
+          }`}>
+            KOSTENLOSER VERSAND FÜR BESTELLUNGEN &gt; 150€!
+          </p>
+        </div>
+      </div>
+
+      <header className={`fixed top-10 left-0 right-0 z-40 transition-all duration-300 ${
+        isScrolled 
+          ? 'bg-background/95 backdrop-blur-md border-b border-border' 
+          : 'bg-transparent'
+      }`}>
+        <div className="flex items-center h-16 px-4">
+          {/* Left: Navigation Menu */}
+          <div className="flex items-center flex-1">
+            <NavigationMenu isScrolled={isScrolled} />
+            
+            {/* Mobile Menu Button */}
+            <Button
+              variant="ghost"
+              size="icon"
+              className="md:hidden ml-4"
+              onClick={() => setIsMobileMenuOpen(true)}
             >
-              <Menu className={`w-6 h-6 transition-colors duration-300 ${isScrolled ? 'text-black' : 'text-white'}`} />
-            </SidebarTrigger>
+              <Menu className={`w-6 h-6 transition-colors duration-300 ${location.pathname === '/' ? (isScrolled ? 'text-black' : 'text-white') : 'text-black'}`} />
+            </Button>
           </div>
 
           {/* Center: Logo */}
-          <div className="absolute left-1/2 transform -translate-x-1/2 z-20 md:bottom-[-48px] sm:bottom-[-40px] bottom-[-56px]" style={{}}>
+          <div className="flex items-center justify-center flex-1">
             <Link to="/" className="flex items-center">
               <img 
                 src="/logo.jpeg" 
                 alt="Mo's VintageWorld Logo" 
-                className="w-24 h-24 md:w-24 md:h-24 sm:w-16 sm:h-16 w-12 h-12 object-contain shadow-lg rounded-none bg-white"
-                style={{ boxShadow: '0 4px 24px rgba(0,0,0,0.10)' }}
+                className="w-12 h-12 md:w-14 md:h-14 sm:w-10 sm:h-10 object-contain"
               />
             </Link>
           </div>
 
           {/* Right: User only */}
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center justify-end flex-1">
             <Link to="/login">
               <Button variant="ghost" size="icon" className="relative">
                 <User className={`w-5 h-5 transition-colors duration-300 ${location.pathname === '/' ? (isScrolled ? 'text-black' : 'text-white') : 'text-black'}`} />
@@ -61,8 +95,14 @@ const Header = () => {
             </Link>
           </div>
         </div>
-      </div>
-    </header>
+      </header>
+
+      {/* Mobile Sidebar */}
+      <MobileSidebar 
+        isOpen={isMobileMenuOpen} 
+        onClose={() => setIsMobileMenuOpen(false)} 
+      />
+    </>
   );
 };
 
