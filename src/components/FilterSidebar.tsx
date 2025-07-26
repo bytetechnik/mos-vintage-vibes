@@ -61,26 +61,26 @@ const FilterSidebar = ({
     <>
       {/* Backdrop */}
       <div 
-        className={`fixed inset-0 bg-black/50 backdrop-blur-sm z-40 transition-all duration-300 ${
-          isMobileOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
+        className={`fixed inset-0 bg-black/50 backdrop-blur-sm transition-all duration-300 ${
+          isMobileOpen ? 'opacity-100 z-40' : 'opacity-0 pointer-events-none -z-10'
         }`}
         onClick={onClose}
       />
       
       {/* Filter Overlay */}
-      <div className={`fixed inset-0 z-50 bg-white transition-transform duration-300 w-full max-w-full ${
-        isMobileOpen ? 'translate-x-0' : 'translate-x-full'
+      <div className={`fixed top-0 right-0 h-full w-full bg-white transition-transform duration-300 ${
+        isMobileOpen ? 'translate-x-0 z-50' : 'translate-x-full -z-10'
       }`}>
         {/* Header */}
-        <div className="flex items-center p-4 border-b border-gray-200">
-          <Button variant="ghost" size="icon" onClick={onClose} className="p-0">
+        <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-white">
+          <h3 className="font-bold text-lg">Filter</h3>
+          <Button variant="ghost" size="icon" onClick={onClose} className="p-2">
             <X className="w-5 h-5" />
           </Button>
-          <h3 className="font-bold text-lg ml-4">filter</h3>
         </div>
 
         {/* Content */}
-        <div className="p-4 space-y-8 overflow-y-auto h-full w-full max-w-full">
+        <div className="p-4 space-y-6 overflow-y-auto" style={{ height: 'calc(100vh - 80px)' }}>
 
           {/* Sort By Section */}
           <div className="space-y-4">
