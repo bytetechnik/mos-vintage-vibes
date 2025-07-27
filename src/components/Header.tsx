@@ -100,8 +100,8 @@ const Header = () => {
           ? 'bg-background/95 backdrop-blur-md border-b border-border' 
           : 'bg-white border-b border-gray-200'
       }`}>
-        <div className="flex items-center justify-center h-10 px-4">
-          <p className={`text-sm font-medium transition-colors duration-300 ${
+        <div className="flex items-center justify-center h-8 sm:h-10 px-2 sm:px-4">
+          <p className={`text-xs sm:text-sm font-medium transition-colors duration-300 whitespace-nowrap overflow-hidden text-ellipsis ${
             isScrolled ? 'text-foreground' : 'text-gray-900'
           }`}>
             KOSTENLOSER VERSAND FÜR BESTELLUNGEN &gt; 150€!
@@ -109,7 +109,7 @@ const Header = () => {
         </div>
       </div>
 
-      <header className={`fixed top-10 left-0 right-0 z-40 transition-all duration-300 ${
+      <header className={`fixed top-8 sm:top-10 left-0 right-0 z-40 transition-all duration-300 ${
         isScrolled 
           ? 'bg-background/95 backdrop-blur-md border-b border-border' 
           : 'bg-transparent'
