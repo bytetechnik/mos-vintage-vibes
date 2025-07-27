@@ -1,7 +1,6 @@
 import { Outlet } from 'react-router-dom';
 import Header from './Header';
 import Footer from './Footer';
-import FloatingCartButton from './FloatingCartButton';
 
 const Layout = () => {
   return (
@@ -12,7 +11,6 @@ const Layout = () => {
           <Outlet />
         </main>
         <Footer />
-        <FloatingCartButton />
       </div>
     </div>
   );

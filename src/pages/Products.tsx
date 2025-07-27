@@ -45,6 +45,7 @@ const Products = () => {
     const sortParam = searchParams.get('sort');
     const categoryParam = searchParams.get('category') as ProductCategory | null;
     const sizeParam = searchParams.get('size');
+    const searchParam = searchParams.get('search');
     const genderParam = searchParams.get('gender');
     
     if (sortParam) {
@@ -57,6 +58,10 @@ const Products = () => {
     
     if (sizeParam) {
       setSelectedSizes([sizeParam]);
+    }
+    
+    if (searchParam !== null) {
+      setSearchQuery(searchParam);
     }
     
     // Handle gender parameter (map to appropriate filter)

@@ -35,7 +35,7 @@ const Footer = () => {
           <div className="flex flex-col items-center md:items-start">
             <div className="flex items-center space-x-2 mb-4">
               <img src="/logo.jpeg" alt="Mo's VintageWorld Logo" className="w-8 h-8 object-contain rounded" />
-              <span className="text-xl font-bold">Mo's VintageWorld</span>
+              <span className="text-xl font-bold">Mo's Vintageworld</span>
             </div>
             <p className="text-urban-gray mb-4 max-w-xs">
               Your destination for authentic vintage streetwear and contemporary urban fashion.

@@ -112,15 +112,15 @@ const MobileSidebar = ({ isOpen, onClose }: MobileSidebarProps) => {
       {/* Sidebar */}
       <div 
         ref={sidebarRef}
-        className={`fixed top-0 left-0 h-full w-80 max-w-[85vw] bg-white shadow-2xl z-50 transform transition-all duration-300 ease-out ${
+        className={`fixed top-0 left-0 h-screen w-80 max-w-[85vw] bg-white shadow-2xl z-50 transform transition-all duration-300 ease-out flex flex-col ${
           isOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
         style={{
           boxShadow: isOpen ? '0 0 40px rgba(0,0,0,0.3)' : 'none'
         }}
       >
-        {/* Header with Logo */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-100">
+        {/* Header with Logo - Fixed at top */}
+        <div className="flex items-center justify-between p-6 border-b border-gray-100 flex-shrink-0">
           <div className="flex-1"></div>
           <div className="flex items-center justify-center flex-1">
             <img 
@@ -141,8 +141,8 @@ const MobileSidebar = ({ isOpen, onClose }: MobileSidebarProps) => {
           </div>
         </div>
 
-        {/* Navigation Menu */}
-        <div className="flex-1 overflow-y-auto">
+        {/* Navigation Menu - Scrollable content */}
+        <div className="flex-1 overflow-y-auto overflow-x-hidden">
           <nav className="p-6 space-y-6">
             {/* Main Navigation */}
             <div className="space-y-4">
