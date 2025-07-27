@@ -128,11 +128,31 @@ const CategoryNavigation = ({ totalProducts }: CategoryNavigationProps) => {
                 rounded-full flex items-center justify-center border-3 transition-all duration-200
                 w-16 h-16 sm:w-18 sm:h-18 md:w-20 md:h-20
                 ${currentCategory === category.key 
-                  ? 'border-orange-400 shadow-lg scale-105' 
-                  : 'border-orange-300 hover:border-orange-400'
+                  ? 'shadow-lg scale-105' 
+                  : 'hover:scale-105'
                 }
                 shadow-sm hover:shadow-md
-              `}>
+              `}
+              style={{
+                background: currentCategory === category.key 
+                  ? 'linear-gradient(135deg, #baf4ff 0%, #87d3ff 50%, #5bb8ff 100%)'
+                  : 'linear-gradient(135deg, #e6f9ff 0%, #baf4ff 50%, #87d3ff 100%)',
+                border: '3px solid transparent',
+                backgroundClip: 'padding-box',
+                position: 'relative'
+              }}>
+                <div 
+                  className="absolute inset-0 rounded-full"
+                  style={{
+                    background: currentCategory === category.key 
+                      ? 'linear-gradient(135deg, #baf4ff 0%, #87d3ff 50%, #5bb8ff 100%)'
+                      : 'linear-gradient(135deg, #e6f9ff 0%, #baf4ff 50%, #87d3ff 100%)',
+                    mask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
+                    maskComposite: 'exclude',
+                    WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
+                    WebkitMaskComposite: 'xor'
+                  }}
+                />
                 <img 
                   src={category.icon} 
                   alt={category.label} 
