@@ -1,7 +1,11 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Star } from 'lucide-react';
+import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext } from './ui/carousel';
 
 const ReviewSection = () => {
+  const [api, setApi] = useState<any>(null);
+  const [current, setCurrent] = useState(0);
+
   const reviews = [
     {
       id: 1,
@@ -53,6 +57,31 @@ const ReviewSection = () => {
     }
   ];
 
+  useEffect(() => {
+    if (!api) {
+      return;
+    }
+
+    api.on("select", () => {
+      setCurrent(api.selectedScrollSnap());
+    });
+  }, [api]);
+
+  // Auto-slide functionality
+  useEffect(() => {
+    if (!api) return;
+
+    const interval = setInterval(() => {
+      api.scrollNext();
+    }, 4000); // Change slide every 4 seconds
+
+    return () => clearInterval(interval);
+  }, [api]);
+
+  const scrollTo = (index: number) => {
+    api?.scrollTo(index);
+  };
+
   const renderStars = (rating: number) => {
     return Array.from({ length: 5 }, (_, i) => (
       <Star
@@ -76,28 +105,57 @@ const ReviewSection = () => {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 max-w-6xl mx-auto">
-          {reviews.map((review) => (
-            <div key={review.id} className="bg-gray-50 rounded-lg p-4 md:p-6 shadow-sm hover:shadow-md transition-shadow">
-              <div className="mb-3 md:mb-4">
-                <h4 className="font-semibold text-gray-900 text-sm md:text-base">{review.name}</h4>
-                <p className="text-xs md:text-sm text-gray-600">{review.location}</p>
-              </div>
+        <div className="relative">
+          <Carousel
+            setApi={setApi}
+            className="w-full"
+            opts={{
+              align: "start",
+              loop: true,
+            }}
+          >
+            <CarouselContent className="-ml-2 md:-ml-4">
+              {reviews.map((review) => (
+                <CarouselItem key={review.id} className="pl-2 md:pl-4 basis-full md:basis-1/2 lg:basis-1/3">
+                  <div className="bg-gray-50 rounded-lg p-4 md:p-6 shadow-sm hover:shadow-md transition-shadow h-full">
+                    <div className="mb-3 md:mb-4">
+                      <h4 className="font-semibold text-gray-900 text-sm md:text-base">{review.name}</h4>
+                      <p className="text-xs md:text-sm text-gray-600">{review.location}</p>
+                    </div>
 
-              <div className="flex items-center mb-2 md:mb-3">
-                {renderStars(review.rating)}
-                <span className="ml-2 text-xs md:text-sm text-gray-600">({review.rating}/5)</span>
-              </div>
+                    <div className="flex items-center mb-2 md:mb-3">
+                      {renderStars(review.rating)}
+                      <span className="ml-2 text-xs md:text-sm text-gray-600">({review.rating}/5)</span>
+                    </div>
 
-              <p className="text-gray-700 mb-3 leading-relaxed text-sm md:text-base">
-                "{review.review}"
-              </p>
+                    <p className="text-gray-700 mb-3 leading-relaxed text-sm md:text-base">
+                      "{review.review}"
+                    </p>
 
-              <div className="text-xs md:text-sm text-vintage-orange font-medium">
-                Gekauft: {review.product}
-              </div>
-            </div>
-          ))}
+                    <div className="text-xs md:text-sm text-vintage-orange font-medium">
+                      Gekauft: {review.product}
+                    </div>
+                  </div>
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+            
+            <CarouselPrevious className="left-2 md:left-4" />
+            <CarouselNext className="right-2 md:right-4" />
+          </Carousel>
+          
+          {/* Dots navigation */}
+          <div className="flex justify-center mt-6 space-x-2">
+            {reviews.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => scrollTo(index)}
+                className={`w-3 h-3 rounded-full transition-colors ${
+                  index === current ? 'bg-vintage-orange' : 'bg-gray-300'
+                }`}
+              />
+            ))}
+          </div>
         </div>
 
         <div className="text-center mt-8 md:mt-12">
