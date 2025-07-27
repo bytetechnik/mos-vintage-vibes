@@ -318,8 +318,8 @@ const LatestDrops = () => {
         </div>
       </div>
 
-      <div className="flex flex-col lg:flex-row gap-3 md:gap-6">
-        {/* Left Sidebar Filters - Only show on desktop */}
+      <div className="flex flex-col xl:flex-row gap-3 md:gap-6">
+        {/* Left Sidebar Filters - Only show on desktop (xl and above) */}
         {!isMobile && (
           <FilterSidebar
             selectedSizes={selectedSizes}
@@ -341,7 +341,7 @@ const LatestDrops = () => {
 
         {/* Products Grid */}
         <div className="flex-1 w-full min-w-0">
-          {/* Mobile Filter and Sort Controls - Top of products section */}
+          {/* Mobile/Tablet Filter and Sort Controls - Top of products section */}
           {isMobile && (
             <div className="flex justify-between items-center mb-4">
               {/* Mobile Sort Dropdown */}
@@ -395,7 +395,7 @@ const LatestDrops = () => {
         </div>
       </div>
 
-      {/* Mobile Filter Overlay */}
+      {/* Mobile/Tablet Filter Overlay */}
       {isMobile && (
         <FilterSidebar
           selectedSizes={selectedSizes}

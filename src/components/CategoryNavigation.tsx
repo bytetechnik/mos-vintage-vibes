@@ -104,7 +104,7 @@ const CategoryNavigation = ({ totalProducts }: CategoryNavigationProps) => {
       {/* Category Icons - Horizontal Scrollable */}
       <div className="w-full max-w-full overflow-hidden">
         <div 
-          className="flex items-center gap-4 overflow-x-auto pb-3 px-4"
+          className="flex items-center gap-4 overflow-x-auto pb-3 px-4 sm:justify-center md:justify-center"
           style={{
             scrollbarWidth: 'none',
             msOverflowStyle: 'none',
