@@ -275,24 +275,24 @@ const Products = () => {
         </div>
       </div>
 
-      {/* Sort Dropdown (Desktop Only) */}
-      <div className="flex justify-end mb-4">
-        <div className="flex items-center gap-2">
-          <span className="text-sm font-medium text-gray-700 hidden sm:inline">Sortieren nach</span>
-          <Select value={sortBy} onValueChange={handleSortByChange}>
-            <SelectTrigger className="w-32 border-0 bg-transparent p-0 h-auto">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="newest">Neueste</SelectItem>
-              <SelectItem value="price-low">Preis: Niedrig zu Hoch</SelectItem>
-              <SelectItem value="price-high">Preis: Hoch zu Niedrig</SelectItem>
-              <SelectItem value="name">Name A-Z</SelectItem>
-              <SelectItem value="condition">Beste Qualität</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
+             {/* Sort Dropdown (Desktop Only) */}
+       <div className="hidden sm:flex justify-end mb-4">
+         <div className="flex items-center gap-2">
+           <span className="text-sm font-medium text-gray-700">Sortieren nach</span>
+           <Select value={sortBy} onValueChange={handleSortByChange}>
+             <SelectTrigger className="w-32 border-0 bg-transparent p-0 h-auto">
+               <SelectValue />
+             </SelectTrigger>
+             <SelectContent>
+               <SelectItem value="newest">Neueste</SelectItem>
+               <SelectItem value="price-low">Preis: Niedrig zu Hoch</SelectItem>
+               <SelectItem value="price-high">Preis: Hoch zu Niedrig</SelectItem>
+               <SelectItem value="name">Name A-Z</SelectItem>
+               <SelectItem value="condition">Beste Qualität</SelectItem>
+             </SelectContent>
+           </Select>
+         </div>
+       </div>
 
       <div className="flex flex-col lg:flex-row gap-3 md:gap-6">
         {/* Left Sidebar Filters - Only show on desktop */}
@@ -317,9 +317,26 @@ const Products = () => {
 
         {/* Products Grid */}
         <div className="flex-1 w-full min-w-0">
-          {/* Mobile Filter Button - Top right of products section */}
+          {/* Mobile Filter and Sort Controls - Top of products section */}
           {isMobile && (
-            <div className="flex justify-end mb-4">
+            <div className="flex justify-between items-center mb-4">
+              {/* Mobile Sort Dropdown */}
+              <div className="flex items-center gap-2">
+                <Select value={sortBy} onValueChange={handleSortByChange}>
+                  <SelectTrigger className="w-32 border-0 bg-transparent p-0 h-auto">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="newest">Neueste</SelectItem>
+                    <SelectItem value="price-low">Preis: Niedrig zu Hoch</SelectItem>
+                    <SelectItem value="price-high">Preis: Hoch zu Niedrig</SelectItem>
+                    <SelectItem value="name">Name A-Z</SelectItem>
+                    <SelectItem value="condition">Beste Qualität</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              {/* Filter Button */}
               <Button
                 variant="ghost"
                 size="icon"

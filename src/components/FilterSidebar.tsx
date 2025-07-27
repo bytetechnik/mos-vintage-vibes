@@ -82,49 +82,6 @@ const FilterSidebar = ({
         {/* Content */}
         <div className="p-4 space-y-8 overflow-y-auto h-full w-full max-w-full">
 
-          {/* Sort By Section */}
-          <div className="space-y-4">
-            <div className="flex items-center">
-              <h4 className="font-bold text-black text-sm uppercase">sort by</h4>
-              <div className="flex-1 border-t border-gray-200 ml-4"></div>
-              <div className="w-1 h-1 bg-gray-400 ml-2"></div>
-            </div>
-            <RadioGroup value={sortBy} onValueChange={onSortByChange}>
-              <div className="space-y-3">
-                <div className="flex items-center space-x-3">
-                  <RadioGroupItem value="newest" id="sort-newest" />
-                  <Label htmlFor="sort-newest" className="text-sm text-black cursor-pointer">
-                    Date, new to old
-                  </Label>
-                </div>
-                <div className="flex items-center space-x-3">
-                  <RadioGroupItem value="price-low" id="sort-price-low" />
-                  <Label htmlFor="sort-price-low" className="text-sm text-black cursor-pointer">
-                    Price, low to high
-                  </Label>
-                </div>
-                <div className="flex items-center space-x-3">
-                  <RadioGroupItem value="price-high" id="sort-price-high" />
-                  <Label htmlFor="sort-price-high" className="text-sm text-black cursor-pointer">
-                    Price, high to low
-                  </Label>
-                </div>
-                <div className="flex items-center space-x-3">
-                  <RadioGroupItem value="name" id="sort-name" />
-                  <Label htmlFor="sort-name" className="text-sm text-black cursor-pointer">
-                    Alphabetically, A-Z
-                  </Label>
-                </div>
-                <div className="flex items-center space-x-3">
-                  <RadioGroupItem value="condition" id="sort-condition" />
-                  <Label htmlFor="sort-condition" className="text-sm text-black cursor-pointer">
-                    Best quality
-                  </Label>
-                </div>
-              </div>
-            </RadioGroup>
-          </div>
-
           {/* Availability Section */}
           <div className="space-y-4">
             <div className="flex items-center">
@@ -179,6 +136,61 @@ const FilterSidebar = ({
                   </Label>
                 </div>
               ))}
+            </div>
+          </div>
+
+          {/* Condition Section */}
+          <div className="space-y-4">
+            <div className="flex items-center">
+              <h4 className="font-bold text-black text-sm uppercase">condition</h4>
+              <div className="flex-1 border-t border-gray-200 ml-4"></div>
+              <div className="w-1 h-1 bg-gray-400 ml-2"></div>
+            </div>
+            <div className="space-y-3">
+              {conditions.map(condition => (
+                <div key={condition} className="flex items-center space-x-3">
+                  <Checkbox
+                    id={`condition-${condition}`}
+                    checked={selectedConditions.includes(condition)}
+                    onCheckedChange={(checked) => 
+                      onConditionChange(condition, checked as boolean)
+                    }
+                    className="border-gray-300"
+                  />
+                  <Label htmlFor={`condition-${condition}`} className="text-sm text-black cursor-pointer">
+                    {condition}/10 {condition === 10 ? '(New)' : condition >= 9 ? '(Like New)' : condition >= 8 ? '(Excellent)' : '(Good)'}
+                  </Label>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Price Range Section */}
+          <div className="space-y-4">
+            <div className="flex items-center">
+              <h4 className="font-bold text-black text-sm uppercase">price range</h4>
+              <div className="flex-1 border-t border-gray-200 ml-4"></div>
+              <div className="w-1 h-1 bg-gray-400 ml-2"></div>
+            </div>
+            <div className="flex gap-3">
+              <div className="flex-1">
+                <Input
+                  type="number"
+                  placeholder="Min"
+                  value={priceRange.min}
+                  onChange={(e) => onPriceRangeChange({ ...priceRange, min: e.target.value })}
+                  className="w-full"
+                />
+              </div>
+              <div className="flex-1">
+                <Input
+                  type="number"
+                  placeholder="Max"
+                  value={priceRange.max}
+                  onChange={(e) => onPriceRangeChange({ ...priceRange, max: e.target.value })}
+                  className="w-full"
+                />
+              </div>
             </div>
           </div>
         </div>
