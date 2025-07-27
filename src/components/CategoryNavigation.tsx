@@ -100,49 +100,62 @@ const CategoryNavigation = ({ totalProducts }: CategoryNavigationProps) => {
   };
 
   return (
-    <div className="flex flex-col items-center gap-3 md:gap-4 mb-6 w-full">
-      {/* Category Icons - Mobile: Horizontal Scrollable, Desktop: Original Design */}
-      <div className="flex items-center gap-4 sm:gap-5 md:gap-6 lg:gap-8 overflow-x-auto pb-2 lg:pb-0 justify-start sm:justify-center w-full px-2 sm:px-0">
-        {categoryData.map((category) => (
-          <button
-            key={category.key}
-            onClick={() => handleCategoryClick(category.key)}
-            className="flex flex-col items-center gap-1 md:gap-2 min-w-[70px] sm:min-w-[80px] md:min-w-[90px] group flex-shrink-0"
-          >
-            {/* Mobile: Minimalistic design, Desktop: Original design */}
-            <div className={`rounded-full flex items-center justify-center border-4 transition-all duration-200
-              /* Mobile styles */
-              w-16 h-16 sm:w-18 sm:h-18 md:w-20 md:h-20
-              /* Mobile: Orange borders, Desktop: Original blue borders */
-              border-orange-300 md:border-[#00bfff]
-              /* Mobile: Orange hover, Desktop: Original hover */
-              hover:border-orange-400 md:hover:border-blue-500
-              /* Mobile: Orange active, Desktop: Original active */
-              ${currentCategory === category.key 
-                ? 'border-orange-400 md:border-blue-600 shadow-lg scale-105' 
-                : ''
-              }
-            `}>
-              <img 
-                src={category.icon} 
-                alt={category.label} 
-                className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 object-cover rounded-full" 
-              />
-            </div>
-            <span className={`text-sm sm:text-base font-medium transition-colors text-center
-              /* Mobile: Orange text, Desktop: Original blue text */
-              ${currentCategory === category.key 
-                ? 'text-orange-600 md:text-blue-600 font-semibold' 
-                : 'text-gray-700 group-hover:text-orange-600 md:group-hover:text-blue-600'
-              }
-            `}>
-              {category.label}
-            </span>
-          </button>
-        ))}
+    <div className="flex flex-col items-center gap-4 mb-6 w-full max-w-full">
+      {/* Category Icons - Horizontal Scrollable */}
+      <div className="w-full max-w-full overflow-hidden">
+        <div 
+          className="flex items-center gap-4 overflow-x-auto pb-3 px-4"
+          style={{
+            scrollbarWidth: 'none',
+            msOverflowStyle: 'none',
+            WebkitOverflowScrolling: 'touch'
+          }}
+        >
+          <style>{`
+            div::-webkit-scrollbar {
+              display: none;
+            }
+          `}</style>
+          
+          {categoryData.map((category) => (
+            <button
+              key={category.key}
+              onClick={() => handleCategoryClick(category.key)}
+              className="flex flex-col items-center gap-2 min-w-[80px] flex-shrink-0 p-1 transition-all duration-200 active:scale-95"
+            >
+              {/* Category Icon Circle */}
+              <div className={`
+                rounded-full flex items-center justify-center border-3 transition-all duration-200
+                w-16 h-16 sm:w-18 sm:h-18 md:w-20 md:h-20
+                ${currentCategory === category.key 
+                  ? 'border-orange-400 shadow-lg scale-105' 
+                  : 'border-orange-300 hover:border-orange-400'
+                }
+                shadow-sm hover:shadow-md
+              `}>
+                <img 
+                  src={category.icon} 
+                  alt={category.label} 
+                  className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 object-cover rounded-full" 
+                />
+              </div>
+              
+              {/* Category Label */}
+              <span className={`
+                text-xs sm:text-sm font-medium transition-colors text-center whitespace-nowrap
+                ${currentCategory === category.key 
+                  ? 'text-orange-600 font-semibold' 
+                  : 'text-gray-700 hover:text-orange-600'
+                }
+              `}>
+                {category.label}
+              </span>
+            </button>
+          ))}
+        </div>
       </div>
     </div>
   );
 };
 
-export default CategoryNavigation; 
+export default CategoryNavigation;
