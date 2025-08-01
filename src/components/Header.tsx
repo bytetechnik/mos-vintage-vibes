@@ -7,6 +7,7 @@ import { useCart } from '@/contexts/CartContext';
 import { products } from '@/data/products';
 import NavigationMenu from './NavigationMenu';
 import MobileSidebar from './MobileSidebar';
+import SearchAutocomplete from './SearchAutocomplete';
 
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -134,9 +135,9 @@ const Header = () => {
           <div className="flex items-center justify-center flex-1">
             <Link to="/" className="flex items-center">
               <img 
-                src="/logo.jpeg" 
+                src="/logo_white.png" 
                 alt="Mo's VintageWorld Logo" 
-                className="w-12 h-12 md:w-14 md:h-14 sm:w-10 sm:h-10 object-contain"
+                className="w-48 h-48 md:w-56 md:h-56 sm:w-40 sm:h-40 object-contain"
               />
             </Link>
           </div>
@@ -171,10 +172,10 @@ const Header = () => {
       {/* Search Modal */}
       {isSearchOpen && (
         <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm">
-          <div className="fixed inset-0 z-50 flex items-start justify-center pt-20 px-4">
-            <div className="bg-background rounded-lg shadow-lg w-full max-w-2xl max-h-[80vh] overflow-hidden">
+          <div className="fixed inset-0 z-50 flex items-start justify-center pt-2 sm:pt-4 md:pt-8 lg:pt-20 px-2 sm:px-4">
+            <div className="bg-background rounded-lg shadow-lg w-full max-w-2xl h-[95vh] sm:h-[90vh] md:h-[80vh] flex flex-col overflow-hidden">
               {/* Search Header */}
-              <div className="flex items-center justify-between p-4 border-b">
+              <div className="flex items-center justify-between p-4 border-b flex-shrink-0">
                 <h2 className="text-lg font-semibold">Search Products</h2>
                 <Button
                   variant="ghost"
@@ -189,61 +190,63 @@ const Header = () => {
               </div>
 
               {/* Search Input */}
-              <div className="p-4">
-                <form onSubmit={handleSearchSubmit}>
-                  <div className="relative">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                    <Input
-                      type="text"
-                      placeholder="Search for products, brands, categories..."
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      onKeyDown={handleKeyDown}
-                      className="pl-10 pr-4 py-3 text-lg"
-                      autoFocus
-                    />
-                  </div>
-                </form>
+              <div className="p-4 flex-shrink-0">
+                <SearchAutocomplete
+                  onSearch={(query) => {
+                    navigate(`/products?search=${encodeURIComponent(query)}`);
+                    setIsSearchOpen(false);
+                  }}
+                  onProductSelect={(product) => {
+                    navigate(`/product/${product.id}`);
+                    setIsSearchOpen(false);
+                  }}
+                  placeholder="Search for products, brands, categories..."
+                  className="w-full"
+                />
               </div>
 
               {/* Search Results */}
-              <div className="flex-1 overflow-y-auto max-h-96">
+              <div className="flex-1 overflow-y-auto min-h-0 p-4">
                 {searchQuery.trim() === '' ? (
-                  <div className="p-4 text-center text-muted-foreground">
-                    Start typing to search for products
+                  <div className="text-center text-muted-foreground py-8">
+                    <Search className="w-12 h-12 mx-auto mb-4 text-muted-foreground/50" />
+                    <p className="text-lg font-medium">Start typing to search for products</p>
+                    <p className="text-sm text-muted-foreground mt-2">Search by brand, category, or product name</p>
                   </div>
                 ) : searchResults.length === 0 ? (
-                  <div className="p-4 text-center text-muted-foreground">
-                    No products found for "{searchQuery}"
+                  <div className="text-center text-muted-foreground py-8">
+                    <Search className="w-12 h-12 mx-auto mb-4 text-muted-foreground/50" />
+                    <p className="text-lg font-medium">No products found</p>
+                    <p className="text-sm text-muted-foreground mt-2">Try adjusting your search terms</p>
                   </div>
                 ) : (
-                  <div className="p-4">
-                    <div className="mb-4 text-sm text-muted-foreground">
+                  <div>
+                    <div className="mb-4 text-sm text-muted-foreground font-medium">
                       Found {searchResults.length} product{searchResults.length !== 1 ? 's' : ''}
                     </div>
-                    <div className="space-y-2">
-                      {searchResults.slice(0, 10).map((product) => (
+                    <div className="space-y-3">
+                      {searchResults.slice(0, 15).map((product) => (
                         <div
                           key={product.id}
                           onClick={() => handleProductClick(product.id)}
-                          className="flex items-center gap-3 p-3 rounded-lg hover:bg-accent cursor-pointer transition-colors"
+                          className="flex items-center gap-4 p-4 rounded-lg hover:bg-accent cursor-pointer transition-colors border border-transparent hover:border-border"
                         >
                           <img
                             src={product.images[0]}
                             alt={product.name}
-                            className="w-12 h-12 object-cover rounded-md"
+                            className="w-16 h-16 object-cover rounded-lg flex-shrink-0"
                           />
                           <div className="flex-1 min-w-0">
-                            <h3 className="font-medium text-foreground truncate">
+                            <h3 className="font-semibold text-foreground truncate text-base">
                               {product.name}
                             </h3>
-                            <p className="text-sm text-muted-foreground">
+                            <p className="text-sm text-muted-foreground mt-1">
                               {product.brand} • €{product.price.toFixed(2)}
                             </p>
                           </div>
                         </div>
                       ))}
-                      {searchResults.length > 10 && (
+                      {searchResults.length > 15 && (
                         <div className="pt-2 border-t">
                           <Button
                             variant="outline"

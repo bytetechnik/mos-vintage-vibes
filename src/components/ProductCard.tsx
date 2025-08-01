@@ -4,28 +4,38 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Product } from '@/types/product';
 import { useCart } from '@/contexts/CartContext';
-import { useState } from 'react';
+import { useState, memo, useCallback } from 'react';
 
 interface ProductCardProps {
   product: Product;
   imageIndex?: number;
 }
 
-const ProductCard = ({ product, imageIndex = 0 }: ProductCardProps) => {
+const ProductCard = memo(({ product, imageIndex = 0 }: ProductCardProps) => {
   const { addItem } = useCart();
   const [isLiked, setIsLiked] = useState(false);
+  const [imageLoaded, setImageLoaded] = useState(false);
+  const [imageError, setImageError] = useState(false);
 
-  const handleAddToCart = (e: React.MouseEvent) => {
+  const handleAddToCart = useCallback((e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     addItem(product, 1);
-  };
+  }, [addItem, product]);
 
-  const handleLike = (e: React.MouseEvent) => {
+  const handleLike = useCallback((e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     setIsLiked(!isLiked);
-  };
+  }, [isLiked]);
+
+  const handleImageLoad = useCallback(() => {
+    setImageLoaded(true);
+  }, []);
+
+  const handleImageError = useCallback(() => {
+    setImageError(true);
+  }, []);
 
   const getConditionBadge = (rating: number) => {
     if (rating === 10) return { text: 'New', variant: 'default' as const };
@@ -41,11 +51,24 @@ const ProductCard = ({ product, imageIndex = 0 }: ProductCardProps) => {
       <div className="group bg-card md:bg-card rounded-lg overflow-hidden shadow-card-custom md:shadow-card-custom hover:shadow-hover-street md:hover:shadow-hover-street transition-all duration-300 hover:scale-105 md:hover:scale-105 w-full">
         {/* Image */}
         <div className="relative aspect-square overflow-hidden">
+          {!imageLoaded && !imageError && (
+            <div className="absolute inset-0 bg-muted animate-pulse" />
+          )}
           <img
             src={product.images[imageIndex % product.images.length]}
             alt={product.name}
-            className="w-full h-full object-cover group-hover:scale-110 md:group-hover:scale-110 transition-transform duration-300"
+            className={`w-full h-full object-cover group-hover:scale-110 md:group-hover:scale-110 transition-transform duration-300 ${
+              imageLoaded ? 'opacity-100' : 'opacity-0'
+            }`}
+            loading="lazy"
+            onLoad={handleImageLoad}
+            onError={handleImageError}
           />
+          {imageError && (
+            <div className="absolute inset-0 bg-muted flex items-center justify-center">
+              <span className="text-muted-foreground text-sm">Image not available</span>
+            </div>
+          )}
           {/* Sold Out Badge */}
           {!product.inStock && (
             <div className="absolute top-2 right-2 z-20">
@@ -127,6 +150,8 @@ const ProductCard = ({ product, imageIndex = 0 }: ProductCardProps) => {
       </div>
     </Link>
   );
-};
+});
+
+ProductCard.displayName = 'ProductCard';
 
 export default ProductCard;

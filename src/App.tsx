@@ -5,6 +5,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { CartProvider } from "@/contexts/CartContext";
 import Layout from "@/components/Layout";
+import AdminLayout from "@/components/AdminLayout";
+import ErrorBoundary from "@/components/ErrorBoundary";
 import Index from "./pages/Index";
 import Products from "./pages/Products";
 import ProductDetail from "./pages/ProductDetail";
@@ -24,6 +26,15 @@ import heroSection2 from './assets/hero-section-2.jpg';
 import LatestDrops from "./pages/LatestDrops";
 import Archiv from "./pages/Archiv";
 import GiftCards from "./pages/GiftCards";
+
+// Admin Pages
+import AdminLogin from "./pages/AdminLogin";
+import AdminDashboard from "./pages/AdminDashboard";
+import AdminInventory from "./pages/AdminInventory";
+import AdminSales from "./pages/AdminSales";
+import AdminOrders from "./pages/AdminOrders";
+import AdminCustomers from "./pages/AdminCustomers";
+import AdminSettings from "./pages/AdminSettings";
 
 const queryClient = new QueryClient();
 
@@ -63,33 +74,47 @@ function SplashScreen() {
 }
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <CartProvider>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <SplashScreen />
-          <Routes>
-            <Route path="/" element={<Layout />}>
-              <Route index element={<Index />} />
-              <Route path="products" element={<Products />} />
-              <Route path="product/:id" element={<ProductDetail />} />
-              <Route path="cart" element={<Cart />} />
-              <Route path="checkout" element={<Checkout />} />
-              <Route path="login" element={<Login />} />
-              <Route path="dashboard" element={<Dashboard />} />
-              <Route path="order-confirmation" element={<OrderConfirmation />} />
-              <Route path="latest-drops" element={<LatestDrops />} />
-              <Route path="archive" element={<Archiv />} />
-              <Route path="gift-cards" element={<GiftCards />} />
-              <Route path="*" element={<NotFound />} />
-            </Route>
-          </Routes>
-        </BrowserRouter>
-      </TooltipProvider>
-    </CartProvider>
-  </QueryClientProvider>
+  <ErrorBoundary>
+    <QueryClientProvider client={queryClient}>
+      <CartProvider>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <SplashScreen />
+            <Routes>
+              {/* Main App Routes */}
+              <Route path="/" element={<Layout />}>
+                <Route index element={<Index />} />
+                <Route path="products" element={<Products />} />
+                <Route path="product/:id" element={<ProductDetail />} />
+                <Route path="cart" element={<Cart />} />
+                <Route path="checkout" element={<Checkout />} />
+                <Route path="login" element={<Login />} />
+                <Route path="dashboard" element={<Dashboard />} />
+                <Route path="order-confirmation" element={<OrderConfirmation />} />
+                <Route path="latest-drops" element={<LatestDrops />} />
+                <Route path="archive" element={<Archiv />} />
+                <Route path="gift-cards" element={<GiftCards />} />
+                <Route path="*" element={<NotFound />} />
+              </Route>
+
+              {/* Admin Routes */}
+              <Route path="/admin/login" element={<AdminLogin />} />
+              <Route path="/admin" element={<AdminLayout />}>
+                <Route path="dashboard" element={<AdminDashboard />} />
+                <Route path="inventory" element={<AdminInventory />} />
+                <Route path="sales" element={<AdminSales />} />
+                <Route path="orders" element={<AdminOrders />} />
+                <Route path="customers" element={<AdminCustomers />} />
+                <Route path="settings" element={<AdminSettings />} />
+              </Route>
+            </Routes>
+          </BrowserRouter>
+        </TooltipProvider>
+      </CartProvider>
+    </QueryClientProvider>
+  </ErrorBoundary>
 );
 
 export default App;

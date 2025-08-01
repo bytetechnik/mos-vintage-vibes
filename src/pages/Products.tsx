@@ -8,9 +8,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
 import ProductCard from '@/components/ProductCard';
+import ProductCardSkeleton from '@/components/ProductCardSkeleton';
 import CategoryNavigation from '@/components/CategoryNavigation';
 import FilterSidebar from '@/components/FilterSidebar';
-import { products, categoryNames } from '@/data/products';
+import { useProducts, useBrands, useCategories } from '@/hooks/useProducts';
 import { ProductCategory } from '@/types/product';
 
 const Products = () => {
@@ -39,6 +40,26 @@ const Products = () => {
   const [priceRange, setPriceRange] = useState({ min: '', max: '' });
   const [searchQuery, setSearchQuery] = useState(initialSearch);
   const [sortBy, setSortBy] = useState(searchParams.get('sort') || 'newest');
+
+  // React Query hooks
+  const { data: productsData, isLoading, error } = useProducts({
+    search: searchQuery,
+    category: selectedCategories[0],
+    brand: selectedBrands[0],
+    condition: selectedConditions,
+    price_min: priceRange.min ? parseFloat(priceRange.min) : undefined,
+    price_max: priceRange.max ? parseFloat(priceRange.max) : undefined,
+    featured: initialFeatured,
+    sort: sortBy,
+    per_page: 50
+  });
+
+  const { data: brandsData } = useBrands();
+  const { data: categoriesData } = useCategories();
+
+  const products = productsData?.data || [];
+  const brands = brandsData?.map(b => b.name) || [];
+  const categories = categoriesData || [];
 
   // Sync URL params with state
   useEffect(() => {
@@ -71,90 +92,11 @@ const Products = () => {
     }
   }, [searchParams]);
 
-  // Get unique brands and conditions
-  const brands = [...new Set(products.map(p => p.brand))];
-  const conditions = [...new Set(products.map(p => p.condition.rating))].sort((a, b) => b - a);
+  // Use products from React Query
+  const filteredProducts = products;
 
-  // Filter and sort products
-  const filteredProducts = useMemo(() => {
-    let filtered = products.filter(product => {
-      // Category filter
-      if (selectedCategories.length > 0 && !selectedCategories.includes(product.category)) {
-        return false;
-      }
-
-      // Brand filter
-      if (selectedBrands.length > 0 && !selectedBrands.includes(product.brand)) {
-        return false;
-      }
-
-      // Condition filter
-      if (selectedConditions.length > 0 && !selectedConditions.includes(product.condition.rating)) {
-        return false;
-      }
-
-      // Size filter
-      if (selectedSizes.length > 0 && !selectedSizes.includes(product.size)) {
-        return false;
-      }
-
-      // Stock filter
-      if (inStockOnly && !product.inStock) {
-        return false;
-      }
-      if (outOfStock && product.inStock) {
-        return false;
-      }
-
-      // Price range filter
-      if (priceRange.min && product.price < parseFloat(priceRange.min)) {
-        return false;
-      }
-      if (priceRange.max && product.price > parseFloat(priceRange.max)) {
-        return false;
-      }
-
-      // Search filter
-      if (searchQuery) {
-        const query = searchQuery.toLowerCase();
-        return (
-          product.name.toLowerCase().includes(query) ||
-          product.brand.toLowerCase().includes(query) ||
-          product.description.toLowerCase().includes(query) ||
-          product.tags.some(tag => tag.toLowerCase().includes(query))
-        );
-      }
-
-      // Featured filter
-      if (initialFeatured) {
-        return product.featured;
-      }
-
-      return true;
-    });
-
-    // Sort products
-    switch (sortBy) {
-      case 'price-low':
-        filtered.sort((a, b) => a.price - b.price);
-        break;
-      case 'price-high':
-        filtered.sort((a, b) => b.price - a.price);
-        break;
-      case 'name':
-        filtered.sort((a, b) => a.name.localeCompare(b.name));
-        break;
-      case 'condition':
-        filtered.sort((a, b) => b.condition.rating - a.condition.rating);
-        break;
-      case 'newest':
-      default:
-        filtered.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-        break;
-    }
-
-    return filtered;
-  }, [selectedCategories, selectedBrands, selectedConditions, selectedSizes, inStockOnly, outOfStock, priceRange, searchQuery, sortBy, initialFeatured]);
+  // Get unique conditions from products
+  const conditions = [...new Set(filteredProducts.map(p => p.condition.rating))].sort((a, b) => b - a);
 
   const handleCategoryChange = (category: ProductCategory, checked: boolean) => {
     if (checked) {
@@ -246,7 +188,7 @@ const Products = () => {
       {/* Header */}
       <div className="mb-6">
         <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-4">
-          {initialCategory ? categoryNames[initialCategory] : 'All Products'}
+          {initialCategory ? categories.find(c => c.id === initialCategory)?.name || 'All Products' : 'All Products'}
         </h1>
         <p className="text-muted-foreground text-sm sm:text-base">
           Discover our curated collection of vintage and contemporary streetwear
@@ -353,8 +295,33 @@ const Products = () => {
             </div>
           )}
 
+          {/* Loading State */}
+          {isLoading && (
+            <div className={`grid gap-3 sm:gap-4 ${
+              viewMode === 'grid' 
+                ? 'grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-4' 
+                : 'grid-cols-1'
+            }`}>
+              {[...Array(8)].map((_, index) => (
+                <ProductCardSkeleton key={index} />
+              ))}
+            </div>
+          )}
+
+          {/* Error State */}
+          {error && (
+            <div className="text-center py-8 sm:py-16">
+              <Filter className="w-12 h-12 sm:w-16 sm:h-16 text-destructive mx-auto mb-4" />
+              <h3 className="text-lg sm:text-xl font-semibold mb-2">Error loading products</h3>
+              <p className="text-muted-foreground mb-4">
+                Something went wrong. Please try again.
+              </p>
+              <Button onClick={() => window.location.reload()}>Retry</Button>
+            </div>
+          )}
+
           {/* Products Grid */}
-          {filteredProducts.length === 0 ? (
+          {!isLoading && !error && filteredProducts.length === 0 ? (
             <div className="text-center py-8 sm:py-16">
               <Filter className="w-12 h-12 sm:w-16 sm:h-16 text-muted-foreground mx-auto mb-4" />
               <h3 className="text-lg sm:text-xl font-semibold mb-2">No products found</h3>
@@ -363,7 +330,7 @@ const Products = () => {
               </p>
               <Button onClick={clearFilters}>Clear Filters</Button>
             </div>
-          ) : (
+          ) : !isLoading && !error ? (
             <div className={`grid gap-3 sm:gap-4 ${
               viewMode === 'grid' 
                 ? 'grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-4' 
@@ -373,7 +340,7 @@ const Products = () => {
                 <ProductCard key={product.id} product={product} imageIndex={idx} />
               ))}
             </div>
-          )}
+          ) : null}
         </div>
       </div>
 
