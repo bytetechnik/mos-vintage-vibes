@@ -119,25 +119,23 @@ const MobileSidebar = ({ isOpen, onClose }: MobileSidebarProps) => {
           boxShadow: isOpen ? '0 0 40px rgba(0,0,0,0.3)' : 'none'
         }}
       >
-        {/* Header with Logo - Fixed at top */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-100 flex-shrink-0">
-          <div className="flex-1"></div>
-          <div className="flex items-center justify-center flex-1">
+        {/* Header with Logo Banner - Fixed at top */}
+        <div className="bg-white border-b border-gray-200 flex-shrink-0 pt-20 pb-8">
+          <div className="relative flex items-center justify-center min-h-[80px]">
             <img 
-              src="/logo.jpeg" 
+              src="/logo_white.png" 
               alt="Mo's VintageWorld Logo" 
-              className="w-16 h-16 object-contain"
+              className="w-3/4 object-contain"
             />
-          </div>
-          <div className="flex-1 flex justify-end">
-            <Button
+            {/* Close button hidden */}
+            {/* <Button
               variant="ghost"
               size="icon"
               onClick={onClose}
-              className="hover:bg-gray-50"
+              className="hover:bg-gray-100 text-gray-600 absolute right-4 top-4"
             >
               <X className="w-5 h-5" />
-            </Button>
+            </Button> */}
           </div>
         </div>
 
