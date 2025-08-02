@@ -120,8 +120,8 @@ const MobileSidebar = ({ isOpen, onClose }: MobileSidebarProps) => {
         }}
       >
         {/* Header with Logo Banner - Fixed at top */}
-        <div className="bg-white border-b border-gray-200 flex-shrink-0 pt-20 pb-8">
-          <div className="relative flex items-center justify-center min-h-[80px]">
+        <div className="bg-white border-b border-gray-200 flex-shrink-0 pt-12 pb-8">
+          <div className="relative flex items-center justify-center min-h-[120px]">
             <img 
               src="/logo_white.png" 
               alt="Mo's VintageWorld Logo" 
