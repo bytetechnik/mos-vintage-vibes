@@ -167,7 +167,7 @@ const ReviewSection = () => {
               Teilen Sie Ihre Erfahrungen und helfen Sie anderen Kunden bei ihrer Kaufentscheidung
             </p>
             <a 
-              href="https://chat.whatsapp.com/JLckwG8mv5cKOLiDjctJuT?mode=ac_t"
+              href="https://whatsapp.com/channel/0029Vb5wz1ECBtxKmLmoUt3W"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-block bg-white text-vintage-orange px-6 md:px-8 py-2 md:py-3 rounded-full font-semibold hover:bg-gray-100 transition-colors text-sm md:text-base"
