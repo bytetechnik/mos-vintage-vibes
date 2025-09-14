@@ -1,11 +1,13 @@
-import { useState, useEffect } from 'react';
-import { brands } from '@/data/products';
-import nikeLogo from '@/assets/brands/nike-logo.png';
+'use client';
 import adidasLogo from '@/assets/brands/adidas-logo.png';
-import supremeLogo from '@/assets/brands/supreme-logo.png';
+import carhartLogo from '@/assets/brands/carhartt-logo.png';
+import nikeLogo from '@/assets/brands/nike-logo.png';
 import offWhiteLogo from '@/assets/brands/off-white-logo.png';
 import stoneIslandLogo from '@/assets/brands/stone-island-logo.png';
-import carhartLogo from '@/assets/brands/carhartt-logo.png';
+import supremeLogo from '@/assets/brands/supreme-logo.png';
+import { brands } from '@/data/products';
+import Image from 'next/image';
+import { useEffect, useState } from 'react';
 
 const BrandSlider = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -35,7 +37,7 @@ const BrandSlider = () => {
             Featured Brands
           </h2>
           <p className="text-xs sm:text-base text-muted-foreground">
-            Authentic pieces from the world's most iconic streetwear brands
+            Authentic pieces from the world&apos;s most iconic streetwear brands
           </p>
         </div>
 
@@ -46,10 +48,14 @@ const BrandSlider = () => {
               key={brand.id}
               className="flex items-center justify-center w-32 h-20 bg-white rounded-lg shadow-card-custom hover:shadow-hover-street transition-all duration-300 hover:scale-110 cursor-pointer p-4"
             >
-              <img 
-                src={brandLogos[brand.name as keyof typeof brandLogos]} 
+              <Image
+                src={brandLogos[brand.name as keyof typeof brandLogos]}
                 alt={`${brand.name} logo`}
-                className="max-w-full max-h-full object-contain"
+                width={200} // Set appropriate width
+                height={100} // Set appropriate height
+                className="object-contain"
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                priority={false} // Set to true if this is above the fold
               />
             </div>
           ))}
@@ -59,11 +65,16 @@ const BrandSlider = () => {
         <div className="md:hidden">
           <div className="flex justify-center">
             <div className="flex items-center justify-center w-32 h-16 sm:w-40 sm:h-24 bg-white rounded-lg shadow-card-custom p-2 sm:p-4">
-              <img 
-                src={brandLogos[brands[currentIndex].name as keyof typeof brandLogos]} 
+              <Image
+                src={brandLogos[brands[currentIndex].name as keyof typeof brandLogos]}
                 alt={`${brands[currentIndex].name} logo`}
-                className="max-w-full max-h-full object-contain"
+                width={200} // Set appropriate width
+                height={100} // Set appropriate height
+                className="object-contain"
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                priority={false} // Set to true if this is above the fold
               />
+
             </div>
           </div>
 
@@ -73,9 +84,8 @@ const BrandSlider = () => {
               <button
                 key={index}
                 onClick={() => setCurrentIndex(index)}
-                className={`w-2 h-2 rounded-full transition-colors ${
-                  index === currentIndex ? 'bg-vintage-orange' : 'bg-muted-foreground/40'
-                }`}
+                className={`w-2 h-2 rounded-full transition-colors ${index === currentIndex ? 'bg-vintage-orange' : 'bg-muted-foreground/40'
+                  }`}
               />
             ))}
           </div>

@@ -10,7 +10,7 @@ import SearchAutocomplete from '../SearchAutocomplete';
 import MobileSidebar from './nav/MobileSidebar';
 import NavigationMenu from './nav/NavigationMenu';
 
-const Header = () => {
+const NavBar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -367,4 +367,4 @@ const Header = () => {
   );
 };
 
-export default Header;
+export default NavBar;

@@ -1,7 +1,9 @@
+'use client';
 import { Button } from '@/components/ui/button';
 import { products } from '@/data/products';
-import { Link } from 'react-router-dom';
-import ProductCard from './shared/ProductCard';
+import Link from 'next/link';
+import ProductCard from '../shared/ProductCard';
+
 
 const FeaturedProducts = () => {
   const featuredProducts = products.filter(product => product.featured).slice(0, 6);
@@ -25,7 +27,7 @@ const FeaturedProducts = () => {
         </div>
 
         <div className="text-center">
-          <Link to="/products">
+          <Link href="/products">
             <Button variant="street" size="lg">
               See More Products
             </Button>

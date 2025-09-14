@@ -1,8 +1,10 @@
-import React, { useState, useEffect } from 'react';
+'use client';
 import { Star } from 'lucide-react';
-import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext } from './ui/carousel';
+import { useEffect, useState } from 'react';
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '../ui/carousel';
 
 const ReviewSection = () => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [api, setApi] = useState<any>(null);
   const [current, setCurrent] = useState(0);
 
@@ -86,9 +88,8 @@ const ReviewSection = () => {
     return Array.from({ length: 5 }, (_, i) => (
       <Star
         key={i}
-        className={`w-4 h-4 md:w-5 md:h-5 ${
-          i < rating ? 'text-yellow-400 fill-current' : 'text-gray-300'
-        }`}
+        className={`w-4 h-4 md:w-5 md:h-5 ${i < rating ? 'text-yellow-400 fill-current' : 'text-gray-300'
+          }`}
       />
     ));
   };
@@ -129,7 +130,7 @@ const ReviewSection = () => {
                     </div>
 
                     <p className="text-gray-700 mb-3 leading-relaxed text-sm md:text-base">
-                      "{review.review}"
+                      &quot;{review.review}&quot;
                     </p>
 
                     <div className="text-xs md:text-sm text-vintage-orange font-medium">
@@ -139,20 +140,19 @@ const ReviewSection = () => {
                 </CarouselItem>
               ))}
             </CarouselContent>
-            
+
             <CarouselPrevious className="left-2 md:left-4" />
             <CarouselNext className="right-2 md:right-4" />
           </Carousel>
-          
+
           {/* Dots navigation */}
           <div className="flex justify-center mt-6 space-x-2">
             {reviews.map((_, index) => (
               <button
                 key={index}
                 onClick={() => scrollTo(index)}
-                className={`w-3 h-3 rounded-full transition-colors ${
-                  index === current ? 'bg-vintage-orange' : 'bg-gray-300'
-                }`}
+                className={`w-3 h-3 rounded-full transition-colors ${index === current ? 'bg-vintage-orange' : 'bg-gray-300'
+                  }`}
               />
             ))}
           </div>
@@ -166,7 +166,7 @@ const ReviewSection = () => {
             <p className="text-base md:text-lg mb-4 md:mb-6">
               Teilen Sie Ihre Erfahrungen und helfen Sie anderen Kunden bei ihrer Kaufentscheidung
             </p>
-            <a 
+            <a
               href="https://whatsapp.com/channel/0029Vb5wz1ECBtxKmLmoUt3W"
               target="_blank"
               rel="noopener noreferrer"

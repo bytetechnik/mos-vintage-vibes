@@ -1,5 +1,6 @@
-import { useQuery, useInfiniteQuery } from '@tanstack/react-query';
-import { Product, ProductCategory } from '@/types/product';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { ProductCategory } from '@/types/product';
+import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
 
 // Mock API functions - replace with actual API calls
 const mockApi = {
@@ -17,49 +18,49 @@ const mockApi = {
   }) => {
     // Simulate API delay
     await new Promise(resolve => setTimeout(resolve, 500));
-    
+
     // Import products data
     const { products } = await import('@/data/products');
-    
+
     let filtered = [...products];
-    
+
     // Apply filters
     if (params?.search) {
       const query = params.search.toLowerCase();
-      filtered = filtered.filter(product => 
+      filtered = filtered.filter(product =>
         product.name.toLowerCase().includes(query) ||
         product.brand.toLowerCase().includes(query) ||
         product.category.toLowerCase().includes(query) ||
         product.tags.some(tag => tag.toLowerCase().includes(query))
       );
     }
-    
+
     if (params?.category) {
       filtered = filtered.filter(product => product.category === params.category);
     }
-    
+
     if (params?.brand) {
       filtered = filtered.filter(product => product.brand === params.brand);
     }
-    
+
     if (params?.condition && params.condition.length > 0) {
-      filtered = filtered.filter(product => 
+      filtered = filtered.filter(product =>
         params.condition!.includes(product.condition.rating)
       );
     }
-    
+
     if (params?.price_min) {
       filtered = filtered.filter(product => product.price >= params.price_min!);
     }
-    
+
     if (params?.price_max) {
       filtered = filtered.filter(product => product.price <= params.price_max!);
     }
-    
+
     if (params?.featured) {
       filtered = filtered.filter(product => product.featured);
     }
-    
+
     // Apply sorting
     if (params?.sort) {
       switch (params.sort) {
@@ -81,14 +82,14 @@ const mockApi = {
           break;
       }
     }
-    
+
     // Apply pagination
     const page = params?.page || 1;
     const perPage = params?.per_page || 20;
     const start = (page - 1) * perPage;
     const end = start + perPage;
     const paginated = filtered.slice(start, end);
-    
+
     return {
       data: paginated,
       pagination: {
@@ -101,7 +102,7 @@ const mockApi = {
       }
     };
   },
-  
+
   getProduct: async (id: string) => {
     await new Promise(resolve => setTimeout(resolve, 300));
     const { products } = await import('@/data/products');
@@ -109,13 +110,13 @@ const mockApi = {
     if (!product) throw new Error('Product not found');
     return product;
   },
-  
+
   getBrands: async () => {
     await new Promise(resolve => setTimeout(resolve, 200));
     const { brands } = await import('@/data/products');
     return brands;
   },
-  
+
   getCategories: async () => {
     await new Promise(resolve => setTimeout(resolve, 200));
     const { categoryNames } = await import('@/data/products');
@@ -168,12 +169,12 @@ export const useInfiniteProducts = (params?: {
 }) => {
   return useInfiniteQuery({
     queryKey: productKeys.list(params),
-    queryFn: ({ pageParam = 1 }) => 
+    queryFn: ({ pageParam = 1 }) =>
       mockApi.getProducts({ ...params, page: pageParam as number }),
     initialPageParam: 1,
-    getNextPageParam: (lastPage: any) => 
+    getNextPageParam: (lastPage: any) =>
       lastPage.pagination.has_next ? lastPage.pagination.current_page + 1 : undefined,
-    getPreviousPageParam: (firstPage: any) => 
+    getPreviousPageParam: (firstPage: any) =>
       firstPage.pagination.has_prev ? firstPage.pagination.current_page - 1 : undefined,
     staleTime: 5 * 60 * 1000,
     gcTime: 10 * 60 * 1000,
