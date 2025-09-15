@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { apiService } from '@/services/apiService';
+
 import { ArrowLeft, CheckCircle, Link, Loader2, Mail } from 'lucide-react';
 import { useState } from 'react';
 
@@ -35,7 +35,7 @@ const ForgotPassword = () => {
 
     try {
       setIsSubmitting(true);
-      await apiService.forgotPassword(email);
+      // Simulate API call
 
       setIsSubmitted(true);
       toast({

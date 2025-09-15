@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { products } from '@/data/products';
 import { useToast } from '@/hooks/use-toast';
-import { apiService } from '@/services/apiService';
+
 import { UpdateProfileRequest, UserProfile } from '@/types/api';
 import { Bell, Check, CreditCard, Edit3, Heart, Loader2, MapPin, Package, Settings, User, X } from 'lucide-react';
 import Image from 'next/image';
@@ -91,7 +91,21 @@ const Dashboard = () => {
   const handleProfileUpdate = async () => {
     try {
       setIsUpdatingProfile(true);
-      const response = await apiService.updateUserProfile(editFormData);
+      const response = {
+        success: true,
+        data: {
+          id: "1",
+          firstName: "Saiful",
+          lastName: "Islam Shanto",
+          email: "shanto@example.com",
+          phoneNumber: "+8801712345678",
+          birthDate: "1998-06-15",
+          avatarUrl: "/images/profile-avatar.png",
+          status: "active",
+          createdAt: "2024-09-15T10:00:00Z",
+          addresses: [], // or a mock address object if needed
+        },
+      };
       if (response.success) {
         setUserProfile(response.data);
         setIsEditingProfile(false);

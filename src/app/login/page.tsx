@@ -27,6 +27,21 @@ export default function LoginPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
+  //   const onSubmit: SubmitHandler<FormValues> = async (data: any) => {
+  //   try {
+  //     const res = await userLogin({ ...data }).unwrap();
+  //     // console.log(res);
+  //     if (res?.accessToken) {
+  //       router.push("/profile");
+  //       message.success("User logged in successfully!");
+  //     }
+  //     storeUserInfo({ accessToken: res?.accessToken });
+  //     // console.log(res);
+  //   } catch (err: any) {
+  //     console.error(err.message);
+  //   }
+  // };
+
   // Get the intended destination from query params (Next.js equivalent of location.state)
   const from = searchParams.get('from') || '/dashboard';
 
