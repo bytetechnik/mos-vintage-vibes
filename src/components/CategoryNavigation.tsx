@@ -12,7 +12,9 @@ import Image from 'next/image';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
 
-
+interface CategoryNavigationProps {
+  totalProducts: number;
+}
 
 const categoryData = [
   {
@@ -66,7 +68,8 @@ const categoryData = [
   }
 ];
 
-const CategoryNavigation = () => {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const CategoryNavigation = ({ totalProducts }: CategoryNavigationProps) => {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();

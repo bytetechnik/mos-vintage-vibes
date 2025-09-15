@@ -20,14 +20,15 @@ const Products = () => {
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [isLoading, setIsLoading] = useState(false);
-  const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
+
   const isMobile = useIsMobile();
 
   // Get initial values from URL params
   const initialCategory = searchParams.get('category') as ProductCategory | null;
   const initialSearch = searchParams.get('search') || '';
-  const initialFeatured = searchParams.get('featured') === 'true';
+  // const initialFeatured = searchParams.get('featured') === 'true';
   const initialSize = searchParams.get('size');
 
   // Filter states

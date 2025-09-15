@@ -267,7 +267,7 @@ export default function LatestDropsPage() {
       </div>
 
       {/* Category Navigation */}
-      <CategoryNavigation />
+      <CategoryNavigation totalProducts={filteredProducts.length} />
 
       {/* Search and Additional Controls */}
       <div className="flex flex-col sm:flex-row gap-2 md:gap-4 mb-6">

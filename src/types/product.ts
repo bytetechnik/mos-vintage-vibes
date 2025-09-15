@@ -16,7 +16,7 @@ export interface Product {
   createdAt: string;
 }
 
-export type ProductCategory = 
+export type ProductCategory =
   | 'sweaters-hoodies'
   | 'jeans'
   | 'jackets'
