@@ -1,11 +1,9 @@
-import { useState } from 'react';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
-import { ChevronDown, ChevronUp, X } from 'lucide-react';
-import { ProductCategory } from '@/types/product';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
+import { ChevronDown, ChevronUp, X } from 'lucide-react';
+import { useState } from 'react';
 
 interface FilterSidebarProps {
   selectedSizes: string[];
@@ -45,8 +43,7 @@ const FilterSidebar = ({
   isMobile = false,
   onClose,
   isMobileOpen = false,
-  sortBy = 'newest',
-  onSortByChange
+
 }: FilterSidebarProps) => {
   const [showMoreSizes, setShowMoreSizes] = useState(false);
 
@@ -60,17 +57,15 @@ const FilterSidebar = ({
   const mobileContent = (
     <>
       {/* Backdrop */}
-      <div 
-        className={`fixed inset-0 bg-black/50 z-40 transition-all duration-300 ${
-          isMobileOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
-        }`}
+      <div
+        className={`fixed inset-0 bg-black/50 z-40 transition-all duration-300 ${isMobileOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
+          }`}
         onClick={onClose}
       />
-      
+
       {/* Filter Overlay */}
-      <div className={`fixed inset-0 z-50 bg-white transition-transform duration-300 w-full max-w-full ${
-        isMobileOpen ? 'translate-x-0' : 'translate-x-full'
-      }`}>
+      <div className={`fixed inset-0 z-50 bg-white transition-transform duration-300 w-full max-w-full ${isMobileOpen ? 'translate-x-0' : 'translate-x-full'
+        }`}>
         {/* Header */}
         <div className="flex items-center p-4 border-b border-gray-200">
           <Button variant="ghost" size="icon" onClick={onClose} className="p-0">
@@ -152,7 +147,7 @@ const FilterSidebar = ({
                   <Checkbox
                     id={`condition-${condition}`}
                     checked={selectedConditions.includes(condition)}
-                    onCheckedChange={(checked) => 
+                    onCheckedChange={(checked) =>
                       onConditionChange(condition, checked as boolean)
                     }
                     className="border-gray-300"
@@ -254,7 +249,7 @@ const FilterSidebar = ({
             </div>
           ))}
         </div>
-        
+
         {sizes.length > 7 && (
           <Button
             variant="ghost"
@@ -286,7 +281,7 @@ const FilterSidebar = ({
               <Checkbox
                 id={`condition-${condition}`}
                 checked={selectedConditions.includes(condition)}
-                onCheckedChange={(checked) => 
+                onCheckedChange={(checked) =>
                   onConditionChange(condition, checked as boolean)
                 }
               />

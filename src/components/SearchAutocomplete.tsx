@@ -1,9 +1,10 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
-import { Search, X, Clock, TrendingUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useProducts } from '@/hooks/useProducts';
 import { Product } from '@/types/product';
+import { Clock, Search, TrendingUp, X } from 'lucide-react';
+import Image from 'next/image';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 interface SearchAutocompleteProps {
   onSearch: (query: string) => void;
@@ -25,7 +26,7 @@ const SearchAutocomplete = ({
   const [trendingSearches] = useState([
     'Nike', 'Adidas', 'Supreme', 'Vintage', 'Streetwear', 'Hoodies', 'Jeans'
   ]);
-  
+
   const inputRef = useRef<HTMLInputElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -51,7 +52,7 @@ const SearchAutocomplete = ({
   const saveRecentSearch = useCallback((search: string) => {
     const trimmed = search.trim();
     if (!trimmed) return;
-    
+
     const updated = [trimmed, ...recentSearches.filter(s => s !== trimmed)].slice(0, 5);
     setRecentSearches(updated);
     localStorage.setItem('recentSearches', JSON.stringify(updated));
@@ -110,7 +111,7 @@ const SearchAutocomplete = ({
     switch (e.key) {
       case 'ArrowDown':
         e.preventDefault();
-        setSelectedIndex(prev => 
+        setSelectedIndex(prev =>
           prev < suggestions.length - 1 ? prev + 1 : prev
         );
         break;
@@ -142,9 +143,9 @@ const SearchAutocomplete = ({
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
-        dropdownRef.current && 
+        dropdownRef.current &&
         !dropdownRef.current.contains(event.target as Node) &&
-        inputRef.current && 
+        inputRef.current &&
         !inputRef.current.contains(event.target as Node)
       ) {
         setIsOpen(false);
@@ -218,15 +219,16 @@ const SearchAutocomplete = ({
                   {searchResults.data.map((product, index) => (
                     <div
                       key={product.id}
-                      className={`flex items-center gap-3 p-2 rounded cursor-pointer transition-colors ${
-                        selectedIndex === index ? 'bg-accent' : 'hover:bg-accent'
-                      }`}
+                      className={`flex items-center gap-3 p-2 rounded cursor-pointer transition-colors ${selectedIndex === index ? 'bg-accent' : 'hover:bg-accent'
+                        }`}
                       onClick={() => handleProductSelect(product)}
                     >
-                      <img
+                      <Image
                         src={product.images[0]}
                         alt={product.name}
-                        className="w-12 h-12 object-cover rounded"
+                        width={48}   // w-12 → 12 * 4 = 48px
+                        height={48}  // h-12 → 12 * 4 = 48px
+                        className="object-cover rounded"
                       />
                       <div className="flex-1 min-w-0">
                         <h3 className="font-medium text-foreground truncate">
@@ -241,7 +243,7 @@ const SearchAutocomplete = ({
                 </div>
               ) : (
                 <div className="text-sm text-muted-foreground p-2">
-                  No products found for "{query}"
+                  No products found for &quote;{query}&quot;
                 </div>
               )}
             </div>
@@ -258,11 +260,10 @@ const SearchAutocomplete = ({
                 {recentSearches.map((search, index) => (
                   <div
                     key={search}
-                    className={`p-2 rounded cursor-pointer transition-colors ${
-                      selectedIndex === (searchResults?.data?.length || 0) + index 
-                        ? 'bg-accent' 
+                    className={`p-2 rounded cursor-pointer transition-colors ${selectedIndex === (searchResults?.data?.length || 0) + index
+                        ? 'bg-accent'
                         : 'hover:bg-accent'
-                    }`}
+                      }`}
                     onClick={() => handleRecentSearchSelect(search)}
                   >
                     <span className="text-sm">{search}</span>
@@ -279,6 +280,7 @@ const SearchAutocomplete = ({
               Trending
             </div>
             <div className="flex flex-wrap gap-2">
+              {/* eslint-disable-next-line @typescript-eslint/no-unused-vars */}
               {trendingSearches.map((search, index) => (
                 <Button
                   key={search}

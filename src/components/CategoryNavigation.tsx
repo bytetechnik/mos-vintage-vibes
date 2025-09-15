@@ -12,9 +12,7 @@ import Image from 'next/image';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
 
-interface CategoryNavigationProps {
-  totalProducts: number;
-}
+
 
 const categoryData = [
   {
@@ -68,7 +66,7 @@ const categoryData = [
   }
 ];
 
-const CategoryNavigation = ({ totalProducts }: CategoryNavigationProps) => {
+const CategoryNavigation = () => {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -110,10 +108,7 @@ const CategoryNavigation = ({ totalProducts }: CategoryNavigationProps) => {
     }
   };
 
-  const handleSortChange = (value: string) => {
-    setSortBy(value);
-    updateSearchParams({ sort: value });
-  };
+
 
   return (
     <div className="flex flex-col items-center gap-4 mb-6 w-full max-w-full">

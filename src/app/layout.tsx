@@ -1,5 +1,5 @@
-import Footer from "@/components/shared/Footer";
-import NavBar from "@/components/shared/NavBar";
+import SplashScreen from "@/components/SplashScreen";
+import { Toaster } from "@/components/ui/sonner";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
@@ -28,13 +28,12 @@ export default function RootLayout({
     <html lang="en">
 
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        <NavBar />
-
-        {children}
-        <Footer />
-
+        className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+        <Toaster />
+        <SplashScreen />
+        <>
+          {children}
+        </>
       </body>
     </html>
   );
