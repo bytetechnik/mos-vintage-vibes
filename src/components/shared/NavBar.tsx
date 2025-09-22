@@ -83,7 +83,7 @@ const NavBar = () => {
   // };
 
   const handleProductClick = (productId: string) => {
-    router.push(`/product/${productId}`);
+    router.push(`/products/${productId}`);
     setIsSearchOpen(false);
     setSearchQuery('');
   };
@@ -277,7 +277,7 @@ const NavBar = () => {
                     setIsSearchOpen(false);
                   }}
                   onProductSelect={(product) => {
-                    router.push(`/product/${product.id}`);
+                    router.push(`/products/${product.id}`);
                     setIsSearchOpen(false);
                   }}
                   placeholder="Search for products, brands, categories..."

@@ -33,6 +33,6 @@ export const getNewAccessToken = async () => {
     url: `${getBaseUrl()}/auth/refresh-token`,
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    withCredentials: true,
+    // withCredentials: true,
   });
 };

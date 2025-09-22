@@ -42,7 +42,6 @@ const ForgotPassword = () => {
         title: "Reset link sent",
         description: "If an account with that email exists, we've sent a password reset link.",
       });
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       console.error('Forgot password error:', error);
 

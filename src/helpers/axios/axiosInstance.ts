@@ -1,7 +1,7 @@
 import { authKey } from "@/constants/storageKey";
 
-import { IGenericErrorResponse, ResponseSuccessType } from "@/types";
-import { getFromLocalStorage, setToLocalStorage } from "@/utils/local-storage";
+import { IGenericErrorResponse } from "@/types";
+import { getFromLocalStorage } from "@/utils/local-storage";
 import axios from "axios";
 
 const instance = axios.create();
@@ -27,20 +27,27 @@ instance.interceptors.request.use(
 
 // Add a response interceptor
 instance.interceptors.response.use(
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   //@ts-ignore
   function (response) {
-    const responseObject: ResponseSuccessType = {
-      data: response?.data?.data,
-      meta: response?.data?.meta,
-    };
-    return responseObject;
+    //!if need meta data then return whole response in future
+    // const responseObject: ResponseSuccessType = {
+    //   data: response?.data?.data,
+    //   meta: response?.data?.meta,
+    // };
+    return response?.data?.data;
   },
   async function (error) {
     if (error?.response?.status === 403) {
+      console.log(error.response?.data?.message || "Forbidden");
+      //! Handle logout
+      // await logoutUser();
+      // window.location.href = "/login";
+      // return Promise.reject(error);
     } else {
       const responseObject: IGenericErrorResponse = {
-        statusCode: error?.response?.data?.statusCode || 500,
-        message: error?.response?.data?.message || "Something went wrong",
+        statusCode: error?.response?.status || error?.response?.data?.statusCode || 500,
+        message: error.response?.data?.error?.message || error?.response?.data?.message || "Something went wrong",
         errorMessages: error?.response?.data?.message,
       };
       return responseObject;

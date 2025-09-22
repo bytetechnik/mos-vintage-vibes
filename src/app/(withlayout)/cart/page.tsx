@@ -69,7 +69,7 @@ const Cart = () => {
               >
                 <div className="flex gap-4">
                   {/* Product Image */}
-                  <Link href={`/product/${item.product.id}`} className="shrink-0">
+                  <Link href={`/products/${item.product.id}`} className="shrink-0">
                     <Image
                       src={item.product.images[0]}
                       alt={item.product.name}
@@ -81,7 +81,7 @@ const Cart = () => {
 
                   {/* Product Details */}
                   <div className="flex-1 min-w-0">
-                    <Link href={`/product/${item.product.id}`}>
+                    <Link href={`/products/${item.product.id}`}>
                       <h3 className="font-semibold text-foreground hover:text-vintage-orange transition-colors">
                         {item.product.name}
                       </h3>

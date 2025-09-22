@@ -1,5 +1,5 @@
 import SplashScreen from "@/components/SplashScreen";
-import { Toaster } from "@/components/ui/sonner";
+import Providers from "@/lib/Providers";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
@@ -25,16 +25,16 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <Toaster />
-        <SplashScreen />
-        <>
-          {children}
-        </>
-      </body>
-    </html>
+    <Providers>
+      <html lang="en">
+        <body
+          className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+          <SplashScreen />
+          <>
+            {children}
+          </>
+        </body>
+      </html>
+    </Providers>
   );
 }

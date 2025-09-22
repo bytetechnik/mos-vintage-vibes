@@ -10,6 +10,7 @@ import ReviewSection from "@/components/home/ReviewSection";
 export default function Home() {
   return (
     <>
+
       <HeroSlider />
       <LatestDrops />
       <FeaturedProducts />

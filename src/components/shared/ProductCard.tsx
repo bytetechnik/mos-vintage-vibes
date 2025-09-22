@@ -3,6 +3,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Product } from '@/types/product';
 import { Heart, ShoppingCart } from 'lucide-react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { memo, useCallback, useState } from 'react';
 
@@ -46,19 +47,20 @@ const ProductCard = memo(({ product, imageIndex = 0 }: ProductCardProps) => {
   const condition = getConditionBadge(product.condition.rating);
 
   return (
-    <Link href={`/product/${product.id}`} className="block w-full">
+    <Link href={`/products/${product.id}`} className="block w-full">
       <div className="group bg-card md:bg-card rounded-lg overflow-hidden shadow-card-custom md:shadow-card-custom hover:shadow-hover-street md:hover:shadow-hover-street transition-all duration-300 hover:scale-105 md:hover:scale-105 w-full">
         {/* Image */}
         <div className="relative aspect-square overflow-hidden">
           {!imageLoaded && !imageError && (
             <div className="absolute inset-0 bg-muted animate-pulse" />
           )}
-          <img
+          <Image
             src={product.images[imageIndex % product.images.length]}
             alt={product.name}
-            className={`w-full h-full object-cover group-hover:scale-110 md:group-hover:scale-110 transition-transform duration-300 ${imageLoaded ? 'opacity-100' : 'opacity-0'
+            fill
+            priority
+            className={`object-cover group-hover:scale-110 md:group-hover:scale-110 transition-transform duration-300 ${imageLoaded ? 'opacity-100' : 'opacity-0'
               }`}
-            loading="lazy"
             onLoad={handleImageLoad}
             onError={handleImageError}
           />
