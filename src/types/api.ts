@@ -74,13 +74,15 @@ export interface AuthData {
   token: string;
 }
 
-export interface LoginResponse extends ApiResponse<AuthData> {}
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface LoginResponse extends ApiResponse<AuthData> { }
 
 export interface RefreshTokenRequest {
   token: string;
 }
 
-export interface RefreshTokenResponse extends ApiResponse<{ token: string }> {}
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface RefreshTokenResponse extends ApiResponse<{ token: string }> { }
 
 // Password Reset Types
 export interface ForgotPasswordRequest {

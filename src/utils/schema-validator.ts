@@ -2,15 +2,15 @@ export const getErrorMessageByPropertyName = (obj: Record<string, any>, property
     // let obj = errors
     // let propertyPath = "admin.name.firstName"
     // let propertyPath = "admin.name.lastName"
-    
+
     const properties = propertyPath.split(".")
     // ["admin","name","firstName"]
     // ["admin","name","lastName"]
     let value = obj;
 
-    for (let prop of properties) {
+    for (const prop of properties) {
         if (value[prop]) {
-           value = value[prop]
+            value = value[prop]
         }
         else {
             return undefined;

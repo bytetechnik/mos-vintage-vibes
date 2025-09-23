@@ -67,3 +67,10 @@ export const getPasswordStrength = (password: string) => {
     percentage: (strength / 5) * 100,
   };
 };
+
+export const resetPasswordSchema = yup.object().shape({
+  email: yup
+    .string()
+    .required('Email is required')
+    .email('Please enter a valid email address')
+});
