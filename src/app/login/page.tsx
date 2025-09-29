@@ -16,6 +16,7 @@ import { storeUserInfo } from '@/services/auth.service';
 
 export default function LoginPage() {
   const [activeTab, setActiveTab] = useState('login');
+
   const searchParams = useSearchParams();
   const redirectUrl = searchParams.get('redirect') || '/';
 
@@ -27,7 +28,7 @@ export default function LoginPage() {
   const handleLogin = async (data: LoginFormValues) => {
     const res = await userLogin(data).unwrap();
     if (res?.token) {
-      storeUserInfo({ accessToken: res.token });
+      storeUserInfo({ token: res.token });
 
       toast({
         title: "Login Successful",
@@ -53,7 +54,7 @@ export default function LoginPage() {
     const res = await userSignup(signupData).unwrap();
 
     if (res?.token) {
-      storeUserInfo({ accessToken: res.token });
+      storeUserInfo({ token: res.token });
 
       toast({
         title: "Account Created",
