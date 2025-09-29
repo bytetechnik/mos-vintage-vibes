@@ -17,7 +17,7 @@ import { storeUserInfo } from '@/services/auth.service';
 export default function LoginPage() {
   const [activeTab, setActiveTab] = useState('login');
   const searchParams = useSearchParams();
-  const redirectUrl = searchParams.get('redirect') || '/profile';
+  const redirectUrl = searchParams.get('redirect') || '/';
 
   const { toast } = useToast();
   const router = useRouter();
@@ -35,7 +35,7 @@ export default function LoginPage() {
         variant: "success",
       });
 
-      const destination = decodeURIComponent(redirectUrl) || '/';
+      const destination = decodeURIComponent(redirectUrl);
       router.push(destination);
     } else {
       toast({
@@ -61,7 +61,7 @@ export default function LoginPage() {
         variant: "success",
       });
 
-      const destination = decodeURIComponent(redirectUrl) || '/';
+      const destination = decodeURIComponent(redirectUrl);
       router.push(destination);
     } else {
       toast({
@@ -90,7 +90,7 @@ export default function LoginPage() {
               <LoginForm onSubmit={handleLogin} isSubmitting={false} />
 
               <div className="flex items-center justify-between text-sm">
-                <Link href="/forgot-password" className="text-vintage-orange hover:underline">
+                <Link href="/password/forgot" className="text-vintage-orange hover:underline">
                   Forgot password?
                 </Link>
               </div>

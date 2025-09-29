@@ -1,6 +1,6 @@
 import { authKey } from "@/constants/storageKey";
 
-import { IGenericErrorResponse } from "@/types";
+import { IGenericErrorResponse, ResponseSuccessType } from "@/types";
 import { getFromLocalStorage } from "@/utils/local-storage";
 import axios from "axios";
 
@@ -31,11 +31,13 @@ instance.interceptors.response.use(
   //@ts-ignore
   function (response) {
     //!if need meta data then return whole response in future
-    // const responseObject: ResponseSuccessType = {
-    //   data: response?.data?.data,
-    //   meta: response?.data?.meta,
-    // };
-    return response?.data?.data;
+    const responseObject: ResponseSuccessType = {
+      ...response?.data?.data || response?.data || {},
+      meta: response?.data?.meta || null,
+    };
+
+    // console.log(response);
+    return responseObject
   },
   async function (error) {
     if (error?.response?.status === 403) {

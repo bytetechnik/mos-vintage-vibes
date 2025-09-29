@@ -74,3 +74,22 @@ export const resetPasswordSchema = yup.object().shape({
     .required('Email is required')
     .email('Please enter a valid email address')
 });
+
+export type ResetPassRequestFormValues = yup.InferType<typeof resetPasswordSchema>;
+
+export const passwordRestSchema = yup.object().shape({
+  password: yup
+    .string()
+    .required('New password is required')
+    .min(8, 'Password must be at least 8 characters')
+    .matches(
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
+      'Password must contain at least one uppercase letter, one lowercase letter, and one number'
+    ),
+  confirmPassword: yup
+    .string()
+    .required('Please confirm your new password')
+    .oneOf([yup.ref('password')], 'Passwords must match'),
+});
+
+export type ResetPassFormValues = yup.InferType<typeof passwordRestSchema>;
