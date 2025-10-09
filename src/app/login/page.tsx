@@ -28,7 +28,7 @@ export default function LoginPage() {
   const handleLogin = async (data: LoginFormValues) => {
     const res = await userLogin(data).unwrap();
     if (res?.token) {
-      storeUserInfo({ token: res.token });
+      storeUserInfo({ token: res.token, userData: JSON.stringify(res.user) });
 
       toast({
         title: "Login Successful",
@@ -54,7 +54,7 @@ export default function LoginPage() {
     const res = await userSignup(signupData).unwrap();
 
     if (res?.token) {
-      storeUserInfo({ token: res.token });
+      storeUserInfo({ token: res.token, userData: JSON.stringify(res.user) });
 
       toast({
         title: "Account Created",

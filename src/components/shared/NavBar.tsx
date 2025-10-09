@@ -1,12 +1,14 @@
 "use client";
 import { Button } from '@/components/ui/button';
 import { products } from '@/data/products';
-import { Menu, Search, ShoppingCart, User, X } from 'lucide-react';
+import { getUserInfo, logoutUser } from '@/services/auth.service';
+import { LogOut, Menu, Search, Settings, ShoppingCart, User, X } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import SearchAutocomplete from '../SearchAutocomplete';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '../ui/dropdown-menu';
 import MobileSidebar from './nav/MobileSidebar';
 import NavigationMenu from './nav/NavigationMenu';
 
@@ -16,6 +18,23 @@ const NavBar = () => {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<typeof products>([]);
+  const [isAuthenticated, setIsAuthenticated] = useState(true); // Replace with actual auth logic
+  const [user, setUser] = useState<{ firstName?: string; lastName?: string; email?: string } | null>(null); // Replace with actual user data
+
+
+
+  useEffect(() => {
+    const useData = getUserInfo();
+    if (useData) {
+      setUser(useData);
+      setIsAuthenticated(true);
+    } else {
+      setUser(null);
+      setIsAuthenticated(false);
+    }
+
+  }, []);
+
 
 
   const pathname = usePathname();
@@ -133,11 +152,7 @@ const NavBar = () => {
           {/* Center: Logo */}
           <div className="flex items-center justify-center flex-1">
             <Link href="/" className="flex items-center">
-              {/* <img
-                src="/logo_white.png"
-                alt="Mo's VintageWorld Logo"
-                className="w-48 h-48 md:w-56 md:h-56 sm:w-40 sm:h-40 object-contain"
-              /> */}
+
 
               <Image src="/logo_white.png" alt="Mo's VintageWorld Logo" width={224} height={224} className="w-48 h-48 md:w-56 md:h-56 sm:w-40 sm:h-40 object-contain" />
             </Link>
@@ -169,7 +184,7 @@ const NavBar = () => {
 
             {/* Profile/Login Button - Hidden on mobile */}
             <div className="hidden md:block">
-              {/* {isAuthenticated ? (
+              {isAuthenticated ? (
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button
@@ -205,11 +220,17 @@ const NavBar = () => {
                         Dashboard
                       </Link>
                     </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link href="/profile" className="flex items-center gap-2 cursor-pointer">
+                        <User className="w-4 h-4" />
+                        Profile
+                      </Link>
+                    </DropdownMenuItem>
 
                     <DropdownMenuSeparator />
 
                     <DropdownMenuItem
-                      onClick={() => logout()}
+                      onClick={logoutUser}
                       className="flex items-center gap-2 cursor-pointer text-red-600 focus:text-red-600 focus:bg-red-50"
                     >
                       <LogOut className="w-4 h-4" />
@@ -230,20 +251,8 @@ const NavBar = () => {
                     </span>
                   </Button>
                 </Link>
-              )} */}
-              {/* //! Temporary placeholder for profile/login button */}
-              <Link href="/login">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="flex items-center gap-2 px-3"
-                >
-                  <User className={`w-4 h-4 transition-colors duration-300 ${pathname === '/' ? (isScrolled ? 'text-black' : 'text-white') : 'text-black'}`} />
-                  <span className={`hidden sm:inline transition-colors duration-300 ${pathname === '/' ? (isScrolled ? 'text-black' : 'text-white') : 'text-black'}`}>
-                    Login
-                  </span>
-                </Button>
-              </Link>
+              )}
+
             </div>
           </div>
         </div>
@@ -361,6 +370,8 @@ const NavBar = () => {
       {/* Mobile Sidebar */}
       <MobileSidebar
         isOpen={isMobileMenuOpen}
+        user={user}
+        isAuthenticated={isAuthenticated}
         onClose={() => setIsMobileMenuOpen(false)}
       />
     </>

@@ -1,7 +1,8 @@
-import { authKey } from "@/constants/storageKey";
+import { authKey, userDataKey } from "@/constants/storageKey";
+import { getNewAccessToken } from "@/services/auth.service";
 
 import { IGenericErrorResponse, ResponseSuccessType } from "@/types";
-import { getFromLocalStorage } from "@/utils/local-storage";
+import { getFromLocalStorage, setToLocalStorage } from "@/utils/local-storage";
 import axios from "axios";
 
 const instance = axios.create();
@@ -42,6 +43,12 @@ instance.interceptors.response.use(
   async function (error) {
     if (error?.response?.status === 403) {
       console.log(error.response?.data?.message || "Forbidden");
+
+      const data = await getNewAccessToken()
+      if (data?.data?.token) {
+        setToLocalStorage(authKey, data.data.token);
+        setToLocalStorage(userDataKey, data.data.user ? JSON.stringify(data.data.user) : "");
+      }
       //! Handle logout
       // await logoutUser();
       // window.location.href = "/login";

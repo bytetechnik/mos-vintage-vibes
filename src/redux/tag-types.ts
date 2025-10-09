@@ -1,5 +1,9 @@
 export enum tagTypes {
   user = "user",
+  product = "product",
+
+
+  //! will remove later
   department = "department",
   faculty = "faculty",
   admin = "admin",
@@ -19,6 +23,10 @@ export enum tagTypes {
 
 export const tagTypesList = [
   tagTypes.user,
+  tagTypes.product,
+
+
+  //! will remove later
   tagTypes.department,
   tagTypes.faculty,
   tagTypes.admin,

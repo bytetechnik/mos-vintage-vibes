@@ -1,15 +1,18 @@
 import { useEffect, useRef, useState } from 'react';
 
-import { Minus, Plus, User } from 'lucide-react';
+import { logoutUser } from '@/services/auth.service';
+import { LogOut, Minus, Plus, Settings, User } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 
 interface MobileSidebarProps {
   isOpen: boolean;
+  user: any;
+  isAuthenticated: boolean;
   onClose: () => void;
 }
 
-const MobileSidebar = ({ isOpen, onClose }: MobileSidebarProps) => {
+const MobileSidebar = ({ isOpen, user, isAuthenticated, onClose }: MobileSidebarProps) => {
   const sidebarRef = useRef<HTMLDivElement>(null);
   const [expandedCategories, setExpandedCategories] = useState(false);
   const [expandedSizes, setExpandedSizes] = useState(false);
@@ -261,7 +264,7 @@ const MobileSidebar = ({ isOpen, onClose }: MobileSidebarProps) => {
 
             {/* Bottom Links */}
             <div className="pt-6 space-y-3 border-t border-gray-100">
-              {/* {isAuthenticated ? (
+              {isAuthenticated ? (
                 <>
                   <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg mb-3">
                     <div className="w-8 h-8 bg-vintage-orange rounded-full flex items-center justify-center">
@@ -280,12 +283,20 @@ const MobileSidebar = ({ isOpen, onClose }: MobileSidebarProps) => {
                     className="flex items-center gap-3 text-sm text-gray-600 hover:text-black transition-colors"
                     onClick={handleLinkClick}
                   >
-                    <User className="w-4 h-4" />
+                    <Settings className="w-4 h-4" />
                     Dashboard
+                  </Link>
+                  <Link
+                    href="/profile"
+                    className="flex items-center gap-3 text-sm text-gray-600 hover:text-black transition-colors"
+                    onClick={handleLinkClick}
+                  >
+                    <User className="w-4 h-4" />
+                    Profile
                   </Link>
 
                   <button
-                    onClick={handleLogout}
+                    onClick={logoutUser}
                     className="flex items-center gap-3 w-full text-sm text-gray-600 hover:text-red-600 transition-colors"
                   >
                     <LogOut className="w-4 h-4" />
@@ -312,29 +323,9 @@ const MobileSidebar = ({ isOpen, onClose }: MobileSidebarProps) => {
                     Account erstellen
                   </Link>
                 </>
-              )} */}
+              )}
 
-              {/* //! Temporary profile section */}
 
-              <>
-                <Link
-                  href="/login"
-                  className="flex items-center gap-3 text-sm text-gray-600 hover:text-black transition-colors"
-                  onClick={handleLinkClick}
-                >
-                  <User className="w-4 h-4" />
-                  Login
-                </Link>
-
-                <Link
-                  href="/register"
-                  className="flex items-center gap-3 text-sm text-gray-600 hover:text-black transition-colors"
-                  onClick={handleLinkClick}
-                >
-                  <User className="w-4 h-4" />
-                  Account erstellen
-                </Link>
-              </>
 
             </div>
           </nav>
