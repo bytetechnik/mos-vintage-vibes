@@ -1,7 +1,7 @@
 import { tagTypes } from "@/redux/tag-types";
 import { baseApi } from "../baseApi";
 
-const productUrl = '/products';
+const productUrl = 'public/products';
 
 
 

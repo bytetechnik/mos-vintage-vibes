@@ -1,4 +1,5 @@
 import { Button } from '@/components/ui/button';
+import Link from 'next/link';
 
 interface SocialAuthButtonsProps {
   mode: 'login' | 'signup';
@@ -19,7 +20,7 @@ export function SocialAuthButtons({ mode }: SocialAuthButtonsProps) {
       </div>
 
       <div className="grid grid-cols-2 gap-3">
-        <Button variant="outline" className="w-full">
+        <Link href="http://localhost:4444/oauth2/authorization/google" className="w-full">
           <svg className="w-4 h-4 mr-2" viewBox="0 0 24 24">
             <path
               fill="currentColor"
@@ -39,7 +40,7 @@ export function SocialAuthButtons({ mode }: SocialAuthButtonsProps) {
             />
           </svg>
           Google
-        </Button>
+        </Link>
         <Button variant="outline" className="w-full">
           📱 Phone
         </Button>

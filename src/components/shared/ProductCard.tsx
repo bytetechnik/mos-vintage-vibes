@@ -44,7 +44,7 @@ const ProductCard = memo(({ product, imageIndex = 0 }: ProductCardProps) => {
     return { text: 'Good', variant: 'outline' as const };
   };
 
-  const condition = getConditionBadge(product.condition.rating);
+  const condition = getConditionBadge(product?.condition?.rating);
 
   return (
     <Link href={`/products/${product.id}`} className="block w-full">
@@ -55,8 +55,8 @@ const ProductCard = memo(({ product, imageIndex = 0 }: ProductCardProps) => {
             <div className="absolute inset-0 bg-muted animate-pulse" />
           )}
           <Image
-            src={product.images[imageIndex % product.images.length]}
-            alt={product.name}
+            src={product?.images && product.images.length > 0 ? product.images[imageIndex] : '/placeholder.png'}
+            alt={product?.name}
             fill
             priority
             className={`object-cover group-hover:scale-110 md:group-hover:scale-110 transition-transform duration-300 ${imageLoaded ? 'opacity-100' : 'opacity-0'
@@ -131,11 +131,11 @@ const ProductCard = memo(({ product, imageIndex = 0 }: ProductCardProps) => {
           <div className="flex items-center justify-between mb-1">
             <div className="flex items-center space-x-1">
               <span className="text-xs md:text-sm font-bold md:font-bold text-foreground md:text-foreground">
-                €{product.price.toFixed(2)}
+                €{product?.price?.toFixed(2)}
               </span>
               {product.originalPrice && (
                 <span className="text-xs text-muted-foreground line-through hidden md:inline">
-                  €{product.originalPrice.toFixed(2)}
+                  €{product?.originalPrice?.toFixed(2)}
                 </span>
               )}
             </div>
@@ -145,8 +145,8 @@ const ProductCard = memo(({ product, imageIndex = 0 }: ProductCardProps) => {
           </div>
 
           <div className="flex items-center justify-between text-xs text-muted-foreground">
-            <span className="hidden md:inline">{product.condition.rating}/10</span>
-            <span className="text-right hidden md:inline">{product.color}</span>
+            <span className="hidden md:inline">{product?.condition?.rating}/10</span>
+            <span className="text-right hidden md:inline">{product?.color}</span>
           </div>
         </div>
       </div>

@@ -11,16 +11,17 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { ProductCategory } from '@/types/product';
 import { Filter } from 'lucide-react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 // ✅ Import mock data instead of hooks
-import { categoryNames, products as mockProducts } from '@/data/products';
+import { categoryNames } from '@/data/products';
+import { useProductsMutation } from '@/redux/api/product/productApi';
 
 const Products = () => {
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
   const [isLoading, setIsLoading] = useState(false);
 
   const isMobile = useIsMobile();
@@ -63,43 +64,74 @@ const Products = () => {
 
     router.push(`${pathname}${query}`, { scroll: false });
   }, [searchParams, router, pathname]);
+  const [products] = useProductsMutation();
+  const [productsData, setProductsData] = useState<any[]>([]);
+
+  // Fetch products on mount or when filters change
+  useEffect(() => {
+    let isMounted = true;
+    setIsLoading(true);
+    products({
+      category: initialCategory || undefined,
+      size: initialSize || undefined,
+      search: initialSearch || undefined,
+      // featured: initialFeatured || undefined,
+    })
+      .unwrap()
+      .then((data: any) => {
+        console.log();
+        if (isMounted) setProductsData(data.data || []);
+      })
+      .catch(() => {
+        if (isMounted) setProductsData([]);
+      })
+      .finally(() => {
+        if (isMounted) setIsLoading(false);
+      });
+    return () => {
+      isMounted = false;
+    };
+  }, [products, initialCategory, initialSize, initialSearch]);
 
   // ✅ Use mock products directly
-  let filteredProducts = mockProducts.filter((p) => {
-    const matchesCategory = selectedCategories.length === 0 || selectedCategories.includes(p.category);
-    const matchesSize = selectedSizes.length === 0 || selectedSizes.includes(p.size);
-    const matchesCondition = selectedConditions.length === 0 || selectedConditions.includes(p.condition.rating);
-    const matchesSearch = searchQuery === '' || p.name.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesStock =
-      (inStockOnly && p.inStock) ||
-      (outOfStock && !p.inStock) ||
-      (!inStockOnly && !outOfStock);
+  // let filteredProducts = productsData.filter((p) => {
+  //   const matchesCategory = selectedCategories.length === 0 || selectedCategories.includes(p.category);
+  //   const matchesSize = selectedSizes.length === 0 || selectedSizes.includes(p.size);
+  //   const matchesCondition = selectedConditions.length === 0 || selectedConditions.includes(p.condition.rating);
+  //   const matchesSearch = searchQuery === '' || p.name.toLowerCase().includes(searchQuery.toLowerCase());
+  //   const matchesStock =
+  //     (inStockOnly && p.inStock) ||
+  //     (outOfStock && !p.inStock) ||
+  //     (!inStockOnly && !outOfStock);
 
-    return matchesCategory && matchesSize && matchesCondition && matchesSearch && matchesStock;
-  });
+  //   return matchesCategory && matchesSize && matchesCondition && matchesSearch && matchesStock;
+  // });
 
-  // ✅ Sorting
-  if (sortBy === 'price-low') {
-    filteredProducts = filteredProducts.sort((a, b) => a.price - b.price);
-  } else if (sortBy === 'price-high') {
-    filteredProducts = filteredProducts.sort((a, b) => b.price - a.price);
-  } else if (sortBy === 'name') {
-    filteredProducts = filteredProducts.sort((a, b) => a.name.localeCompare(b.name));
-  } else if (sortBy === 'condition') {
-    filteredProducts = filteredProducts.sort((a, b) => b.condition.rating - a.condition.rating);
-  } else {
-    filteredProducts = filteredProducts.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-  }
+  const filteredProducts = productsData
+
+
+  // // ✅ Sorting
+  // if (sortBy === 'price-low') {
+  //   filteredProducts = filteredProducts.sort((a, b) => a.price - b.price);
+  // } else if (sortBy === 'price-high') {
+  //   filteredProducts = filteredProducts.sort((a, b) => b.price - a.price);
+  // } else if (sortBy === 'name') {
+  //   filteredProducts = filteredProducts.sort((a, b) => a.name.localeCompare(b.name));
+  // } else if (sortBy === 'condition') {
+  //   filteredProducts = filteredProducts.sort((a, b) => b.condition.rating - a.condition.rating);
+  // } else {
+  //   filteredProducts = filteredProducts.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  // }
 
   // Get unique conditions from products
-  const conditions = [...new Set(mockProducts.map(p => p.condition.rating))].sort((a, b) => b - a);
+  // const conditions = [...new Set(mockProducts.map(p => p.condition.rating))].sort((a, b) => b - a);
 
   const handleConditionChange = (condition: number, checked: boolean) => {
-    if (checked) {
-      setSelectedConditions([...selectedConditions, condition]);
-    } else {
-      setSelectedConditions(selectedConditions.filter(c => c !== condition));
-    }
+    // if (checked) {
+    //   setSelectedConditions([...selectedConditions, condition]);
+    // } else {
+    //   setSelectedConditions(selectedConditions.filter(c => c !== condition));
+    // }
   };
 
   const handleSizeChange = (size: string, checked: boolean) => {
@@ -204,7 +236,8 @@ const Products = () => {
             onConditionChange={handleConditionChange}
             priceRange={priceRange}
             onPriceRangeChange={setPriceRange}
-            conditions={conditions}
+            // conditions={conditions}
+            conditions={[]}
             activeFiltersCount={activeFiltersCount}
             onClearFilters={clearFilters}
             isMobile={false}
