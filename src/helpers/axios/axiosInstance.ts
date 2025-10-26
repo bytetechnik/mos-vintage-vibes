@@ -16,7 +16,7 @@ instance.interceptors.request.use(
     // Do something before request is sent
     const accessToken = getFromLocalStorage(authKey);
     if (accessToken) {
-      config.headers.Authorization = accessToken;
+      config.headers.Authorization = `Bearer ${accessToken}`;
     }
     return config;
   },
@@ -33,7 +33,7 @@ instance.interceptors.response.use(
   function (response) {
     //!if need meta data then return whole response in future
     const responseObject: ResponseSuccessType = {
-      ...response?.data?.data || response?.data || {},
+      ...response?.data || {},
       meta: response?.data?.meta || null,
     };
 

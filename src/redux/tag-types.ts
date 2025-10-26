@@ -1,6 +1,8 @@
 export enum tagTypes {
   user = "user",
   product = "product",
+  cart = "cart",
+  categories = "categories",
 
 
   //! will remove later
@@ -24,6 +26,8 @@ export enum tagTypes {
 export const tagTypesList = [
   tagTypes.user,
   tagTypes.product,
+  tagTypes.cart,
+  tagTypes.categories,
 
 
   //! will remove later

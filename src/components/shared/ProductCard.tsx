@@ -12,7 +12,7 @@ interface ProductCardProps {
   imageIndex?: number;
 }
 
-const ProductCard = memo(({ product, imageIndex = 0 }: ProductCardProps) => {
+const ProductCard = memo(({ product }: ProductCardProps) => {
   const [isLiked, setIsLiked] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
   const [imageError, setImageError] = useState(false);
@@ -44,18 +44,18 @@ const ProductCard = memo(({ product, imageIndex = 0 }: ProductCardProps) => {
     return { text: 'Good', variant: 'outline' as const };
   };
 
-  const condition = getConditionBadge(product?.condition?.rating);
+  const condition = getConditionBadge(product?.conditionRating as number || 0);;
 
   return (
     <Link href={`/products/${product.id}`} className="block w-full">
-      <div className="group bg-card md:bg-card rounded-lg overflow-hidden shadow-card-custom md:shadow-card-custom hover:shadow-hover-street md:hover:shadow-hover-street transition-all duration-300 hover:scale-105 md:hover:scale-105 w-full">
+      <div className="group relative z-10 hover:z-20 bg-card md:bg-card rounded-lg overflow-hidden shadow-card md:shadow-card hover:shadow-street md:hover:shadow-street transition-all duration-300 hover:scale-105 md:hover:scale-105 w-full">
         {/* Image */}
         <div className="relative aspect-square overflow-hidden">
           {!imageLoaded && !imageError && (
             <div className="absolute inset-0 bg-muted animate-pulse" />
           )}
           <Image
-            src={product?.images && product.images.length > 0 ? product.images[imageIndex] : '/placeholder.png'}
+            src={product.image ? product.image : '/placeholder.png'}
             alt={product?.name}
             fill
             priority
@@ -106,7 +106,7 @@ const ProductCard = memo(({ product, imageIndex = 0 }: ProductCardProps) => {
             <Badge variant={condition.variant} className="text-xs">
               {condition.text}
             </Badge>
-            {product.originalPrice && (
+            {product.sellingPrice && (
               <Badge variant="destructive" className="text-xs">
                 Sale
               </Badge>
@@ -125,29 +125,29 @@ const ProductCard = memo(({ product, imageIndex = 0 }: ProductCardProps) => {
             <h3 className="font-semibold md:font-semibold text-foreground md:text-foreground group-hover:text-vintage-orange md:group-hover:text-vintage-orange transition-colors line-clamp-2 text-xs md:text-sm">
               {product.name}
             </h3>
-            <p className="text-xs text-muted-foreground hidden md:block">{product.brand}</p>
+            <p className="text-xs text-muted-foreground hidden md:block">{product.brandName}</p>
           </div>
 
           <div className="flex items-center justify-between mb-1">
             <div className="flex items-center space-x-1">
               <span className="text-xs md:text-sm font-bold md:font-bold text-foreground md:text-foreground">
-                €{product?.price?.toFixed(2)}
+                €{product?.sellingPrice?.toFixed(2)}
               </span>
-              {product.originalPrice && (
+              {product.basePrice && (
                 <span className="text-xs text-muted-foreground line-through hidden md:inline">
-                  €{product?.originalPrice?.toFixed(2)}
+                  €{product?.maxPrice?.toFixed(2)}
                 </span>
               )}
             </div>
-            <div className="text-xs text-muted-foreground">
-              {product.size}
-            </div>
+            {/* <div className="text-xs text-muted-foreground">
+              {product?.variants?.size}
+            </div> */}
           </div>
 
-          <div className="flex items-center justify-between text-xs text-muted-foreground">
-            <span className="hidden md:inline">{product?.condition?.rating}/10</span>
-            <span className="text-right hidden md:inline">{product?.color}</span>
-          </div>
+          {/* <div className="flex items-center justify-between text-xs text-muted-foreground">
+            <span className="hidden md:inline">{product?.conditionRating}/10</span>
+            <span className="text-right hidden md:inline">{product?.variants?.color}</span>
+          </div> */}
         </div>
       </div>
     </Link>

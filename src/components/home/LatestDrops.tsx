@@ -1,10 +1,9 @@
 "use client";
+import Link from 'next/link';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
-
-import { products } from '@/data/products';
-import Link from 'next/link';
+import { useLatestProductsQuery } from '@/redux/api/product/productApi';
 import ProductCard from '../shared/ProductCard';
 
 const LatestDrops = () => {
@@ -15,12 +14,9 @@ const LatestDrops = () => {
   const touchStartY = useRef<number>(0);
   const scrollStartX = useRef<number>(0);
 
-  // Get the latest products (sorted by createdAt date, most recent first)
-  const latestProducts = products
-    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-    .slice(0, 6); // Show 6 latest products for better mobile experience
+  const { data: latestProductsData } = useLatestProductsQuery({});
 
-  // Duplicate products for infinite scroll effect
+  const latestProducts = latestProductsData?.data.slice(0, 6) || [];
   const duplicatedProducts = [...latestProducts, ...latestProducts];
 
   useEffect(() => {
@@ -29,7 +25,7 @@ const LatestDrops = () => {
 
     let animationId: number;
     let scrollPosition = 0;
-    const scrollSpeed = 0.5; // pixels per frame - slower for better UX
+    const scrollSpeed = 0.5;
 
     const animate = () => {
       if (!isHovered && !isTouching) {
@@ -54,7 +50,6 @@ const LatestDrops = () => {
     };
   }, [isHovered, isTouching]);
 
-  // Touch event handlers
   const handleTouchStart = useCallback((e: React.TouchEvent) => {
     const touch = e.touches[0];
     touchStartX.current = touch.clientX;
@@ -70,7 +65,6 @@ const LatestDrops = () => {
     const deltaX = touchStartX.current - touch.clientX;
     const deltaY = touchStartY.current - touch.clientY;
 
-    // Only handle horizontal swipes (ignore vertical scrolling)
     if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 10) {
       e.preventDefault();
       if (scrollRef.current) {
@@ -80,7 +74,6 @@ const LatestDrops = () => {
   }, [isTouching]);
 
   const handleTouchEnd = useCallback(() => {
-    // Add a small delay before resuming auto-scroll
     setTimeout(() => {
       setIsTouching(false);
     }, 500);
@@ -98,43 +91,40 @@ const LatestDrops = () => {
           </p>
         </div>
 
-        {/* Infinite Slider Container */}
         <div
           ref={scrollRef}
-          className="relative overflow-hidden touch-pan-x"
+          className="relative overflow-hidden touch-pan-x p-4"
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
           onTouchEnd={handleTouchEnd}
         >
-          <div className="flex space-x-4 sm:space-x-6 transition-transform duration-300 select-none scroll-smooth">
+          <div className="flex space-x-4 sm:space-x-6 transition-transform duration-300 select-none scroll-smooth p-4">
             {duplicatedProducts.map((product, index) => (
               <div
                 key={`${product.id}-${index}`}
                 className="flex-shrink-0 w-48 sm:w-56 md:w-64 transform hover:scale-105 transition-transform duration-300"
               >
-                <ProductCard product={product} imageIndex={index % product.images.length} />
+                <ProductCard product={product} />
               </div>
             ))}
           </div>
 
-          {/* Gradient overlays for smooth edges */}
           <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-background to-transparent pointer-events-none z-10"></div>
           <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-background to-transparent pointer-events-none z-10"></div>
         </div>
+      </div>
 
-        {/* View All Button */}
-        <div className="text-center mt-8 sm:mt-12">
-          <Link href="/latest-drops">
-            <Button variant="street" size="lg">
-              View All Latest Drops
-            </Button>
-          </Link>
-        </div>
+      <div className="text-center">
+        <Link href="/latest-drops">
+          <Button variant="street" size="lg">
+            View All Latest Drops
+          </Button>
+        </Link>
       </div>
     </section>
   );
 };
 
-export default LatestDrops; 
+export default LatestDrops;

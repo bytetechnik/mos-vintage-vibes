@@ -1,19 +1,45 @@
-export interface Product {
-  id: string;
-  name: string;
-  brand: string;
-  price: number;
-  originalPrice?: number;
-  description: string;
-  category: ProductCategory;
-  condition: ProductCondition;
+export interface ProductVariant {
+  id?: string;
+  sku?: string;
+  sellingPrice: number;
+  basePrice: number;
+  costPrice: number;
+  stockQuantity: number;
+  image: string;
   size: string;
   color: string;
-  images: string[];
-  inStock: boolean;
-  featured: boolean;
-  tags: string[];
-  createdAt: string;
+  material: string;
+  active?: boolean;
+}
+
+export interface Product {
+  id?: string;
+  name: string;
+  slug?: string;
+  description: string;
+  shortDescription: string;
+  brandId?: string;
+  brandName?: string;
+  categoryId?: string;
+  categoryName?: string;
+  image: string;
+  conditionRating: number;
+  sellingPrice: number;
+  basePrice: number;
+  maxPrice: number;
+  inStock?: boolean;
+  metaTitle?: string;
+  metaDescription?: string;
+  metaKeywords?: string;
+  viewCount?: number;
+  purchaseCount?: number;
+  variants: ProductVariant[];
+  active?: boolean;
+  featured?: boolean;
+  relatedProducts?: Product[];
+  createdAt?: any;
+  updatedAt?: any;
+
 }
 
 export type ProductCategory =

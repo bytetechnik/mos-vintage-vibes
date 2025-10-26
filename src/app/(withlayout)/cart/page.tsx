@@ -3,6 +3,7 @@
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { products } from '@/data/products';
+import { useCartsQuery } from '@/redux/api/cartApi';
 import { Minus, Plus, ShoppingBag, Trash2 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -17,6 +18,37 @@ const Cart = () => {
       selectedSize: p.size,
     }))
   );
+
+  const { data: cartItemsData } = useCartsQuery({});
+  //   {
+  //     "statusCode": 200,
+  //     "success": true,
+  //     "message": "Cart retrieved successfully.",
+  //     "timestamp": "2025-10-27T00:54:36.882530719",
+  //     "error": null,
+  //     "data": {
+  //         "id": "ee36f981-47c2-4187-9982-13ffd6f2efe7",
+  //         "userId": "446ef897-7cc8-4a2f-9be5-e3494a3431a5",
+  //         "sessionId": null,
+  //         "subtotal": 364,
+  //         "taxAmount": 0,
+  //         "discountAmount": 0,
+  //         "total": 364,
+  //         "currency": "BDT",
+  //         "expiresAt": null,
+  //         "items": [
+  //             {
+  //                 "id": "6f771013-9243-4862-a591-3f3748e56714",
+  //                 "productId": "9a59e046-d36f-464f-99ad-35400a45ee1d",
+  //                 "variantId": "5215b48e-d989-46ea-86ca-4b133529eec7",
+  //                 "quantity": 1,
+  //                 "unitPrice": 364,
+  //                 "totalPrice": 364
+  //             }
+  //         ]
+  //     },
+  //     "meta": null
+  // }
 
   const total = cartItems.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
 

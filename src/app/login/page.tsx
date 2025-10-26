@@ -27,8 +27,8 @@ export default function LoginPage() {
 
   const handleLogin = async (data: LoginFormValues) => {
     const res = await userLogin(data).unwrap();
-    if (res?.token) {
-      storeUserInfo({ token: res.token, userData: JSON.stringify(res.user) });
+    if (res?.data?.token) {
+      storeUserInfo({ token: res?.data?.token, userData: JSON.stringify(res.data.user) });
 
       toast({
         title: "Login Successful",
@@ -52,9 +52,8 @@ export default function LoginPage() {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { confirmPassword, ...signupData } = data;
     const res = await userSignup(signupData).unwrap();
-
-    if (res?.token) {
-      storeUserInfo({ token: res.token, userData: JSON.stringify(res.user) });
+    if (res?.data?.token) {
+      storeUserInfo({ token: res.data.token, userData: JSON.stringify(res.data.user) });
 
       toast({
         title: "Account Created",
