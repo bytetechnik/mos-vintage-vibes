@@ -1,71 +1,48 @@
-
 'use client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { products } from '@/data/products';
 import { useCartsQuery } from '@/redux/api/cartApi';
+import { CartItem, CartResponse } from '@/types/cart';
 import { Minus, Plus, ShoppingBag, Trash2 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useState } from 'react';
 
 const Cart = () => {
-  // Mock cart state using products
-  const [cartItems, setCartItems] = useState(() =>
-    products.slice(0, 2).map((p) => ({
-      product: p,
-      quantity: 1,
-      selectedSize: p.size,
-    }))
-  );
+  const { data: cartItemsData, isLoading } = useCartsQuery({});
 
-  const { data: cartItemsData } = useCartsQuery({});
-  //   {
-  //     "statusCode": 200,
-  //     "success": true,
-  //     "message": "Cart retrieved successfully.",
-  //     "timestamp": "2025-10-27T00:54:36.882530719",
-  //     "error": null,
-  //     "data": {
-  //         "id": "ee36f981-47c2-4187-9982-13ffd6f2efe7",
-  //         "userId": "446ef897-7cc8-4a2f-9be5-e3494a3431a5",
-  //         "sessionId": null,
-  //         "subtotal": 364,
-  //         "taxAmount": 0,
-  //         "discountAmount": 0,
-  //         "total": 364,
-  //         "currency": "BDT",
-  //         "expiresAt": null,
-  //         "items": [
-  //             {
-  //                 "id": "6f771013-9243-4862-a591-3f3748e56714",
-  //                 "productId": "9a59e046-d36f-464f-99ad-35400a45ee1d",
-  //                 "variantId": "5215b48e-d989-46ea-86ca-4b133529eec7",
-  //                 "quantity": 1,
-  //                 "unitPrice": 364,
-  //                 "totalPrice": 364
-  //             }
-  //         ]
-  //     },
-  //     "meta": null
-  // }
-
-  const total = cartItems.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
-
-  const updateQuantity = (id: string, newQty: number) => {
-    if (newQty < 1) return;
-    setCartItems((prev) =>
-      prev.map((item) =>
-        item.product.id === id ? { ...item, quantity: newQty } : item
-      )
+  if (isLoading) {
+    return (
+      <div className="container mx-auto px-4 py-16">
+        <div className="text-center">
+          <p>Loading cart...</p>
+        </div>
+      </div>
     );
+  }
+
+  const cartData = (cartItemsData as CartResponse)?.data;
+  const cartItems: CartItem[] = cartData?.items || [];
+
+  const subtotal: number = cartData?.subtotal || 0;
+  const total: number = cartData?.total || 0;
+  const currency: string = cartData?.currency || 'BDT';
+
+  // TODO: Implement these functions with API mutations
+  const updateQuantity = (id: string, newQty: number): void => {
+    if (newQty < 1) return;
+    console.log('Update quantity:', id, newQty);
+    // Add mutation here
   };
 
-  const removeItem = (id: string) => {
-    setCartItems((prev) => prev.filter((item) => item.product.id !== id));
+  const removeItem = (id: string): void => {
+    console.log('Remove item:', id);
+    // Add mutation here
   };
 
-  const clearCart = () => setCartItems([]);
+  const clearCart = (): void => {
+    console.log('Clear cart');
+    // Add mutation here
+  };
 
   if (cartItems.length === 0) {
     return (
@@ -94,37 +71,37 @@ const Cart = () => {
         {/* Cart Items */}
         <div className="lg:col-span-2">
           <div className="space-y-4">
-            {cartItems.map((item) => (
+            {cartItems.map((item: CartItem) => (
               <div
-                key={`${item.product.id}-${item.selectedSize}`}
+                key={item.id}
                 className="bg-card rounded-lg p-6 shadow-card-custom"
               >
                 <div className="flex gap-4">
                   {/* Product Image */}
-                  <Link href={`/products/${item.product.id}`} className="shrink-0">
+                  <Link href={`/products/${item.productId}`} className="shrink-0">
                     <Image
-                      src={item.product.images[0]}
-                      alt={item.product.name}
-                      width={96}   // 👈 equivalent to w-24 (24 * 4 = 96px)
-                      height={96}  // 👈 equivalent to h-24
+                      src={item.image}
+                      alt={item.productName}
+                      width={96}
+                      height={96}
                       className="object-cover rounded-lg"
                     />
                   </Link>
 
                   {/* Product Details */}
                   <div className="flex-1 min-w-0">
-                    <Link href={`/products/${item.product.id}`}>
+                    <Link href={`/products/${item.productId}`}>
                       <h3 className="font-semibold text-foreground hover:text-vintage-orange transition-colors">
-                        {item.product.name}
+                        {item.productName}
                       </h3>
                     </Link>
-                    <p className="text-sm text-muted-foreground">{item.product.brand}</p>
+                    <p className="text-sm text-muted-foreground">{item.brandName}</p>
                     <div className="flex items-center gap-4 mt-2">
                       <span className="text-sm text-muted-foreground">
-                        Size: {item.selectedSize || item.product.size}
+                        Size: {item.size}
                       </span>
                       <span className="text-sm text-muted-foreground">
-                        Condition: {item.product.condition.rating}/10
+                        Condition: {item.conditionRating}/10
                       </span>
                     </div>
                   </div>
@@ -132,10 +109,10 @@ const Cart = () => {
                   {/* Price and Quantity */}
                   <div className="text-right">
                     <div className="text-lg font-semibold text-foreground mb-2">
-                      €{(item.product.price * item.quantity).toFixed(2)}
+                      {currency} {item.totalPrice.toFixed(2)}
                     </div>
                     <div className="text-sm text-muted-foreground mb-3">
-                      €{item.product.price.toFixed(2)} each
+                      {currency} {item.unitPrice.toFixed(2)} each
                     </div>
 
                     {/* Quantity Controls */}
@@ -143,7 +120,7 @@ const Cart = () => {
                       <Button
                         variant="outline"
                         size="icon"
-                        onClick={() => updateQuantity(item.product.id, item.quantity - 1)}
+                        onClick={() => updateQuantity(item.id, item.quantity - 1)}
                         className="h-8 w-8"
                       >
                         <Minus className="w-3 h-3" />
@@ -152,7 +129,7 @@ const Cart = () => {
                         type="number"
                         value={item.quantity}
                         onChange={(e) =>
-                          updateQuantity(item.product.id, parseInt(e.target.value) || 1)
+                          updateQuantity(item.id, parseInt(e.target.value) || 1)
                         }
                         className="w-16 h-8 text-center"
                         min="1"
@@ -160,7 +137,7 @@ const Cart = () => {
                       <Button
                         variant="outline"
                         size="icon"
-                        onClick={() => updateQuantity(item.product.id, item.quantity + 1)}
+                        onClick={() => updateQuantity(item.id, item.quantity + 1)}
                         className="h-8 w-8"
                       >
                         <Plus className="w-3 h-3" />
@@ -171,7 +148,7 @@ const Cart = () => {
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => removeItem(item.product.id)}
+                      onClick={() => removeItem(item.id)}
                       className="text-destructive hover:text-destructive/80"
                     >
                       <Trash2 className="w-4 h-4 mr-1" />
@@ -201,25 +178,37 @@ const Cart = () => {
 
             <div className="space-y-3">
               <div className="flex justify-between">
-                <span>Subtotal ({cartItems.reduce((sum, item) => sum + item.quantity, 0)} items)</span>
-                <span>€{total.toFixed(2)}</span>
+                <span>Subtotal ({cartItems.reduce((sum: number, item: CartItem) => sum + item.quantity, 0)} items)</span>
+                <span>{currency} {subtotal.toFixed(2)}</span>
               </div>
               <div className="flex justify-between">
                 <span>Shipping</span>
-                <span>{total >= 50 ? 'Free' : '€4.99'}</span>
+                <span>{subtotal >= 1000 ? 'Free' : `${currency} 50`}</span>
               </div>
+              {cartData?.taxAmount > 0 && (
+                <div className="flex justify-between">
+                  <span>Tax</span>
+                  <span>{currency} {cartData.taxAmount.toFixed(2)}</span>
+                </div>
+              )}
+              {cartData?.discountAmount > 0 && (
+                <div className="flex justify-between text-green-600">
+                  <span>Discount</span>
+                  <span>-{currency} {cartData.discountAmount.toFixed(2)}</span>
+                </div>
+              )}
               <div className="border-t pt-3">
                 <div className="flex justify-between font-semibold text-lg">
                   <span>Total</span>
-                  <span>€{(total + (total >= 50 ? 0 : 4.99)).toFixed(2)}</span>
+                  <span>{currency} {(total + (subtotal >= 1000 ? 0 : 50)).toFixed(2)}</span>
                 </div>
               </div>
             </div>
 
-            {total < 50 && (
+            {subtotal < 1000 && (
               <div className="mt-4 p-3 bg-vintage-orange/10 rounded-lg">
                 <p className="text-sm text-vintage-orange">
-                  Add €{(50 - total).toFixed(2)} more for free shipping!
+                  Add {currency} {(1000 - subtotal).toFixed(2)} more for free shipping!
                 </p>
               </div>
             )}

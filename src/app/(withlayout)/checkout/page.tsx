@@ -32,7 +32,7 @@ const Checkout = () => {
     0
   );
 
-  const [isGuest, setIsGuest] = useState(true);
+  const [isGuest, setIsGuest] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
 
   // Form states
@@ -270,7 +270,7 @@ const Checkout = () => {
                 >
                   <div className="relative w-12 h-12">
                     <Image
-                      src={item.product.images[0]}
+                      src={item.product.image}
                       alt={item.product.name}
                       fill
                       className="object-cover rounded"

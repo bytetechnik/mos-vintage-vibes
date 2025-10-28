@@ -224,7 +224,7 @@ const SearchAutocomplete = ({
                       onClick={() => handleProductSelect(product)}
                     >
                       <Image
-                        src={product.images[0]}
+                        src={product.image}
                         alt={product.name}
                         width={48}   // w-12 → 12 * 4 = 48px
                         height={48}  // h-12 → 12 * 4 = 48px
@@ -235,7 +235,7 @@ const SearchAutocomplete = ({
                           {product.name}
                         </h3>
                         <p className="text-sm text-muted-foreground">
-                          {product.brand} • €{product.price.toFixed(2)}
+                          {/* {product.brand} • €{product.price.toFixed(2)} */}
                         </p>
                       </div>
                     </div>
@@ -261,8 +261,8 @@ const SearchAutocomplete = ({
                   <div
                     key={search}
                     className={`p-2 rounded cursor-pointer transition-colors ${selectedIndex === (searchResults?.data?.length || 0) + index
-                        ? 'bg-accent'
-                        : 'hover:bg-accent'
+                      ? 'bg-accent'
+                      : 'hover:bg-accent'
                       }`}
                     onClick={() => handleRecentSearchSelect(search)}
                   >

@@ -2,7 +2,7 @@
 
 import { Filter } from 'lucide-react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { useCallback, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import CategoryNavigation from '@/components/CategoryNavigation';
 import FilterSidebar from '@/components/FilterSidebar';
@@ -22,101 +22,89 @@ const Products = () => {
   const isMobile = useIsMobile();
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
 
+  // Get all parameters from URL
+  const page = parseInt(searchParams.get('page') || '0');
+  const perPage = parseInt(searchParams.get('perPage') || '20');
   const initialCategory = searchParams.get('category') as ProductCategory | null;
   const initialSearch = searchParams.get('search') || '';
   const initialSize = searchParams.get('size');
+  const initialBrand = searchParams.get('brand') || '';
+  const initialFeatured = searchParams.get('featured') === 'true';
+  const initialInStock = searchParams.get('in_stock') === 'true';
+  const initialPriceMin = searchParams.get('priceMin') || '';
+  const initialPriceMax = searchParams.get('priceMax') || '';
   const initialSort = searchParams.get('sort') || 'newest';
+
+  // Parse condition array from URL
+  const conditionParam = searchParams.get('condition');
+  const initialConditions = conditionParam ? conditionParam.split(',').map(Number) : [];
 
   const [selectedCategories, setSelectedCategories] = useState<ProductCategory[]>(
     initialCategory ? [initialCategory] : []
   );
-  const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
-  const [selectedConditionRating, setSelectedConditionRating] = useState<number | null>(null);
-  const [selectedSizes, setSelectedSizes] = useState<string[]>(
-    initialSize ? [initialSize] : []
+  const [selectedBrands, setSelectedBrands] = useState<string[]>(
+    initialBrand ? [initialBrand] : []
   );
-  const [inStockOnly, setInStockOnly] = useState(false);
+  const [selectedConditionRating, setSelectedConditionRating] = useState<number | null>(
+    initialConditions.length > 0 ? initialConditions[0] : null
+  );
+  const [selectedSizes, setSelectedSizes] = useState<string[]>(
+    initialSize ? initialSize.split(',') : []
+  );
+  const [inStockOnly, setInStockOnly] = useState(initialInStock);
   const [outOfStock, setOutOfStock] = useState(false);
-  const [priceRange, setPriceRange] = useState({ min: '', max: '' });
+  const [priceRange, setPriceRange] = useState({
+    min: initialPriceMin,
+    max: initialPriceMax
+  });
   const [searchQuery, setSearchQuery] = useState(initialSearch);
   const [sortBy, setSortBy] = useState(initialSort);
 
-  const queryParams = useMemo(() => {
-    const params: any = {};
-    if (initialCategory) params.category = initialCategory;
-    if (initialSize) params.size = initialSize;
-    if (initialSearch) params.search = initialSearch;
-    return params;
-  }, [initialCategory, initialSize, initialSearch]);
+  // Build API query parameters
+  const apiParams = useMemo(() => {
+    const params: any = {
+      page,
+      perPage,
+    };
 
-  const { data, isLoading, error } = useProductsQuery(queryParams);
+    if (searchQuery) params.search = searchQuery;
+    if (selectedCategories.length > 0) params.category = selectedCategories[0];
+    if (selectedBrands.length > 0) params.brand = selectedBrands[0];
+    if (selectedConditionRating !== null) params.condition = [selectedConditionRating];
+    if (priceRange.min) params.priceMin = parseFloat(priceRange.min);
+    if (priceRange.max) params.priceMax = parseFloat(priceRange.max);
+    if (initialFeatured) params.featured = true;
+    if (inStockOnly) params.in_stock = true;
+    if (sortBy) params.sort = sortBy;
+
+    return params;
+  }, [page, perPage, searchQuery, selectedCategories, selectedBrands, selectedConditionRating, priceRange, initialFeatured, inStockOnly, sortBy]);
+
+  // Fetch data with dynamic parameters
+  const { data, isLoading, error } = useProductsQuery(apiParams);
 
   const productsData = useMemo(() => {
     return data?.data?.data || [];
   }, [data?.data?.data]);
 
-  const updateSearchParams = useCallback((updates: Record<string, string | null>) => {
-    const current = new URLSearchParams(searchParams.toString());
-
-    Object.entries(updates).forEach(([key, value]) => {
-      if (value === null || value === '') {
-        current.delete(key);
-      } else {
-        current.set(key, value);
-      }
-    });
-
-    const search = current.toString();
-    const query = search ? `?${search}` : '';
-    router.push(`${pathname}${query}`, { scroll: false });
-  }, [searchParams, router, pathname]);
-
+  // Client-side filtering for additional filters not supported by API
   const filteredProducts = useMemo(() => {
-    const filtered = productsData.filter((p: any) => {
-      const matchesCategory = selectedCategories.length === 0 || selectedCategories.includes(p.categoryName);
-      const matchesSize = selectedSizes.length === 0 || p.variants.some((v: any) => selectedSizes.includes(v.size));
-      const matchesBrand = selectedBrands.length === 0 || selectedBrands.includes(p.brandName);
-      const matchesCondition = selectedConditionRating === null || p.conditionRating === selectedConditionRating;
-      const matchesSearch = searchQuery === '' ||
-        p.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        p.brandName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        p.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        p.shortDescription?.toLowerCase().includes(searchQuery.toLowerCase());
+    let filtered = [...productsData];
 
-      const matchesStock = !inStockOnly && !outOfStock ? true :
-        (inStockOnly && p.inStock) || (outOfStock && !p.inStock);
-
-      const matchesPrice =
-        (!priceRange.min || p.sellingPrice >= parseFloat(priceRange.min)) &&
-        (!priceRange.max || p.sellingPrice <= parseFloat(priceRange.max));
-
-      return matchesCategory && matchesSize && matchesBrand && matchesCondition &&
-        matchesSearch && matchesStock && matchesPrice;
-    });
-
-    const sorted = [...filtered];
-    switch (sortBy) {
-      case 'price-low':
-        sorted.sort((a, b) => a.sellingPrice - b.sellingPrice);
-        break;
-      case 'price-high':
-        sorted.sort((a, b) => b.sellingPrice - a.sellingPrice);
-        break;
-      case 'name':
-        sorted.sort((a, b) => a.name.localeCompare(b.name));
-        break;
-      case 'condition':
-        sorted.sort((a, b) => b.conditionRating - a.conditionRating);
-        break;
-      case 'newest':
-      default:
-        sorted.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-        break;
+    // Additional client-side filters
+    if (selectedSizes.length > 0) {
+      filtered = filtered.filter((product: any) => {
+        const productSizes = product.variants.map((v: any) => v.size).filter(Boolean);
+        return productSizes.some((size: string) => selectedSizes.includes(size));
+      });
     }
 
-    return sorted;
-  }, [productsData, selectedCategories, selectedSizes, selectedBrands, selectedConditionRating,
-    searchQuery, inStockOnly, outOfStock, priceRange, sortBy]);
+    if (outOfStock) {
+      filtered = filtered.filter((product: any) => !product.inStock);
+    }
+
+    return filtered;
+  }, [productsData, selectedSizes, outOfStock]);
 
   const availableConditionRatings = useMemo(() => {
     const uniqueRatings = Array.from(
@@ -129,27 +117,58 @@ const Products = () => {
     return uniqueRatings.sort((a, b) => b - a) as number[];
   }, [productsData]);
 
+  // Update URL when filters change
+  const updateURLParams = () => {
+    const params = new URLSearchParams();
+
+    if (page > 0) params.set('page', page.toString());
+    if (perPage !== 20) params.set('perPage', perPage.toString());
+    if (searchQuery) params.set('search', searchQuery);
+    if (selectedCategories.length > 0) params.set('category', selectedCategories[0]);
+    if (selectedBrands.length > 0) params.set('brand', selectedBrands[0]);
+    if (selectedConditionRating !== null) params.set('condition', selectedConditionRating.toString());
+    if (selectedSizes.length > 0) params.set('size', selectedSizes.join(','));
+    if (priceRange.min) params.set('priceMin', priceRange.min);
+    if (priceRange.max) params.set('priceMax', priceRange.max);
+    if (initialFeatured) params.set('featured', 'true');
+    if (inStockOnly) params.set('in_stock', 'true');
+    if (sortBy !== 'newest') params.set('sort', sortBy);
+
+    router.push(`${pathname}?${params.toString()}`, { scroll: false });
+  };
+
+  // Debounced URL update
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      updateURLParams();
+    }, 500);
+
+    return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchQuery, selectedCategories, selectedBrands, selectedConditionRating, selectedSizes, priceRange, inStockOnly, sortBy]);
+
   const handleConditionRatingChange = (rating: number | null) => {
     setSelectedConditionRating(rating);
   };
 
   const handleSizeChange = (size: string, checked: boolean) => {
-    const newSizes = checked
-      ? [...selectedSizes, size]
-      : selectedSizes.filter(s => s !== size);
-
-    setSelectedSizes(newSizes);
-    updateSearchParams({ size: newSizes.length > 0 ? newSizes.join(',') : null });
+    if (checked) {
+      setSelectedSizes([...selectedSizes, size]);
+    } else {
+      setSelectedSizes(selectedSizes.filter(s => s !== size));
+    }
   };
 
   const handleSortByChange = (value: string) => {
     setSortBy(value);
-    updateSearchParams({ sort: value });
   };
 
-  const handleSearchChange = (query: string) => {
-    setSearchQuery(query);
-    updateSearchParams({ search: query || null });
+  const handleCategoryChange = (category: ProductCategory | null) => {
+    if (category) {
+      setSelectedCategories([category]);
+    } else {
+      setSelectedCategories([]);
+    }
   };
 
   const clearFilters = () => {
@@ -187,7 +206,11 @@ const Products = () => {
         </p>
       </div>
 
-      <CategoryNavigation totalProducts={filteredProducts.length} />
+      <CategoryNavigation
+        totalProducts={filteredProducts.length}
+        selectedCategory={selectedCategories[0] || null}
+        onCategoryChange={handleCategoryChange}
+      />
 
       <div className="flex flex-col sm:flex-row gap-2 md:gap-4 mb-6">
         <div className="flex-1">
@@ -195,7 +218,7 @@ const Products = () => {
             type="text"
             placeholder="Search products..."
             value={searchQuery}
-            onChange={(e) => handleSearchChange(e.target.value)}
+            onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full"
           />
         </div>
@@ -236,6 +259,8 @@ const Products = () => {
             activeFiltersCount={activeFiltersCount}
             onClearFilters={clearFilters}
             isMobile={false}
+            selectedBrands={selectedBrands}
+            onBrandChange={setSelectedBrands}
           />
         )}
 
@@ -318,6 +343,8 @@ const Products = () => {
           onClose={() => setIsMobileFilterOpen(false)}
           sortBy={sortBy}
           onSortByChange={handleSortByChange}
+          selectedBrands={selectedBrands}
+          onBrandChange={setSelectedBrands}
         />
       )}
     </div>
