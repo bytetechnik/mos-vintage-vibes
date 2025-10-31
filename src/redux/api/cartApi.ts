@@ -17,25 +17,39 @@ export const cartApi = baseApi.injectEndpoints({
       query: (data) => ({
         url: `${cartUrl}/items`,
         method: "POST",
-        data
+        data,
+      }),
+      invalidatesTags: [tagTypes.cart],
+    }),
+    deleteCart: build.mutation({
+      query: () => ({
+        url: `${cartUrl}`,
+        method: "DELETE",
       }),
       invalidatesTags: [tagTypes.cart],
     }),
     removeFromCart: build.mutation({
-      query: (data) => ({
-        url: `${cartUrl}`,
+      query: (id: string | undefined) => ({
+        url: `${cartUrl}/items/${id}`,
         method: "DELETE",
-        data
       }),
       invalidatesTags: [tagTypes.cart],
     }),
-
+    insDesItem: build.mutation({
+      query: ({ id, data }: { id: string; data: any }) => ({
+        url: `${cartUrl}/items/${id}`,
+        method: "PATCH",
+        data,
+      }),
+      invalidatesTags: [tagTypes.cart],
+    }),
   }),
 });
 
 export const {
-
   useCartsQuery,
   useAddToCartMutation,
   useRemoveFromCartMutation,
+  useDeleteCartMutation,
+  useInsDesItemMutation,
 } = cartApi;
