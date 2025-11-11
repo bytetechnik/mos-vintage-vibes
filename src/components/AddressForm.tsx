@@ -2,18 +2,11 @@ import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import { AddressFormData, addressFormSchema, defaultAddressValues } from '@/schemas/address';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { Building, Home } from 'lucide-react';
 import { useEffect } from 'react';
-import { Controller, useForm } from 'react-hook-form';
+import { Controller, Resolver, useForm } from 'react-hook-form';
 
 interface AddressFormProps {
   onSubmit: (data: AddressFormData) => void;
@@ -37,7 +30,7 @@ export const AddressForm = ({
     reset,
     formState: { errors },
   } = useForm<AddressFormData>({
-    resolver: yupResolver(addressFormSchema),
+    resolver: yupResolver(addressFormSchema) as unknown as Resolver<AddressFormData>,
     defaultValues: defaultAddressValues,
   });
 
@@ -49,43 +42,52 @@ export const AddressForm = ({
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* Address Type */}
-        <div>
-          <Label htmlFor="type">Address Type *</Label>
-          <Controller
-            name="type"
-            control={control}
-            render={({ field }) => (
-              <Select value={field.value} onValueChange={field.onChange}>
-                <SelectTrigger className={errors.type ? 'border-destructive' : ''}>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="SHIPPING">
-                    <div className="flex items-center gap-2">
-                      <Home className="w-4 h-4" />
-                      Shipping
-                    </div>
-                  </SelectItem>
-                  <SelectItem value="BILLING">
-                    <div className="flex items-center gap-2">
-                      <Building className="w-4 h-4" />
-                      Billing
-                    </div>
-                  </SelectItem>
-                </SelectContent>
-              </Select>
-            )}
-          />
-          {errors.type && (
-            <p className="text-xs text-destructive mt-1">{errors.type.message}</p>
+      {/* Address Type - Radio Buttons */}
+      <div>
+        <Label>
+          Address Type <span className="text-red-500">*</span>
+        </Label>
+        <Controller
+          name="type"
+          control={control}
+          render={({ field }) => (
+            <div className="flex gap-6 mt-2">
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="radio"
+                  value="SHIPPING"
+                  checked={field.value === 'SHIPPING'}
+                  onChange={() => field.onChange('SHIPPING')}
+                  className="w-4 h-4"
+                />
+                <Home className="w-4 h-4" />
+                <span>Shipping</span>
+              </label>
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="radio"
+                  value="BILLING"
+                  checked={field.value === 'BILLING'}
+                  onChange={() => field.onChange('BILLING')}
+                  className="w-4 h-4"
+                />
+                <Building className="w-4 h-4" />
+                <span>Billing</span>
+              </label>
+            </div>
           )}
-        </div>
+        />
+        {errors.type && (
+          <p className="text-xs text-destructive mt-1">{errors.type.message}</p>
+        )}
+      </div>
 
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* First Name */}
         <div>
-          <Label htmlFor="firstName">First Name *</Label>
+          <Label htmlFor="firstName">
+            First Name <span className="text-red-500">*</span>
+          </Label>
           <Input
             id="firstName"
             {...register('firstName')}
@@ -98,7 +100,9 @@ export const AddressForm = ({
 
         {/* Last Name */}
         <div>
-          <Label htmlFor="lastName">Last Name *</Label>
+          <Label htmlFor="lastName">
+            Last Name <span className="text-red-500">*</span>
+          </Label>
           <Input
             id="lastName"
             {...register('lastName')}
@@ -120,7 +124,9 @@ export const AddressForm = ({
 
         {/* Phone Number */}
         <div>
-          <Label htmlFor="phoneNo">Phone Number *</Label>
+          <Label htmlFor="phoneNo">
+            Phone Number <span className="text-red-500">*</span>
+          </Label>
           <Input
             id="phoneNo"
             type="tel"
@@ -135,7 +141,9 @@ export const AddressForm = ({
 
         {/* Email */}
         <div>
-          <Label htmlFor="email">Email *</Label>
+          <Label htmlFor="email">
+            Email <span className="text-red-500">*</span>
+          </Label>
           <Input
             id="email"
             type="email"
@@ -148,25 +156,16 @@ export const AddressForm = ({
           )}
         </div>
 
-        {/* Country */}
+        {/* Country - Plain Text Input */}
         <div>
-          <Label htmlFor="countryCode">Country *</Label>
-          <Controller
-            name="countryCode"
-            control={control}
-            render={({ field }) => (
-              <Select value={field.value} onValueChange={field.onChange}>
-                <SelectTrigger className={errors.countryCode ? 'border-destructive' : ''}>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="BD">Bangladesh</SelectItem>
-                  <SelectItem value="IN">India</SelectItem>
-                  <SelectItem value="PK">Pakistan</SelectItem>
-                  <SelectItem value="US">United States</SelectItem>
-                </SelectContent>
-              </Select>
-            )}
+          <Label htmlFor="countryCode">
+            Country <span className="text-red-500">*</span>
+          </Label>
+          <Input
+            id="countryCode"
+            {...register('countryCode')}
+            className={errors.countryCode ? 'border-destructive' : ''}
+            placeholder="DE"
           />
           {errors.countryCode && (
             <p className="text-xs text-destructive mt-1">{errors.countryCode.message}</p>
@@ -176,7 +175,9 @@ export const AddressForm = ({
 
       {/* Address Line 1 */}
       <div>
-        <Label htmlFor="addressLine1">Street Address *</Label>
+        <Label htmlFor="addressLine1">
+          Street Address <span className="text-red-500">*</span>
+        </Label>
         <Input
           id="addressLine1"
           {...register('addressLine1')}
@@ -204,7 +205,9 @@ export const AddressForm = ({
       {/* City, State, Postal */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div>
-          <Label htmlFor="city">City *</Label>
+          <Label htmlFor="city">
+            City <span className="text-red-500">*</span>
+          </Label>
           <Input
             id="city"
             {...register('city')}
@@ -224,7 +227,9 @@ export const AddressForm = ({
         </div>
 
         <div>
-          <Label htmlFor="postalCode">Postal Code *</Label>
+          <Label htmlFor="postalCode">
+            Postal Code <span className="text-red-500">*</span>
+          </Label>
           <Input
             id="postalCode"
             {...register('postalCode')}
@@ -256,7 +261,7 @@ export const AddressForm = ({
 
       {/* Form Actions */}
       <div className="flex gap-3 pt-4">
-        <Button type="submit" disabled={isLoading}>
+        <Button variant="street" size="lg" type="submit" disabled={isLoading}>
           {isLoading ? (
             <>
               <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
@@ -271,6 +276,7 @@ export const AddressForm = ({
         <Button type="button" variant="outline" onClick={onCancel} disabled={isLoading}>
           Cancel
         </Button>
+
       </div>
     </form>
   );

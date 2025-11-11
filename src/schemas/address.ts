@@ -61,7 +61,7 @@ export const defaultAddressValues: AddressFormData = {
   city: '',
   stateProvince: '',
   postalCode: '',
-  countryCode: 'BD',
+  countryCode: 'DE',
   formattedAddress: '',
   isDefault: false,
   latitude: undefined,

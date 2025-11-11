@@ -34,8 +34,8 @@ export const AddressCard = ({
   return (
     <div
       className={`relative border-2 rounded-xl p-5 cursor-pointer transition-all duration-200 hover:shadow-md ${isSelected
-          ? 'border-primary bg-primary/5 shadow-md'
-          : 'border-border hover:border-primary/50'
+        ? 'border-primary bg-primary/5 shadow-md'
+        : 'border-border hover:border-primary/50'
         }`}
       onClick={onSelect}
     >
@@ -43,8 +43,8 @@ export const AddressCard = ({
         {/* Selection Circle */}
         <div
           className={`mt-1 w-6 h-6 rounded-full border-2 flex items-center justify-center shrink-0 transition-all ${isSelected
-              ? 'border-primary bg-primary'
-              : 'border-muted-foreground'
+            ? ' bg-vintage-orange'
+            : 'border-muted-foreground'
             }`}
         >
           {isSelected && <Check className="w-4 h-4 text-primary-foreground" />}
@@ -53,9 +53,9 @@ export const AddressCard = ({
         {/* Address Details */}
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-2 flex-wrap">
-            <span className="font-bold text-lg">{fullName}</span>
+            <span className="font-bold  text-lg">{fullName}</span>
             {(address.isDefault || address.default) && (
-              <span className="text-xs bg-primary/20 text-primary px-3 py-1 rounded-full font-semibold">
+              <span className="text-xs bg-primary/20 text-primary px-3 py-1 rounded-full font-semibold ">
                 Default
               </span>
             )}

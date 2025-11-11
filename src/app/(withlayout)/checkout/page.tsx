@@ -15,7 +15,6 @@ import {
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import {
   useAddressesQuery,
@@ -25,13 +24,13 @@ import {
   useUpdateAddressMutation,
 } from '@/redux/api/addressApi';
 import { useCartsQuery } from '@/redux/api/cartApi';
+import { useMakeOrderMutation } from '@/redux/api/orderApi';
 import { AddressFormData } from '@/schemas/address';
 import { AlertCircle, ArrowLeft, MapPin, Package, Plus, ShoppingBag } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
-
 
 const Checkout = () => {
   const router = useRouter();
@@ -44,6 +43,7 @@ const Checkout = () => {
   const [updateAddress, { isLoading: isUpdatingAddress }] = useUpdateAddressMutation();
   const [removeAddress, { isLoading: isDeletingAddress }] = useRemoveAddressMutation();
   const [setDefaultAddress] = useDefaultAddressMutation();
+  const [makeOrder, { isLoading: isCreatingOrder }] = useMakeOrderMutation();
 
   // Local state
   const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
@@ -51,8 +51,7 @@ const Checkout = () => {
   const [editingAddress, setEditingAddress] = useState<any | null>(null);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [addressToDelete, setAddressToDelete] = useState<string | null>(null);
-  const [orderNotes, setOrderNotes] = useState('');
-  const [isCreatingOrder, setIsCreatingOrder] = useState(false);
+  // const [orderNotes, setOrderNotes] = useState('');
 
   // Extract data
   const addresses = useMemo(() => addressData?.data || [], [addressData]);
@@ -60,7 +59,7 @@ const Checkout = () => {
   const cartItems = cart?.items || [];
   const subtotal = cart?.subtotal || 0;
   const total = cart?.total || 0;
-  const currency = cart?.currency || 'BDT';
+  const currency = cart?.currency || 'EUR';
 
   const defaultAddress = addresses.find((addr: any) => addr.default || addr.isDefault);
 
@@ -203,46 +202,34 @@ const Checkout = () => {
     }
 
     try {
-      setIsCreatingOrder(true);
-
-      // TODO: Replace with actual order creation API call
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-
-      const orderNumber = `ORD${Date.now().toString().slice(-8)}`;
-      const orderId = `order_${Date.now()}`;
-
-      const mockOrder = {
-        id: orderId,
-        orderNumber,
-        addressId: selectedAddressId,
-        notes: orderNotes || undefined,
-        items: cartItems,
-        subtotal,
-        shippingCost,
-        total: finalTotal,
-        currency,
-        status: 'pending',
-        createdAt: new Date().toISOString(),
+      const orderPayload = {
+        shippingInfo: {
+          addressId: selectedAddressId,
+        },
+        paymentMethod: 'MOLLIE',
+        paymentConfirmationUrl: 'https://bytetechnik.de',
+        createAccount: false,
+        // ...(orderNotes && { notes: orderNotes }),
       };
+      const result = await makeOrder(orderPayload).unwrap();
 
-      const existingOrders = JSON.parse(localStorage.getItem('orders') || '[]');
-      localStorage.setItem('orders', JSON.stringify([mockOrder, ...existingOrders]));
-
-      toast({
-        title: 'Order Placed Successfully!',
-        description: `Order #${orderNumber} has been created.`,
-      });
-
-      router.push(`/orders/${orderId}`);
+      if (result.success) {
+        toast({
+          title: 'Order Placed Successfully!',
+          description: `Order has been created.`,
+        });
+        // Redirect to order details or success page
+        if (result.data?.approvalUrl) {
+          router.push(result.data?.approvalUrl);
+        }
+      }
     } catch (error: any) {
       console.error('Order error:', error);
       toast({
         title: 'Order Failed',
-        description: 'Could not place order. Please try again.',
+        description: error?.data?.message || 'Could not place order. Please try again.',
         variant: 'destructive',
       });
-    } finally {
-      setIsCreatingOrder(false);
     }
   };
 
@@ -289,9 +276,9 @@ const Checkout = () => {
   // Empty cart
   if (!cartItems.length) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-background to-muted/20 flex items-center justify-center">
+      <div className=" bg-gradient-to-b from-background to-muted/20 flex items-center justify-center">
         <div className="container mx-auto px-4 text-center max-w-md">
-          <div className="w-24 h-24 rounded-full bg-muted mx-auto mb-6 flex items-center justify-center">
+          <div className="w-24  rounded-full bg-muted mx-auto mb-6 flex items-center justify-center">
             <ShoppingBag className="w-12 h-12 text-muted-foreground" />
           </div>
           <h1 className="text-3xl font-bold mb-4">Your cart is empty</h1>
@@ -310,7 +297,7 @@ const Checkout = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-muted/20">
+    <div className=" bg-gradient-to-b from-background to-muted/20">
       <div className="container mx-auto px-4 py-8 max-w-7xl">
         {/* Header */}
         <div className="mb-8">
@@ -406,7 +393,7 @@ const Checkout = () => {
             </Card>
 
             {/* Order Notes */}
-            <Card className="border-2 shadow-lg">
+            {/* <Card className="border-2 shadow-lg">
               <CardHeader className="border-b bg-muted/30">
                 <CardTitle className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
@@ -424,18 +411,18 @@ const Checkout = () => {
                   className="resize-none"
                 />
               </CardContent>
-            </Card>
+            </Card> */}
           </div>
 
           {/* Order Summary */}
-          <div className="lg:col-span-1">
+          <div className="lg:col-span-1 pb-3">
             <div className="bg-card rounded-lg p-6 shadow-lg sticky top-8">
               <h2 className="text-xl font-semibold mb-6">Order Summary</h2>
 
               {/* Cart Items */}
               <div className="space-y-3 mb-6 max-h-64 overflow-y-auto">
                 {cartItems.map((item: any) => (
-                  <div key={item.id} className="flex gap-3">
+                  <div key={item.id} className="flex gap-3 mt-2">
                     <div className="relative w-16 h-16 shrink-0">
                       <Image
                         src={item.image}
@@ -444,7 +431,7 @@ const Checkout = () => {
                         className="object-cover rounded"
                       />
                       {item.quantity > 1 && (
-                        <div className="absolute -top-2 -right-2 bg-primary text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                        <div className="absolute -top-2 -right-2 bg-vintage-orange text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
                           {item.quantity}
                         </div>
                       )}
@@ -507,6 +494,7 @@ const Checkout = () => {
               {/* Place Order Button */}
               <Button
                 size="lg"
+                variant="street"
                 className="w-full mt-6"
                 onClick={handlePlaceOrder}
                 disabled={!selectedAddressId || isCreatingOrder}
@@ -530,10 +518,10 @@ const Checkout = () => {
                 </div>
               )}
 
-              <div className="mt-4 text-xs text-muted-foreground text-center space-y-1">
+              {/* <div className="mt-4 text-xs text-muted-foreground text-center space-y-1">
                 <p>🔒 Your information is secure</p>
                 <p>✓ Cash on Delivery available</p>
-              </div>
+              </div> */}
             </div>
           </div>
         </div>

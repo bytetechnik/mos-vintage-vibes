@@ -9,7 +9,7 @@ export const authApi = baseApi.injectEndpoints({
         method: "POST",
         data: loginData
       }),
-      invalidatesTags: [tagTypes.user]
+      invalidatesTags: [tagTypes.auth]
     }),
     userSignup: build.mutation({
       query: (signupData) => ({
@@ -17,7 +17,7 @@ export const authApi = baseApi.injectEndpoints({
         method: "POST",
         data: signupData
       }),
-      invalidatesTags: [tagTypes.user]
+      invalidatesTags: [tagTypes.auth]
     }),
     forgotPassword: build.mutation({
       query: (email) => ({
@@ -25,7 +25,7 @@ export const authApi = baseApi.injectEndpoints({
         method: "POST",
         data: { email }
       }),
-      invalidatesTags: [tagTypes.user]
+      invalidatesTags: [tagTypes.auth]
     }),
     resetPassword: build.mutation({
       query: (resetData) => ({
@@ -33,7 +33,7 @@ export const authApi = baseApi.injectEndpoints({
         method: "POST",
         data: resetData
       }),
-      invalidatesTags: [tagTypes.user]
+      invalidatesTags: [tagTypes.auth]
     }),
     changePassword: build.mutation({
       query: (data) => ({
@@ -41,7 +41,7 @@ export const authApi = baseApi.injectEndpoints({
         method: "POST",
         data
       }),
-      invalidatesTags: [tagTypes.user]
+      invalidatesTags: [tagTypes.auth]
     }),
   }),
 

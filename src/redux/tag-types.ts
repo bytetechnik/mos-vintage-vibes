@@ -2,9 +2,12 @@ export enum tagTypes {
   user = "user",
   product = "product",
   cart = "cart",
+  wishlist = "wishlist",
   categories = "categories",
   oAuth = "oAuth",
-  address = "address"
+  address = "address",
+  order = "order",
+  auth = "auth"
 
 
 }
@@ -15,8 +18,8 @@ export const tagTypesList = [
   tagTypes.cart,
   tagTypes.categories,
   tagTypes.oAuth,
-  tagTypes.address
-
-
-
+  tagTypes.address,
+  tagTypes.order,
+  tagTypes.auth,
+  tagTypes.wishlist
 ];

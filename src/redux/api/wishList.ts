@@ -1,7 +1,7 @@
 import { tagTypes } from "@/redux/tag-types";
 import { baseApi } from "./baseApi";
 
-const cartUrl = 'whishlist';
+const cartUrl = 'wishlist';
 
 export const whishlistApi = baseApi.injectEndpoints({
   endpoints: (build) => ({
@@ -11,7 +11,7 @@ export const whishlistApi = baseApi.injectEndpoints({
         method: "GET",
         params: arg,
       }),
-      providesTags: [tagTypes.cart],
+      providesTags: [tagTypes.wishlist],
     }),
     addToWishList: build.mutation({
       query: (data) => ({
@@ -19,14 +19,14 @@ export const whishlistApi = baseApi.injectEndpoints({
         method: "POST",
         data,
       }),
-      invalidatesTags: [tagTypes.cart],
+      invalidatesTags: [tagTypes.wishlist],
     }),
     removeFromWishList: build.mutation({
       query: (id: string | undefined) => ({
         url: `${cartUrl}/${id}`,
         method: "DELETE",
       }),
-      invalidatesTags: [tagTypes.cart],
+      invalidatesTags: [tagTypes.wishlist],
     }),
 
   }),
