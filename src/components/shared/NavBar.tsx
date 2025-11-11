@@ -1,12 +1,14 @@
 "use client";
 import { Button } from '@/components/ui/button';
 import { products } from '@/data/products';
+import { useCartsQuery } from '@/redux/api/cartApi';
 import { getUserInfo, logoutUser } from '@/services/auth.service';
+import { CartResponse } from '@/types/cart';
 import { LogOut, Menu, Search, Settings, ShoppingCart, User, X } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import SearchAutocomplete from '../SearchAutocomplete';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '../ui/dropdown-menu';
 import MobileSidebar from './nav/MobileSidebar';
@@ -114,6 +116,11 @@ const NavBar = () => {
   //   }
   // };
 
+  const { data: cartItemsData } = useCartsQuery({});
+  const cartData = useMemo(() => (cartItemsData as CartResponse)?.data ?? [], [cartItemsData]);
+
+
+
   return (
     <>
       {/* Announcement Bar */}
@@ -174,11 +181,11 @@ const NavBar = () => {
             <Link href="/cart">
               <Button variant="ghost" size="icon" className="relative">
                 <ShoppingCart className={`w-5 h-5 transition-colors duration-300 ${pathname === '/' ? (isScrolled ? 'text-black' : 'text-white') : 'text-black'}`} />
-                {/* {items.length > 0 && (
+                {cartData?.items?.length > 0 && (
                   <span className="absolute -top-1 -right-1 bg-vintage-orange text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-medium">
-                    {items.reduce((sum, item) => sum + item.quantity, 0)}
+                    {cartData?.items?.length}
                   </span>
-                )} */}
+                )}
               </Button>
             </Link>
 

@@ -4,15 +4,14 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useToast } from '@/hooks/use-toast';
 import { useAddToCartMutation } from '@/redux/api/cartApi';
-import { useProductQuery } from '@/redux/api/product/productApi';
+import { useProductQuery, useRelatedProductsQuery } from '@/redux/api/product/productApi';
 import { Product, ProductVariant } from '@/types/product';
-import { ArrowLeft, Eye, Heart, RotateCcw, Shield, ShoppingBag, ShoppingCart, Star, Truck } from 'lucide-react';
+import { ArrowLeft, Eye, Heart, Loader2, RotateCcw, Shield, ShoppingBag, ShoppingCart, Star, Truck } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { use, useEffect, useState } from 'react';
-
-
 
 interface ProductDetailPageProps {
   params: Promise<{ id: string }>;
@@ -45,6 +44,7 @@ const ProductCard = ({ product }: { product: Product }) => (
     </div>
   </Link>
 );
+
 const ProductDetailPage = ({ params }: ProductDetailPageProps) => {
   const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(null);
   const [quantity, setQuantity] = useState(1);
@@ -52,37 +52,119 @@ const ProductDetailPage = ({ params }: ProductDetailPageProps) => {
   const [isZoomed, setIsZoomed] = useState(false);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
 
-
+  const { toast } = useToast();
   const { id } = use(params);
-  let { data: product } = useProductQuery(id)
-  product = product?.data;
+  const { data, isLoading: isProductLoading, error: productError } = useProductQuery(id);
+  const product = data?.data;
 
-  const [addToCart, { isLoading, isSuccess, error }] = useAddToCartMutation();
+  const [addToCart, { isLoading: isAddingToCart, isSuccess, error: cartError, reset }] = useAddToCartMutation();
+  const { data: relatedProducts } = useRelatedProductsQuery(id)
+
   useEffect(() => {
     setSelectedVariant(product ? (product.variants.length > 0 ? product.variants[0] : null) : null);
   }, [product]);
 
+  // Handle add to cart success
+  useEffect(() => {
+    if (isSuccess) {
+      toast({
+        title: 'Added to Cart',
+        description: `${product?.name} (${selectedVariant?.size}) has been added to your cart.`,
+        variant: 'success',
+      });
+      reset(); // Reset mutation state
+    }
+  }, [isSuccess, product?.name, selectedVariant?.size, toast, reset]);
 
-  if (!product) {
+  // Handle add to cart error
+  useEffect(() => {
+    if (cartError) {
+      toast({
+        title: 'Error',
+        description: 'Failed to add item to cart',
+        variant: 'destructive',
+      });
+      reset(); // Reset mutation state
+    }
+  }, [cartError, toast, reset]);
+
+  // Loading state
+  if (isProductLoading) {
+    return (
+      <div className="container mx-auto px-4 py-16">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+          <div className="space-y-4">
+            <div className="aspect-square bg-gray-200 rounded-lg animate-pulse"></div>
+            <div className="flex space-x-2">
+              {[1, 2, 3, 4].map((i) => (
+                <div key={i} className="w-20 h-20 bg-gray-200 rounded-lg animate-pulse"></div>
+              ))}
+            </div>
+          </div>
+          <div className="space-y-6">
+            <div className="h-8 bg-gray-200 rounded w-3/4 animate-pulse"></div>
+            <div className="h-4 bg-gray-200 rounded w-1/2 animate-pulse"></div>
+            <div className="h-12 bg-gray-200 rounded w-1/3 animate-pulse"></div>
+            <div className="space-y-2">
+              <div className="h-4 bg-gray-200 rounded animate-pulse"></div>
+              <div className="h-4 bg-gray-200 rounded animate-pulse"></div>
+              <div className="h-4 bg-gray-200 rounded w-5/6 animate-pulse"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (productError || !product) {
     return (
       <div className="container mx-auto px-4 py-16 text-center">
-        <div className="animate-pulse space-y-4">
-          <div className="h-8 bg-gray-200 rounded w-1/3 mx-auto"></div>
-          <div className="h-4 bg-gray-200 rounded w-1/2 mx-auto"></div>
+        <div className="max-w-md mx-auto">
+          <div className="text-6xl mb-4">😕</div>
+          <h2 className="text-2xl font-bold mb-2">Product Not Found</h2>
+          <p className="text-muted-foreground mb-6">
+            {productError
+              ? 'An error occurred while loading the product.'
+              : 'The product you\'re looking for doesn\'t exist or has been removed.'}
+          </p>
+          <Button asChild>
+            <Link href="/products">
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back to Products
+            </Link>
+          </Button>
         </div>
       </div>
     );
   }
 
   const handleAddToCart = () => {
-    if (!selectedVariant) return;
+    if (!selectedVariant) {
+      toast({
+        title: 'Select a Size',
+        description: 'Please select a size before adding to cart.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (!isInStock) {
+      toast({
+        title: 'Out of Stock',
+        description: 'This item is currently out of stock.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     addToCart({
       productId: product.id,
       variantId: selectedVariant.id,
       quantity,
       currency: 'EUR',
-
     });
+
   };
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -91,6 +173,19 @@ const ProductDetailPage = ({ params }: ProductDetailPageProps) => {
     const x = ((e.clientX - rect.left) / rect.width) * 100;
     const y = ((e.clientY - rect.top) / rect.height) * 100;
     setMousePosition({ x, y });
+  };
+
+  const handleVariantChange = (variant: ProductVariant) => {
+    if (variant.stockQuantity === 0) {
+      toast({
+        title: 'Out of Stock',
+        description: `Size ${variant.size} is currently out of stock.`,
+        variant: 'destructive',
+      });
+      return;
+    }
+    setSelectedVariant(variant);
+    setQuantity(1); // Reset quantity when changing variant
   };
 
   const getConditionColor = (rating: number) => {
@@ -107,7 +202,6 @@ const ProductDetailPage = ({ params }: ProductDetailPageProps) => {
     return 'Good - Some Signs of Wear';
   };
 
-  // const product?.variants = product.variants.filter((v: ProductVariant) => v.active);
   const currentPrice = selectedVariant?.sellingPrice || product.sellingPrice;
   const originalPrice = selectedVariant?.basePrice || product.basePrice;
   const displayImage = selectedVariant?.image || product.image;
@@ -171,17 +265,16 @@ const ProductDetailPage = ({ params }: ProductDetailPageProps) => {
             )}
           </div>
 
-          {/* Thumbnail images - show variant images */}
+          {/* Thumbnail images */}
           {product?.variants?.length > 0 && (
             <div className="flex space-x-2 overflow-x-auto">
               {product?.variants.map((variant: ProductVariant) => (
                 <button
                   key={variant.id}
-                  onClick={() => {
-                    setSelectedVariant(variant);
-                    // setSelectedImage(index);
-                  }}
-                  className={`shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-colors ${selectedVariant?.id === variant.id ? 'border-orange-500' : 'border-transparent'}`}
+                  onClick={() => handleVariantChange(variant)}
+                  disabled={variant.stockQuantity === 0}
+                  className={`shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-colors ${selectedVariant?.id === variant.id ? 'border-orange-500' : 'border-transparent'
+                    } ${variant.stockQuantity === 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
                 >
                   <Image
                     src={variant.image || '/placeholder.svg'}
@@ -264,7 +357,7 @@ const ProductDetailPage = ({ params }: ProductDetailPageProps) => {
                   {product?.variants.map((variant: ProductVariant) => (
                     <button
                       key={variant.id}
-                      onClick={() => setSelectedVariant(variant)}
+                      onClick={() => handleVariantChange(variant)}
                       disabled={variant.stockQuantity === 0}
                       className={`
                         relative px-4 py-3 rounded-lg border-2 transition-all font-medium
@@ -335,10 +428,19 @@ const ProductDetailPage = ({ params }: ProductDetailPageProps) => {
               size="lg"
               onClick={handleAddToCart}
               className="flex-1 bg-orange-500 hover:bg-orange-600"
-              disabled={!isInStock || !selectedVariant}
+              disabled={!isInStock || !selectedVariant || isAddingToCart}
             >
-              <ShoppingCart className="w-5 h-5 mr-2" />
-              {!isInStock ? 'Out of Stock' : !selectedVariant ? 'Select Size' : 'Add to Cart'}
+              {isAddingToCart ? (
+                <>
+                  <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                  Adding...
+                </>
+              ) : (
+                <>
+                  <ShoppingCart className="w-5 h-5 mr-2" />
+                  {!isInStock ? 'Out of Stock' : !selectedVariant ? 'Select Size' : 'Add to Cart'}
+                </>
+              )}
             </Button>
             <Button
               variant="outline"
@@ -477,11 +579,11 @@ const ProductDetailPage = ({ params }: ProductDetailPageProps) => {
       </div>
 
       {/* Related Products */}
-      {product?.relatedProducts?.length > 0 && (
+      {relatedProducts?.length > 0 && (
         <div className="mt-16">
           <h2 className="text-2xl font-bold text-foreground mb-8">You might also like</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {product.relatedProducts.map((relatedProduct: Product) => (
+            {relatedProducts.map((relatedProduct: Product) => (
               <ProductCard key={relatedProduct.id} product={relatedProduct} />
             ))}
           </div>

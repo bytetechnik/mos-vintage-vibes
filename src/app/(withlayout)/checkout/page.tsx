@@ -1,5 +1,7 @@
 'use client';
 
+import { AddressCard } from '@/components/AddressCard';
+import { AddressForm } from '@/components/AddressForm';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -12,54 +14,36 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
-import { useCartsQuery } from '@/redux/api/cartApi';
 import {
-  AlertCircle,
-  ArrowLeft,
-  Building,
-  Check,
-  Edit,
-  Home,
-  MapPin,
-  Package,
-  Plus,
-  ShoppingBag,
-  Trash2
-} from 'lucide-react';
+  useAddressesQuery,
+  useAddToAddressMutation,
+  useDefaultAddressMutation,
+  useRemoveAddressMutation,
+  useUpdateAddressMutation,
+} from '@/redux/api/addressApi';
+import { useCartsQuery } from '@/redux/api/cartApi';
+import { AddressFormData } from '@/schemas/address';
+import { AlertCircle, ArrowLeft, MapPin, Package, Plus, ShoppingBag } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 
+
 const Checkout = () => {
   const router = useRouter();
   const { toast } = useToast();
 
-  // API Hooks - Cart only
+  // API Hooks
+  const { data: addressData, isLoading: isAddressLoading } = useAddressesQuery({});
   const { data: cartItemsData, isLoading: isCartLoading } = useCartsQuery({});
-
-  // Mock API states
-  const [isAddressLoading, setIsAddressLoading] = useState(false);
-  const [isCreatingAddress, setIsCreatingAddress] = useState(false);
-  const [isUpdatingAddress, setIsUpdatingAddress] = useState(false);
-  const [isDeletingAddress, setIsDeletingAddress] = useState(false);
-  const [isCreatingOrder, setIsCreatingOrder] = useState(false);
-
-  // Mock addresses data
-  const [addresses, setAddresses] = useState<any[]>([]);
+  const [addToAddress, { isLoading: isCreatingAddress }] = useAddToAddressMutation();
+  const [updateAddress, { isLoading: isUpdatingAddress }] = useUpdateAddressMutation();
+  const [removeAddress, { isLoading: isDeletingAddress }] = useRemoveAddressMutation();
+  const [setDefaultAddress] = useDefaultAddressMutation();
 
   // Local state
   const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
@@ -68,35 +52,24 @@ const Checkout = () => {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [addressToDelete, setAddressToDelete] = useState<string | null>(null);
   const [orderNotes, setOrderNotes] = useState('');
-  const [saveAsDefault, setSaveAsDefault] = useState(false);
+  const [isCreatingOrder, setIsCreatingOrder] = useState(false);
 
-  // Address form state
-  const [addressForm, setAddressForm] = useState<any>({
-    type: 'home',
-    fullName: '',
-    phone: '',
-    addressLine1: '',
-    addressLine2: '',
-    city: '',
-    state: '',
-    postalCode: '',
-    country: 'Bangladesh',
-    isDefault: false,
-  });
-
-  // Extract cart data
+  // Extract data
+  const addresses = useMemo(() => addressData?.data || [], [addressData]);
   const cart = useMemo(() => cartItemsData?.data, [cartItemsData]);
   const cartItems = cart?.items || [];
   const subtotal = cart?.subtotal || 0;
   const total = cart?.total || 0;
   const currency = cart?.currency || 'BDT';
 
-  const defaultAddress = addresses.find((addr: any) => addr.isDefault);
+  const defaultAddress = addresses.find((addr: any) => addr.default || addr.isDefault);
 
   // Calculate shipping
   const SHIPPING_THRESHOLD = 1000;
   const SHIPPING_COST = 50;
   const shippingCost = subtotal >= SHIPPING_THRESHOLD ? 0 : SHIPPING_COST;
+  const taxAmount = cart?.taxAmount || 0;
+  const discountAmount = cart?.discountAmount || 0;
   const finalTotal = total + shippingCost;
 
   // Auto-select default address
@@ -106,153 +79,119 @@ const Checkout = () => {
     }
   }, [defaultAddress, selectedAddressId]);
 
-  // Load mock addresses
-  useEffect(() => {
-    const loadAddresses = async () => {
-      setIsAddressLoading(true);
-      await new Promise(resolve => setTimeout(resolve, 500));
-
-      const savedAddresses = localStorage.getItem('checkoutAddresses');
-      if (savedAddresses) {
-        setAddresses(JSON.parse(savedAddresses));
-      }
-      setIsAddressLoading(false);
-    };
-    loadAddresses();
-  }, []);
-
   // Reset form
   const resetForm = () => {
-    setAddressForm({
-      type: 'home',
-      fullName: '',
-      phone: '',
-      addressLine1: '',
-      addressLine2: '',
-      city: '',
-      state: '',
-      postalCode: '',
-      country: 'Bangladesh',
-      isDefault: false,
-    });
     setEditingAddress(null);
     setShowAddressForm(false);
-    setSaveAsDefault(false);
   };
 
-  // Handle address form submit (Mock)
-  const handleSaveAddress = async (e: React.FormEvent) => {
-    e.preventDefault();
-
+  // Handle address form submit
+  const handleSaveAddress = async (data: AddressFormData) => {
     try {
+      // Generate formatted address
+      const formattedAddress = [
+        data.addressLine1,
+        data.addressLine2,
+        data.city,
+        data.stateProvince,
+        data.postalCode,
+        data.countryCode,
+      ]
+        .filter(Boolean)
+        .join(', ');
+
+      const payload = {
+        ...data,
+        formattedAddress,
+      };
+
       if (editingAddress) {
-        setIsUpdatingAddress(true);
-        await new Promise(resolve => setTimeout(resolve, 800));
+        // Update existing address
+        const result = await updateAddress({
+          id: editingAddress.id,
+          ...payload,
+        }).unwrap();
 
-        const updatedAddresses = addresses.map(addr =>
-          addr.id === editingAddress.id
-            ? { ...addr, ...addressForm, isDefault: saveAsDefault }
-            : saveAsDefault ? { ...addr, isDefault: false } : addr
-        );
-        setAddresses(updatedAddresses);
-        localStorage.setItem('checkoutAddresses', JSON.stringify(updatedAddresses));
+        if (result.success) {
+          toast({
+            title: 'Address Updated',
+            description: 'Your address has been updated successfully.',
+          });
 
-        toast({
-          title: 'Address Updated',
-          description: 'Your address has been updated successfully.',
-        });
-        setIsUpdatingAddress(false);
+          // Set as default if requested
+          if (data.isDefault && !editingAddress.default) {
+            await setDefaultAddress(editingAddress.id);
+          }
+        }
       } else {
-        setIsCreatingAddress(true);
-        await new Promise(resolve => setTimeout(resolve, 800));
+        // Create new address
+        const result = await addToAddress(payload).unwrap();
 
-        const newAddress = {
-          id: `addr_${Date.now()}`,
-          ...addressForm,
-          isDefault: saveAsDefault,
-          createdAt: new Date().toISOString(),
-        };
+        if (result.success) {
+          toast({
+            title: 'Address Added',
+            description: 'Your new address has been saved.',
+          });
 
-        const updatedAddresses = saveAsDefault
-          ? [newAddress, ...addresses.map(a => ({ ...a, isDefault: false }))]
-          : [...addresses, newAddress];
+          // Auto-select newly created address
+          if (result.data?.id) {
+            setSelectedAddressId(result.data.id);
 
-        setAddresses(updatedAddresses);
-        localStorage.setItem('checkoutAddresses', JSON.stringify(updatedAddresses));
-        setSelectedAddressId(newAddress.id);
-
-        toast({
-          title: 'Address Added',
-          description: 'Your new address has been saved.',
-        });
-        setIsCreatingAddress(false);
+            // Set as default if requested
+            if (data.isDefault) {
+              await setDefaultAddress(result.data.id);
+            }
+          }
+        }
       }
+
       resetForm();
     } catch (error: any) {
-      console.error(error);
+      console.error('Address save error:', error);
       toast({
         title: 'Failed to Save Address',
-        description: 'Please try again.',
+        description: error?.data?.message || 'Please try again.',
         variant: 'destructive',
       });
-      setIsCreatingAddress(false);
-      setIsUpdatingAddress(false);
     }
   };
 
   // Handle edit address
   const handleEditAddress = (address: any) => {
     setEditingAddress(address);
-    setAddressForm({
-      type: address.type,
-      fullName: address.fullName,
-      phone: address.phone,
-      addressLine1: address.addressLine1,
-      addressLine2: address.addressLine2 || '',
-      city: address.city,
-      state: address.state || '',
-      postalCode: address.postalCode,
-      country: address.country,
-      isDefault: address.isDefault,
-    });
-    setSaveAsDefault(address.isDefault);
     setShowAddressForm(true);
   };
 
-  // Handle delete address (Mock)
+  // Handle delete address
   const handleDeleteAddress = async () => {
     if (!addressToDelete) return;
 
     try {
-      setIsDeletingAddress(true);
-      await new Promise(resolve => setTimeout(resolve, 600));
+      const result = await removeAddress(addressToDelete).unwrap();
 
-      const updatedAddresses = addresses.filter(addr => addr.id !== addressToDelete);
-      setAddresses(updatedAddresses);
-      localStorage.setItem('checkoutAddresses', JSON.stringify(updatedAddresses));
-
-      if (selectedAddressId === addressToDelete) {
-        setSelectedAddressId(null);
+      if (result.success) {
+        if (selectedAddressId === addressToDelete) {
+          setSelectedAddressId(null);
+        }
+        toast({
+          title: 'Address Deleted',
+          description: 'The address has been removed.',
+        });
       }
-      toast({
-        title: 'Address Deleted',
-        description: 'The address has been removed.',
-      });
     } catch (error: any) {
-      console.log(error);
+      console.error('Delete error:', error);
       toast({
         title: 'Delete Failed',
-        description: 'Please try again.',
+        description: error?.data?.message || 'Please try again.',
         variant: 'destructive',
       });
     } finally {
-      setIsDeletingAddress(false);
       setShowDeleteDialog(false);
       setAddressToDelete(null);
     }
   };
 
-  // Handle place order (Mock)
+  // Handle place order
   const handlePlaceOrder = async () => {
     if (!selectedAddressId) {
       toast({
@@ -265,7 +204,9 @@ const Checkout = () => {
 
     try {
       setIsCreatingOrder(true);
-      await new Promise(resolve => setTimeout(resolve, 1500));
+
+      // TODO: Replace with actual order creation API call
+      await new Promise((resolve) => setTimeout(resolve, 1500));
 
       const orderNumber = `ORD${Date.now().toString().slice(-8)}`;
       const orderId = `order_${Date.now()}`;
@@ -294,7 +235,7 @@ const Checkout = () => {
 
       router.push(`/orders/${orderId}`);
     } catch (error: any) {
-      console.error(error);
+      console.error('Order error:', error);
       toast({
         title: 'Order Failed',
         description: 'Could not place order. Please try again.',
@@ -303,6 +244,30 @@ const Checkout = () => {
     } finally {
       setIsCreatingOrder(false);
     }
+  };
+
+  // Prepare initial data for editing
+  const getInitialEditData = (): Partial<AddressFormData> | undefined => {
+    if (!editingAddress) return undefined;
+
+    return {
+      type: editingAddress.addressType || editingAddress.type || 'SHIPPING',
+      firstName: editingAddress.firstName || '',
+      lastName: editingAddress.lastName || '',
+      company: editingAddress.company || '',
+      phoneNo: editingAddress.phoneNo || '',
+      email: editingAddress.email || '',
+      addressLine1: editingAddress.addressLine1 || editingAddress.street || '',
+      addressLine2: editingAddress.addressLine2 || '',
+      city: editingAddress.city || '',
+      stateProvince: editingAddress.stateProvince || editingAddress.state || '',
+      postalCode: editingAddress.postalCode || '',
+      countryCode: editingAddress.countryCode || editingAddress.country || 'BD',
+      formattedAddress: editingAddress.formattedAddress || '',
+      isDefault: editingAddress.default || editingAddress.isDefault || false,
+      latitude: editingAddress.latitude,
+      longitude: editingAddress.longitude,
+    };
   };
 
   // Loading state
@@ -362,7 +327,6 @@ const Checkout = () => {
               <h1 className="text-4xl font-bold tracking-tight">Checkout</h1>
               <p className="text-muted-foreground mt-2">Complete your purchase securely</p>
             </div>
-
           </div>
         </div>
 
@@ -395,177 +359,13 @@ const Checkout = () => {
               <CardContent className="pt-6">
                 {/* Address Form */}
                 {showAddressForm ? (
-                  <form onSubmit={handleSaveAddress} className="space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <Label htmlFor="type">Address Type</Label>
-                        <Select
-                          value={addressForm.type}
-                          onValueChange={(value: 'home' | 'work' | 'other') =>
-                            setAddressForm({ ...addressForm, type: value })
-                          }
-                        >
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="home">
-                              <div className="flex items-center gap-2">
-                                <Home className="w-4 h-4" />
-                                Home
-                              </div>
-                            </SelectItem>
-                            <SelectItem value="work">
-                              <div className="flex items-center gap-2">
-                                <Building className="w-4 h-4" />
-                                Work
-                              </div>
-                            </SelectItem>
-                            <SelectItem value="other">Other</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-
-                      <div>
-                        <Label htmlFor="fullName">Full Name *</Label>
-                        <Input
-                          id="fullName"
-                          value={addressForm.fullName}
-                          onChange={(e) =>
-                            setAddressForm({ ...addressForm, fullName: e.target.value })
-                          }
-                          required
-                        />
-                      </div>
-
-                      <div>
-                        <Label htmlFor="phone">Phone Number *</Label>
-                        <Input
-                          id="phone"
-                          type="tel"
-                          value={addressForm.phone}
-                          onChange={(e) =>
-                            setAddressForm({ ...addressForm, phone: e.target.value })
-                          }
-                          required
-                        />
-                      </div>
-
-                      <div>
-                        <Label htmlFor="country">Country *</Label>
-                        <Select
-                          value={addressForm.country}
-                          onValueChange={(value) =>
-                            setAddressForm({ ...addressForm, country: value })
-                          }
-                        >
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="Bangladesh">Bangladesh</SelectItem>
-                            <SelectItem value="India">India</SelectItem>
-                            <SelectItem value="Pakistan">Pakistan</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    </div>
-
-                    <div>
-                      <Label htmlFor="addressLine1">Street Address *</Label>
-                      <Input
-                        id="addressLine1"
-                        value={addressForm.addressLine1}
-                        onChange={(e) =>
-                          setAddressForm({ ...addressForm, addressLine1: e.target.value })
-                        }
-                        placeholder="House number and street name"
-                        required
-                      />
-                    </div>
-
-                    <div>
-                      <Label htmlFor="addressLine2">
-                        Apartment, suite, etc. (optional)
-                      </Label>
-                      <Input
-                        id="addressLine2"
-                        value={addressForm.addressLine2}
-                        onChange={(e) =>
-                          setAddressForm({ ...addressForm, addressLine2: e.target.value })
-                        }
-                      />
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      <div>
-                        <Label htmlFor="city">City *</Label>
-                        <Input
-                          id="city"
-                          value={addressForm.city}
-                          onChange={(e) =>
-                            setAddressForm({ ...addressForm, city: e.target.value })
-                          }
-                          required
-                        />
-                      </div>
-
-                      <div>
-                        <Label htmlFor="state">State / Province</Label>
-                        <Input
-                          id="state"
-                          value={addressForm.state}
-                          onChange={(e) =>
-                            setAddressForm({ ...addressForm, state: e.target.value })
-                          }
-                        />
-                      </div>
-
-                      <div>
-                        <Label htmlFor="postalCode">Postal Code *</Label>
-                        <Input
-                          id="postalCode"
-                          value={addressForm.postalCode}
-                          onChange={(e) =>
-                            setAddressForm({ ...addressForm, postalCode: e.target.value })
-                          }
-                          required
-                        />
-                      </div>
-                    </div>
-
-                    <div className="flex items-center space-x-2">
-                      <Checkbox
-                        id="saveAsDefault"
-                        checked={saveAsDefault}
-                        onCheckedChange={(checked) => setSaveAsDefault(checked as boolean)}
-                      />
-                      <Label htmlFor="saveAsDefault" className="cursor-pointer">
-                        Save as default address
-                      </Label>
-                    </div>
-
-                    <div className="flex gap-3 pt-4">
-                      <Button
-                        type="submit"
-                        disabled={isCreatingAddress || isUpdatingAddress}
-                      >
-                        {isCreatingAddress || isUpdatingAddress ? (
-                          <>
-                            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
-                            Saving...
-                          </>
-                        ) : editingAddress ? (
-                          'Update Address'
-                        ) : (
-                          'Save Address'
-                        )}
-                      </Button>
-                      <Button type="button" variant="outline" onClick={resetForm}>
-                        Cancel
-                      </Button>
-                    </div>
-                  </form>
+                  <AddressForm
+                    onSubmit={handleSaveAddress}
+                    onCancel={resetForm}
+                    initialData={getInitialEditData()}
+                    isLoading={isCreatingAddress || isUpdatingAddress}
+                    isEditing={!!editingAddress}
+                  />
                 ) : (
                   <>
                     {addresses.length === 0 ? (
@@ -585,82 +385,18 @@ const Checkout = () => {
                     ) : (
                       <div className="space-y-4">
                         {addresses.map((address: any) => (
-                          <div
+                          <AddressCard
                             key={address.id}
-                            className={`relative border-2 rounded-xl p-5 cursor-pointer transition-all duration-200 hover:shadow-md ${selectedAddressId === address.id
-                              ? 'border-primary bg-primary/5 shadow-md'
-                              : 'border-border hover:border-primary/50'
-                              }`}
-                            onClick={() => setSelectedAddressId(address.id)}
-                          >
-                            <div className="flex items-start gap-4">
-                              <div
-                                className={`mt-1 w-6 h-6 rounded-full border-2 flex items-center justify-center shrink-0 transition-all ${selectedAddressId === address.id
-                                  ? 'border-primary bg-primary'
-                                  : 'border-muted-foreground'
-                                  }`}
-                              >
-                                {selectedAddressId === address.id && (
-                                  <Check className="w-4 h-4 text-primary-foreground" />
-                                )}
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <div className="flex items-center gap-2 mb-2 flex-wrap">
-                                  <span className="font-bold text-lg">{address.fullName}</span>
-                                  {address.isDefault && (
-                                    <span className="text-xs bg-primary/20 text-primary px-3 py-1 rounded-full font-semibold">
-                                      Default
-                                    </span>
-                                  )}
-                                  <span className="text-xs bg-muted px-3 py-1 rounded-full capitalize font-medium">
-                                    {address.type === 'home' && <Home className="w-3 h-3 inline mr-1" />}
-                                    {address.type === 'work' && <Building className="w-3 h-3 inline mr-1" />}
-                                    {address.type}
-                                  </span>
-                                </div>
-                                <p className="text-sm font-medium text-muted-foreground mb-2">
-                                  📱 {address.phone}
-                                </p>
-                                <p className="text-sm leading-relaxed">
-                                  {address.addressLine1}
-                                  {address.addressLine2 && `, ${address.addressLine2}`}
-                                </p>
-                                <p className="text-sm text-muted-foreground mt-1">
-                                  {address.city}
-                                  {address.state && `, ${address.state}`} {address.postalCode}
-                                </p>
-                                <p className="text-sm text-muted-foreground">
-                                  {address.country}
-                                </p>
-                              </div>
-                              <div className="flex gap-2 shrink-0">
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  className="h-9 w-9 hover:bg-muted"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleEditAddress(address);
-                                  }}
-                                >
-                                  <Edit className="w-4 h-4" />
-                                </Button>
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  className="h-9 w-9 text-destructive hover:text-destructive hover:bg-destructive/10"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    setAddressToDelete(address.id);
-                                    setShowDeleteDialog(true);
-                                  }}
-                                  disabled={isDeletingAddress}
-                                >
-                                  <Trash2 className="w-4 h-4" />
-                                </Button>
-                              </div>
-                            </div>
-                          </div>
+                            address={address}
+                            isSelected={selectedAddressId === address.id}
+                            onSelect={() => setSelectedAddressId(address.id)}
+                            onEdit={() => handleEditAddress(address)}
+                            onDelete={() => {
+                              setAddressToDelete(address.id);
+                              setShowDeleteDialog(true);
+                            }}
+                            isDeleting={isDeletingAddress}
+                          />
                         ))}
                       </div>
                     )}
@@ -687,20 +423,17 @@ const Checkout = () => {
                   rows={4}
                   className="resize-none"
                 />
-                <p className="text-xs text-muted-foreground mt-2">
-                  {/* 💡 Example: "Please ring the doorbell twice" or "Leave at front desk" */}
-                </p>
               </CardContent>
             </Card>
           </div>
 
           {/* Order Summary */}
           <div className="lg:col-span-1">
-            <div className="bg-card rounded-lg p-6 shadow-card-custom sticky top-8">
+            <div className="bg-card rounded-lg p-6 shadow-lg sticky top-8">
               <h2 className="text-xl font-semibold mb-6">Order Summary</h2>
 
               {/* Cart Items */}
-              <div className="space-y-3 mb-6 max-h-64 overflow-y-auto pt-2" >
+              <div className="space-y-3 mb-6 max-h-64 overflow-y-auto">
                 {cartItems.map((item: any) => (
                   <div key={item.id} className="flex gap-3">
                     <div className="relative w-16 h-16 shrink-0">
@@ -711,7 +444,7 @@ const Checkout = () => {
                         className="object-cover rounded"
                       />
                       {item.quantity > 1 && (
-                        <div className="absolute -top-2 -right-2 bg-vintage-orange text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                        <div className="absolute -top-2 -right-2 bg-primary text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
                           {item.quantity}
                         </div>
                       )}
@@ -745,22 +478,22 @@ const Checkout = () => {
                     {shippingCost === 0 ? 'Free' : `${currency} ${shippingCost.toFixed(2)}`}
                   </span>
                 </div>
-                {/* {cart?.taxAmount && cart.taxAmount > 0 && ( */}
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Tax</span>
-                  <span className="font-medium">
-                    {currency} {cart.taxAmount.toFixed(2)}
-                  </span>
-                </div>
-                {/* )} */}
-                {/* {cart?.discountAmount && cart.discountAmount > 0 && ( */}
-                <div className="flex justify-between text-sm text-green-600">
-                  <span>Discount</span>
-                  <span className="font-medium">
-                    -{currency} {cart.discountAmount.toFixed(2)}
-                  </span>
-                </div>
-                {/* )} */}
+                {taxAmount > 0 && (
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Tax</span>
+                    <span className="font-medium">
+                      {currency} {taxAmount.toFixed(2)}
+                    </span>
+                  </div>
+                )}
+                {discountAmount > 0 && (
+                  <div className="flex justify-between text-sm text-green-600">
+                    <span>Discount</span>
+                    <span className="font-medium">
+                      -{currency} {discountAmount.toFixed(2)}
+                    </span>
+                  </div>
+                )}
                 <div className="border-t pt-3">
                   <div className="flex justify-between items-center">
                     <span className="font-semibold">Total</span>
@@ -773,7 +506,6 @@ const Checkout = () => {
 
               {/* Place Order Button */}
               <Button
-                variant="street"
                 size="lg"
                 className="w-full mt-6"
                 onClick={handlePlaceOrder}
@@ -790,9 +522,9 @@ const Checkout = () => {
               </Button>
 
               {!selectedAddressId && addresses.length > 0 && (
-                <div className="mt-4 p-3 bg-vintage-orange/10 rounded-lg flex items-start gap-2">
-                  <AlertCircle className="w-4 h-4 text-vintage-orange shrink-0 mt-0.5" />
-                  <p className="text-xs text-vintage-orange">
+                <div className="mt-4 p-3 bg-destructive/10 rounded-lg flex items-start gap-2">
+                  <AlertCircle className="w-4 h-4 text-destructive shrink-0 mt-0.5" />
+                  <p className="text-xs text-destructive">
                     Please select a delivery address to continue
                   </p>
                 </div>
@@ -804,7 +536,6 @@ const Checkout = () => {
               </div>
             </div>
           </div>
-          {/* </div> */}
         </div>
 
         {/* Delete Address Confirmation */}
@@ -836,7 +567,7 @@ const Checkout = () => {
           </AlertDialogContent>
         </AlertDialog>
       </div>
-    </div >
+    </div>
   );
 };
 

@@ -1,7 +1,7 @@
 import { tagTypes } from "@/redux/tag-types";
 import { baseApi } from "./baseApi";
 
-const addressUrl = 'address';
+const addressUrl = 'addresses';
 
 export const whishlistApi = baseApi.injectEndpoints({
   endpoints: (build) => ({
@@ -42,6 +42,15 @@ export const whishlistApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: [tagTypes.address],
     }),
+    updateAddress: build.mutation({
+      query: (data) => ({
+        url: `${addressUrl}/${data.id}`,
+        method: "POST",
+        data,
+      }),
+      invalidatesTags: [tagTypes.address],
+    }),
+
   }),
 });
 
@@ -50,5 +59,6 @@ export const {
   useAddressQuery,
   useAddressesQuery,
   useDefaultAddressMutation,
-  useRemoveAddressMutation
+  useRemoveAddressMutation,
+  useUpdateAddressMutation
 } = whishlistApi;

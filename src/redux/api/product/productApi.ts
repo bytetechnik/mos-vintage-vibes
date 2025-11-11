@@ -39,7 +39,7 @@ export const productApi = baseApi.injectEndpoints({
       providesTags: [tagTypes.product],
     }),
     relatedProducts: build.query({
-      query: (id: string | string[] | undefined) => ({
+      query: (id: string | undefined) => ({
         url: `${productUrl}/${id}/related`,
         method: "GET",
       }),
@@ -54,4 +54,5 @@ export const {
   useProductQuery,
   useLatestProductsQuery,
   useFeatureProductsQuery,
+  useRelatedProductsQuery
 } = productApi;
