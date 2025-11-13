@@ -39,8 +39,9 @@ export const addressFormSchema = yup.object().shape({
     .matches(/^[0-9]{4,10}$/, 'Invalid postal code')
     .required('Postal code is required'),
   countryCode: yup.string()
-    .length(2, 'Country code must be 2 characters')
-    .required('Country is required'),
+    .min(2, 'Country code must be at least 2 characters')
+    .max(3, 'Country code must be at most 3 characters')
+    .required('Country code is required'),
   formattedAddress: yup.string().optional(),
   isDefault: yup.boolean().default(false),
   latitude: yup.number().optional(),

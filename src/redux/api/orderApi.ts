@@ -28,6 +28,13 @@ export const orderApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: [tagTypes.order],
     }),
+    validateOrder: build.mutation({
+      query: (data) => ({
+        url: `${orderUrl}/validate-payment`,
+        method: "POST",
+        data,
+      }),
+    }),
   }),
 });
 
@@ -35,4 +42,5 @@ export const {
   useOrdersQuery,
   useOrderQuery,
   useMakeOrderMutation,
+  useValidateOrderMutation
 } = orderApi;

@@ -172,7 +172,7 @@ const NavBar = () => {
               variant="ghost"
               size="icon"
               className="relative"
-              onClick={() => setIsSearchOpen(true)}
+            // onClick={() => setIsSearchOpen(true)}
             >
               <Search className={`w-5 h-5 transition-colors duration-300 ${pathname === '/' ? (isScrolled ? 'text-black' : 'text-white') : 'text-black'}`} />
             </Button>
@@ -228,10 +228,10 @@ const NavBar = () => {
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
-                      <Link href="/profile" className="flex items-center gap-2 cursor-pointer">
+                      {/* <Link href="/profile" className="flex items-center gap-2 cursor-pointer">
                         <User className="w-4 h-4" />
                         Profile
-                      </Link>
+                      </Link> */}
                     </DropdownMenuItem>
 
                     <DropdownMenuSeparator />

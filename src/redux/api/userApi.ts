@@ -20,20 +20,11 @@ export const orderApi = baseApi.injectEndpoints({
         data,
       }),
       invalidatesTags: [tagTypes.user],
-    }),
-    changePassword: build.mutation({
-      query: (data) => ({
-        url: `${userUrl}/password`,
-        method: "PUT",
-        data,
-      }),
-      invalidatesTags: [tagTypes.user],
-    }),
+    })
   }),
 });
 
 export const {
-  useChangePasswordMutation,
   useProfileQuery,
   useUpdateProfileMutation
 } = orderApi;

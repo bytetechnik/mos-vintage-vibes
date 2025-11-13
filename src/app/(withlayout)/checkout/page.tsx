@@ -114,6 +114,7 @@ const Checkout = () => {
         if (result.success) {
           toast({
             title: 'Address Updated',
+            variant: 'success',
             description: 'Your address has been updated successfully.',
           });
 
@@ -129,6 +130,7 @@ const Checkout = () => {
         if (result.success) {
           toast({
             title: 'Address Added',
+            variant: 'success',
             description: 'Your new address has been saved.',
           });
 
@@ -174,6 +176,7 @@ const Checkout = () => {
         }
         toast({
           title: 'Address Deleted',
+          variant: 'destructive',
           description: 'The address has been removed.',
         });
       }

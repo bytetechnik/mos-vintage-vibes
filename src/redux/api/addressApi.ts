@@ -33,7 +33,7 @@ export const whishlistApi = baseApi.injectEndpoints({
         url: `${addressUrl}/${id}`,
         method: "DELETE",
       }),
-      invalidatesTags: [tagTypes.cart],
+      invalidatesTags: [tagTypes.address],
     }),
     defaultAddress: build.mutation({
       query: (id: string | undefined) => ({
