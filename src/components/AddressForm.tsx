@@ -4,7 +4,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { AddressFormData, addressFormSchema, defaultAddressValues } from '@/schemas/address';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { Building, Home } from 'lucide-react';
 import { useEffect } from 'react';
 import { Controller, Resolver, useForm } from 'react-hook-form';
 
@@ -43,7 +42,7 @@ export const AddressForm = ({
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
       {/* Address Type - Radio Buttons */}
-      <div>
+      {/* <div>
         <Label>
           Address Type <span className="text-red-500">*</span>
         </Label>
@@ -80,7 +79,7 @@ export const AddressForm = ({
         {errors.type && (
           <p className="text-xs text-destructive mt-1">{errors.type.message}</p>
         )}
-      </div>
+      </div> */}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* First Name */}

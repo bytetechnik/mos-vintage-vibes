@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button';
-import { Building, Check, Edit, Home, Trash2 } from 'lucide-react';
+import { Check, Edit, Trash2 } from 'lucide-react';
 
 interface AddressCardProps {
   address: any;
@@ -18,18 +18,18 @@ export const AddressCard = ({
   onDelete,
   isDeleting = false,
 }: AddressCardProps) => {
-  const getAddressIcon = () => {
-    if (address.addressType === 'SHIPPING' || address.type === 'SHIPPING') {
-      return <Home className="w-3 h-3 inline mr-1" />;
-    }
-    return <Building className="w-3 h-3 inline mr-1" />;
-  };
+  // const getAddressIcon = () => {
+  //   if (address.addressType === 'SHIPPING' || address.type === 'SHIPPING') {
+  //     return <Home className="w-3 h-3 inline mr-1" />;
+  //   }
+  //   return <Building className="w-3 h-3 inline mr-1" />;
+  // };
 
   const fullName = address.firstName && address.lastName
     ? `${address.firstName} ${address.lastName}`
     : address.fullName || 'No Name';
 
-  const addressType = address.addressType || address.type || 'SHIPPING';
+  // const addressType = address.addressType || address.type || 'SHIPPING';
 
   return (
     <div
@@ -59,10 +59,10 @@ export const AddressCard = ({
                 Default
               </span>
             )}
-            <span className="text-xs bg-muted px-3 py-1 rounded-full capitalize font-medium">
+            {/* <span className="text-xs bg-muted px-3 py-1 rounded-full capitalize font-medium">
               {getAddressIcon()}
               {addressType.toLowerCase()}
-            </span>
+            </span> */}
           </div>
 
           <p className="text-sm font-medium text-muted-foreground mb-2">

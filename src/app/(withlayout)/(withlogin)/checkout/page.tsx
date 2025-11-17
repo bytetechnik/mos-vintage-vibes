@@ -14,7 +14,9 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import {
   useAddressesQuery,
@@ -26,7 +28,7 @@ import {
 import { useCartsQuery } from '@/redux/api/cartApi';
 import { useMakeOrderMutation } from '@/redux/api/orderApi';
 import { AddressFormData } from '@/schemas/address';
-import { AlertCircle, ArrowLeft, MapPin, Package, Plus, ShoppingBag } from 'lucide-react';
+import { AlertCircle, ArrowLeft, CreditCard, MapPin, Package, Plus, ShoppingBag } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -46,12 +48,14 @@ const Checkout = () => {
   const [makeOrder, { isLoading: isCreatingOrder }] = useMakeOrderMutation();
 
   // Local state
-  const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
+  const [selectedShippingAddressId, setSelectedShippingAddressId] = useState<string | null>(null);
+  const [selectedBillingAddressId, setSelectedBillingAddressId] = useState<string | null>(null);
+  const [sameAsShipping, setSameAsShipping] = useState(true);
   const [showAddressForm, setShowAddressForm] = useState(false);
   const [editingAddress, setEditingAddress] = useState<any | null>(null);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [addressToDelete, setAddressToDelete] = useState<string | null>(null);
-  // const [orderNotes, setOrderNotes] = useState('');
+  const [activeTab, setActiveTab] = useState('shipping');
 
   // Extract data
   const addresses = useMemo(() => addressData?.data || [], [addressData]);
@@ -73,10 +77,17 @@ const Checkout = () => {
 
   // Auto-select default address
   useEffect(() => {
-    if (!selectedAddressId && defaultAddress) {
-      setSelectedAddressId(defaultAddress.id);
+    if (!selectedShippingAddressId && defaultAddress) {
+      setSelectedShippingAddressId(defaultAddress.id);
     }
-  }, [defaultAddress, selectedAddressId]);
+  }, [defaultAddress, selectedShippingAddressId]);
+
+  // Sync billing address when "same as shipping" is checked
+  useEffect(() => {
+    if (sameAsShipping && selectedShippingAddressId) {
+      setSelectedBillingAddressId(selectedShippingAddressId);
+    }
+  }, [sameAsShipping, selectedShippingAddressId]);
 
   // Reset form
   const resetForm = () => {
@@ -87,7 +98,6 @@ const Checkout = () => {
   // Handle address form submit
   const handleSaveAddress = async (data: AddressFormData) => {
     try {
-      // Generate formatted address
       const formattedAddress = [
         data.addressLine1,
         data.addressLine2,
@@ -105,7 +115,6 @@ const Checkout = () => {
       };
 
       if (editingAddress) {
-        // Update existing address
         const result = await updateAddress({
           id: editingAddress.id,
           ...payload,
@@ -118,13 +127,11 @@ const Checkout = () => {
             description: 'Your address has been updated successfully.',
           });
 
-          // Set as default if requested
           if (data.isDefault && !editingAddress.default) {
             await setDefaultAddress(editingAddress.id);
           }
         }
       } else {
-        // Create new address
         const result = await addToAddress(payload).unwrap();
 
         if (result.success) {
@@ -134,11 +141,11 @@ const Checkout = () => {
             description: 'Your new address has been saved.',
           });
 
-          // Auto-select newly created address
           if (result.data?.id) {
-            setSelectedAddressId(result.data.id);
+            if (!selectedShippingAddressId) {
+              setSelectedShippingAddressId(result.data.id);
+            }
 
-            // Set as default if requested
             if (data.isDefault) {
               await setDefaultAddress(result.data.id);
             }
@@ -171,8 +178,11 @@ const Checkout = () => {
       const result = await removeAddress(addressToDelete).unwrap();
 
       if (result.success) {
-        if (selectedAddressId === addressToDelete) {
-          setSelectedAddressId(null);
+        if (selectedShippingAddressId === addressToDelete) {
+          setSelectedShippingAddressId(null);
+        }
+        if (selectedBillingAddressId === addressToDelete) {
+          setSelectedBillingAddressId(null);
         }
         toast({
           title: 'Address Deleted',
@@ -195,10 +205,19 @@ const Checkout = () => {
 
   // Handle place order
   const handlePlaceOrder = async () => {
-    if (!selectedAddressId) {
+    if (!selectedShippingAddressId) {
       toast({
-        title: 'Address Required',
-        description: 'Please select a delivery address.',
+        title: 'Shipping Address Required',
+        description: 'Please select a shipping address.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (!sameAsShipping && !selectedBillingAddressId) {
+      toast({
+        title: 'Billing Address Required',
+        description: 'Please select a billing address.',
         variant: 'destructive',
       });
       return;
@@ -207,13 +226,16 @@ const Checkout = () => {
     try {
       const orderPayload = {
         shippingInfo: {
-          addressId: selectedAddressId,
+          addressId: selectedShippingAddressId,
+        },
+        billingInfo: {
+          addressId: sameAsShipping ? selectedShippingAddressId : selectedBillingAddressId,
         },
         paymentMethod: 'MOLLIE',
         paymentConfirmationUrl: 'https://bytetechnik.de',
         createAccount: false,
-        // ...(orderNotes && { notes: orderNotes }),
       };
+
       const result = await makeOrder(orderPayload).unwrap();
 
       if (result.success) {
@@ -221,7 +243,6 @@ const Checkout = () => {
           title: 'Order Placed Successfully!',
           description: `Order has been created.`,
         });
-        // Redirect to order details or success page
         if (result.data?.approvalUrl) {
           router.push(result.data?.approvalUrl);
         }
@@ -279,9 +300,9 @@ const Checkout = () => {
   // Empty cart
   if (!cartItems.length) {
     return (
-      <div className=" bg-gradient-to-b from-background to-muted/20 flex items-center justify-center">
+      <div className="bg-gradient-to-b from-background to-muted/20 flex items-center justify-center">
         <div className="container mx-auto px-4 text-center max-w-md">
-          <div className="w-24  rounded-full bg-muted mx-auto mb-6 flex items-center justify-center">
+          <div className="w-24 rounded-full bg-muted mx-auto mb-6 flex items-center justify-center">
             <ShoppingBag className="w-12 h-12 text-muted-foreground" />
           </div>
           <h1 className="text-3xl font-bold mb-4">Your cart is empty</h1>
@@ -300,7 +321,7 @@ const Checkout = () => {
   }
 
   return (
-    <div className=" bg-gradient-to-b from-background to-muted/20">
+    <div className="bg-gradient-to-b from-background to-muted/20">
       <div className="container mx-auto px-4 py-8 max-w-7xl">
         {/* Header */}
         <div className="mb-8">
@@ -323,98 +344,159 @@ const Checkout = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Checkout Form */}
           <div className="lg:col-span-2 space-y-6">
-            {/* Delivery Address Section */}
+            {/* Address Section with Tabs */}
             <Card className="border-2 shadow-lg">
-              <CardHeader className="border-b bg-muted/30">
-                <div className="flex items-center justify-between">
-                  <CardTitle className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                      <MapPin className="w-5 h-5 text-primary" />
-                    </div>
-                    <span>Delivery Address</span>
-                  </CardTitle>
-                  {!showAddressForm && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setShowAddressForm(true)}
-                      className="gap-2"
-                    >
-                      <Plus className="w-4 h-4" />
-                      Add New
-                    </Button>
-                  )}
+              <CardHeader className="border-b bg-muted/30 flex flex-row items-center justify-between space-y-0 pb-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                    <MapPin className="w-5 h-5 text-primary" />
+                  </div>
+                  <CardTitle>Delivery Information</CardTitle>
                 </div>
+
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    setShowAddressForm(true);
+                    setActiveTab('shipping');
+                  }}
+                  className="gap-2"
+                >
+                  <Plus className="w-4 h-4" />
+                  Add New Address
+                </Button>
               </CardHeader>
               <CardContent className="pt-6">
-                {/* Address Form */}
-                {showAddressForm ? (
-                  <AddressForm
-                    onSubmit={handleSaveAddress}
-                    onCancel={resetForm}
-                    initialData={getInitialEditData()}
-                    isLoading={isCreatingAddress || isUpdatingAddress}
-                    isEditing={!!editingAddress}
-                  />
-                ) : (
-                  <>
-                    {addresses.length === 0 ? (
-                      <div className="text-center py-12">
-                        <div className="w-20 h-20 rounded-full bg-muted mx-auto mb-4 flex items-center justify-center">
-                          <MapPin className="w-10 h-10 text-muted-foreground" />
-                        </div>
-                        <h3 className="font-semibold text-lg mb-2">No saved addresses</h3>
-                        <p className="text-muted-foreground mb-6">
-                          Add a delivery address to continue with your order
-                        </p>
-                        <Button onClick={() => setShowAddressForm(true)} className="gap-2">
-                          <Plus className="w-4 h-4" />
-                          Add Your First Address
-                        </Button>
-                      </div>
+                <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+                  <TabsList className="grid w-full grid-cols-2 mb-6">
+                    <TabsTrigger value="shipping" className="gap-2">
+                      <MapPin className="w-4 h-4" />
+                      Shipping Address
+                    </TabsTrigger>
+                    <TabsTrigger value="billing" className="gap-2">
+                      <CreditCard className="w-4 h-4" />
+                      Billing Address
+                    </TabsTrigger>
+                  </TabsList>
+
+                  {/* Shipping Address Tab */}
+                  <TabsContent value="shipping" className="mt-0">
+
+                    {showAddressForm ? (
+                      <AddressForm
+                        onSubmit={handleSaveAddress}
+                        onCancel={resetForm}
+                        initialData={getInitialEditData()}
+                        isLoading={isCreatingAddress || isUpdatingAddress}
+                        isEditing={!!editingAddress}
+                      />
                     ) : (
-                      <div className="space-y-4">
-                        {addresses.map((address: any) => (
-                          <AddressCard
-                            key={address.id}
-                            address={address}
-                            isSelected={selectedAddressId === address.id}
-                            onSelect={() => setSelectedAddressId(address.id)}
-                            onEdit={() => handleEditAddress(address)}
-                            onDelete={() => {
-                              setAddressToDelete(address.id);
-                              setShowDeleteDialog(true);
-                            }}
-                            isDeleting={isDeletingAddress}
-                          />
-                        ))}
+                      <>
+                        {addresses.length === 0 ? (
+                          <div className="text-center py-12">
+                            <div className="w-20 h-20 rounded-full bg-muted mx-auto mb-4 flex items-center justify-center">
+                              <MapPin className="w-10 h-10 text-muted-foreground" />
+                            </div>
+                            <h3 className="font-semibold text-lg mb-2">No saved addresses</h3>
+                            <p className="text-muted-foreground mb-6">
+                              Add a shipping address to continue with your order
+                            </p>
+                            <Button onClick={() => setShowAddressForm(true)} className="gap-2">
+                              <Plus className="w-4 h-4" />
+                              Add Your First Address
+                            </Button>
+                          </div>
+                        ) : (
+                          <div className="space-y-4">
+                            {addresses.map((address: any) => (
+                              <AddressCard
+                                key={address.id}
+                                address={address}
+                                isSelected={selectedShippingAddressId === address.id}
+                                onSelect={() => setSelectedShippingAddressId(address.id)}
+                                onEdit={() => handleEditAddress(address)}
+                                onDelete={() => {
+                                  setAddressToDelete(address.id);
+                                  setShowDeleteDialog(true);
+                                }}
+                                isDeleting={isDeletingAddress}
+                              />
+                            ))}
+                          </div>
+                        )}
+                      </>
+                    )}
+                  </TabsContent>
+
+                  {/* Billing Address Tab */}
+                  <TabsContent value="billing" className="mt-0">
+                    <div className="flex items-center space-x-2 mb-6 p-4 bg-muted/50 rounded-lg">
+                      <Checkbox
+                        id="sameAsShipping"
+                        checked={sameAsShipping}
+                        onCheckedChange={(checked) => setSameAsShipping(checked === true)}
+                      />
+                      <label
+                        htmlFor="sameAsShipping"
+                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                      >
+                        Same as shipping address
+                      </label>
+                    </div>
+
+                    {!sameAsShipping ? (
+                      <>
+                        {addresses.length === 0 ? (
+                          <div className="text-center py-8">
+                            <p className="text-muted-foreground mb-4">
+                              No addresses available. Please add an address first.
+                            </p>
+                            <Button
+                              variant="outline"
+                              onClick={() => setActiveTab('shipping')}
+                              className="gap-2"
+                            >
+                              <Plus className="w-4 h-4" />
+                              Add Address
+                            </Button>
+                          </div>
+                        ) : (
+                          <div className="space-y-4">
+                            {addresses.map((address: any) => (
+                              <AddressCard
+                                key={address.id}
+                                address={address}
+                                isSelected={selectedBillingAddressId === address.id}
+                                onSelect={() => setSelectedBillingAddressId(address.id)}
+                                onEdit={() => handleEditAddress(address)}
+                                onDelete={() => {
+                                  setAddressToDelete(address.id);
+                                  setShowDeleteDialog(true);
+                                }}
+                                isDeleting={isDeletingAddress}
+                              />
+                            ))}
+                          </div>
+                        )}
+                      </>
+                    ) : (
+                      <div className="bg-muted/50 rounded-lg p-6 text-center">
+                        <CreditCard className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
+                        <p className="text-sm text-muted-foreground">
+                          Billing address will be the same as your selected shipping address.
+                        </p>
+                        {selectedShippingAddressId && (
+                          <p className="text-xs text-muted-foreground mt-2">
+                            Selected shipping address will be used for billing
+                          </p>
+                        )}
                       </div>
                     )}
-                  </>
-                )}
+                  </TabsContent>
+                </Tabs>
               </CardContent>
             </Card>
-
-            {/* Order Notes */}
-            {/* <Card className="border-2 shadow-lg">
-              <CardHeader className="border-b bg-muted/30">
-                <CardTitle className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                    <Package className="w-5 h-5 text-primary" />
-                  </div>
-                  <span>Order Notes</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="pt-6">
-                <Textarea
-                  placeholder="Add any special instructions for your order (optional)..."
-                  value={orderNotes}
-                  onChange={(e) => setOrderNotes(e.target.value)}
-                  rows={4}
-                  className="resize-none"
-                />
-              </CardContent>
-            </Card> */}
           </div>
 
           {/* Order Summary */}
@@ -500,7 +582,11 @@ const Checkout = () => {
                 variant="street"
                 className="w-full mt-6"
                 onClick={handlePlaceOrder}
-                disabled={!selectedAddressId || isCreatingOrder}
+                disabled={
+                  !selectedShippingAddressId ||
+                  (!sameAsShipping && !selectedBillingAddressId) ||
+                  isCreatingOrder
+                }
               >
                 {isCreatingOrder ? (
                   <>
@@ -512,19 +598,24 @@ const Checkout = () => {
                 )}
               </Button>
 
-              {!selectedAddressId && addresses.length > 0 && (
+              {/* Error Messages */}
+              {!selectedShippingAddressId && addresses.length > 0 && (
                 <div className="mt-4 p-3 bg-destructive/10 rounded-lg flex items-start gap-2">
                   <AlertCircle className="w-4 h-4 text-destructive shrink-0 mt-0.5" />
                   <p className="text-xs text-destructive">
-                    Please select a delivery address to continue
+                    Please select a shipping address to continue
                   </p>
                 </div>
               )}
 
-              {/* <div className="mt-4 text-xs text-muted-foreground text-center space-y-1">
-                <p>🔒 Your information is secure</p>
-                <p>✓ Cash on Delivery available</p>
-              </div> */}
+              {!sameAsShipping && !selectedBillingAddressId && addresses.length > 0 && (
+                <div className="mt-4 p-3 bg-destructive/10 rounded-lg flex items-start gap-2">
+                  <AlertCircle className="w-4 h-4 text-destructive shrink-0 mt-0.5" />
+                  <p className="text-xs text-destructive">
+                    Please select a billing address to continue
+                  </p>
+                </div>
+              )}
             </div>
           </div>
         </div>

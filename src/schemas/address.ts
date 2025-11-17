@@ -2,7 +2,7 @@ import * as yup from 'yup';
 
 export const addressFormSchema = yup.object().shape({
   type: yup.string()
-    .oneOf(['SHIPPING', 'BILLING'], 'Invalid address type')
+    .oneOf(['SHIPPING', 'BILLING', 'BOTH'], 'Invalid address type')
     .required('Address type is required'),
   firstName: yup.string()
     .min(2, 'First name must be at least 2 characters')
@@ -51,7 +51,7 @@ export const addressFormSchema = yup.object().shape({
 export type AddressFormData = yup.InferType<typeof addressFormSchema>;
 
 export const defaultAddressValues: AddressFormData = {
-  type: 'SHIPPING',
+  type: 'BOTH',
   firstName: '',
   lastName: '',
   company: '',

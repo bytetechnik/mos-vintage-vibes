@@ -41,18 +41,20 @@ instance.interceptors.response.use(
     return responseObject
   },
   async function (error) {
-    if (error?.response?.status === 403) {
+    if (error?.response?.status === 401) {
       console.log(error.response?.data?.message || "Forbidden");
 
       const data = await getNewAccessToken()
+      console.log(data);
       if (data?.data?.token) {
         setToLocalStorage(authKey, data.data.token);
         setToLocalStorage(userDataKey, data.data.user ? JSON.stringify(data.data.user) : "");
+      } else {
+        // await logoutUser();
+        // window.location.href = "/login";
+        return Promise.reject(error);
       }
-      //! Handle logout
-      // await logoutUser();
-      // window.location.href = "/login";
-      // return Promise.reject(error);
+
     } else {
       const responseObject: IGenericErrorResponse = {
         statusCode: error?.response?.status || error?.response?.data?.statusCode || 500,

@@ -48,6 +48,7 @@ const OrderConfirmation = () => {
     if (paymentReference) {
       handleValidateOrder();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [paymentReference]);
 
   const handleValidateOrder = async () => {
