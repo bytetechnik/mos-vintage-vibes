@@ -4,6 +4,7 @@ import { products } from '@/data/products';
 import { useCartsQuery } from '@/redux/api/cartApi';
 import { getUserInfo, logoutUser } from '@/services/auth.service';
 import { CartResponse } from '@/types/cart';
+import { isAuthenticated } from '@/utils/auth-helpers';
 import { LogOut, Menu, Search, Settings, ShoppingCart, User, X } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -20,24 +21,28 @@ const NavBar = () => {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<typeof products>([]);
-  const [isAuthenticated, setIsAuthenticated] = useState(true); // Replace with actual auth logic
-  const [user, setUser] = useState<{ firstName?: string; lastName?: string; email?: string } | null>(null); // Replace with actual user data
-
-
+  const [isAuthenticatedState, setIsAuthenticatedState] = useState(false);
+  const [user, setUser] = useState<{ firstName?: string; lastName?: string; email?: string } | null>(null);
 
   useEffect(() => {
-    const useData = getUserInfo();
-    if (useData) {
-      setUser(useData);
-      setIsAuthenticated(true);
-    } else {
-      setUser(null);
-      setIsAuthenticated(false);
-    }
+    const checkAuth = () => {
+      const authStatus = isAuthenticated();
+      setIsAuthenticatedState(authStatus);
 
+      if (authStatus) {
+        const userData = getUserInfo();
+        setUser(userData);
+      } else {
+        setUser(null);
+      }
+    };
+
+    checkAuth();
+
+    // Listen for storage changes (e.g., login in another tab)
+    window.addEventListener('storage', checkAuth);
+    return () => window.removeEventListener('storage', checkAuth);
   }, []);
-
-
 
   const pathname = usePathname();
   const router = useRouter();
@@ -94,32 +99,19 @@ const NavBar = () => {
     setSearchResults(results);
   }, [searchQuery]);
 
-  // const handleSearchSubmit = (e: React.FormEvent) => {
-  //   e.preventDefault();
-  //   if (searchQuery.trim()) {
-  //     router.push(`/products?search=${encodeURIComponent(searchQuery.trim())}`);
-  //     setIsSearchOpen(false);
-  //     setSearchQuery('');
-  //   }
-  // };
-
   const handleProductClick = (productId: string) => {
     router.push(`/products/${productId}`);
     setIsSearchOpen(false);
     setSearchQuery('');
   };
 
-  // const handleKeyDown = (e: React.KeyboardEvent) => {
-  //   if (e.key === 'Escape') {
-  //     setIsSearchOpen(false);
-  //     setSearchQuery('');
-  //   }
-  // };
+  // Only fetch cart data if authenticated
+  const { data: cartItemsData } = useCartsQuery({}, {
+    skip: !isAuthenticatedState
+  });
 
-  const { data: cartItemsData } = useCartsQuery({});
   const cartData = useMemo(() => (cartItemsData as CartResponse)?.data ?? [], [cartItemsData]);
-
-
+  const cartItemCount = isAuthenticatedState ? (cartData?.items?.length || 0) : 0;
 
   return (
     <>
@@ -159,8 +151,6 @@ const NavBar = () => {
           {/* Center: Logo */}
           <div className="flex items-center justify-center flex-1">
             <Link href="/" className="flex items-center">
-
-
               <Image src="/logo_white.png" alt="Mo's VintageWorld Logo" width={224} height={224} className="w-48 h-48 md:w-56 md:h-56 sm:w-40 sm:h-40 object-contain" />
             </Link>
           </div>
@@ -172,7 +162,6 @@ const NavBar = () => {
               variant="ghost"
               size="icon"
               className="relative"
-            // onClick={() => setIsSearchOpen(true)}
             >
               <Search className={`w-5 h-5 transition-colors duration-300 ${pathname === '/' ? (isScrolled ? 'text-black' : 'text-white') : 'text-black'}`} />
             </Button>
@@ -181,9 +170,9 @@ const NavBar = () => {
             <Link href="/cart">
               <Button variant="ghost" size="icon" className="relative">
                 <ShoppingCart className={`w-5 h-5 transition-colors duration-300 ${pathname === '/' ? (isScrolled ? 'text-black' : 'text-white') : 'text-black'}`} />
-                {cartData?.items?.length > 0 && (
+                {cartItemCount > 0 && (
                   <span className="absolute -top-1 -right-1 bg-vintage-orange text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-medium">
-                    {cartData?.items?.length}
+                    {cartItemCount}
                   </span>
                 )}
               </Button>
@@ -191,7 +180,7 @@ const NavBar = () => {
 
             {/* Profile/Login Button - Hidden on mobile */}
             <div className="hidden md:block">
-              {isAuthenticated ? (
+              {isAuthenticatedState ? (
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button
@@ -227,12 +216,6 @@ const NavBar = () => {
                         Dashboard
                       </Link>
                     </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                      {/* <Link href="/profile" className="flex items-center gap-2 cursor-pointer">
-                        <User className="w-4 h-4" />
-                        Profile
-                      </Link> */}
-                    </DropdownMenuItem>
 
                     <DropdownMenuSeparator />
 
@@ -259,7 +242,6 @@ const NavBar = () => {
                   </Button>
                 </Link>
               )}
-
             </div>
           </div>
         </div>
@@ -327,12 +309,6 @@ const NavBar = () => {
                           onClick={() => handleProductClick(product.id)}
                           className="flex items-center gap-4 p-4 rounded-lg hover:bg-accent cursor-pointer transition-colors border border-transparent hover:border-border"
                         >
-                          {/* <img
-                            src={product.images[0]}
-                            alt={product.name}
-                            className="w-16 h-16 object-cover rounded-lg flex-shrink-0"
-                          /> */}
-
                           <Image
                             src={product.images[0]}
                             alt={product.name}
@@ -378,7 +354,7 @@ const NavBar = () => {
       <MobileSidebar
         isOpen={isMobileMenuOpen}
         user={user}
-        isAuthenticated={isAuthenticated}
+        isAuthenticated={isAuthenticatedState}
         onClose={() => setIsMobileMenuOpen(false)}
       />
     </>

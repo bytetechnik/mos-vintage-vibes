@@ -32,7 +32,10 @@ export default function RootLayout({
           <SplashScreen />
           <>
             {children}
+
           </>
+
+
         </body>
       </html>
     </Providers>

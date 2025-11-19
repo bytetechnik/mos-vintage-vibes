@@ -4,9 +4,11 @@ import { useToast } from '@/hooks/use-toast';
 import { useAddToCartMutation } from '@/redux/api/cartApi';
 import { useAddToWishListMutation } from '@/redux/api/wishList';
 import { Product } from '@/types/product';
+import { isAuthenticated, saveIntendedAction } from '@/utils/auth-helpers';
 import { Heart, Loader2, ShoppingCart } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { memo, useCallback, useEffect, useState } from 'react';
 
 interface ProductCardProps {
@@ -20,6 +22,7 @@ const ProductCard = memo(({ product }: ProductCardProps) => {
   const [imageError, setImageError] = useState(false);
 
   const { toast } = useToast();
+  const router = useRouter();
 
   const [addToCart, { isLoading: isAddingToCart, isSuccess: isCartSuccess, error: cartError, reset: resetCart }] = useAddToCartMutation();
   const [addToWishList, { isLoading: isAddingToWishList, isSuccess: isWishListSuccess, error: wishListError, reset: resetWishList }] = useAddToWishListMutation();
@@ -39,7 +42,6 @@ const ProductCard = memo(({ product }: ProductCardProps) => {
   // Handle add to cart error
   useEffect(() => {
     if (cartError) {
-
       toast({
         title: 'Error',
         description: 'Failed to add item to cart',
@@ -65,7 +67,6 @@ const ProductCard = memo(({ product }: ProductCardProps) => {
   // Handle add to wishlist error
   useEffect(() => {
     if (wishListError) {
-
       toast({
         title: 'Error',
         description: 'Failed to add item to wishlist',
@@ -78,6 +79,34 @@ const ProductCard = memo(({ product }: ProductCardProps) => {
   const handleAddToCart = useCallback((e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+
+    // Check authentication
+    if (!isAuthenticated()) {
+      // Get first available variant
+      const firstAvailableVariant = product.variants?.find(v => v.stockQuantity > 0);
+
+      if (firstAvailableVariant) {
+        // Save the intended action
+        saveIntendedAction({
+          type: 'add-to-cart',
+          productId: product.id as string,
+          variantId: firstAvailableVariant.id,
+          quantity: 1,
+        });
+      }
+
+      toast({
+        title: 'Login Required',
+        description: 'Redirecting to login...',
+        variant: 'default',
+      });
+
+      // Redirect to login
+      setTimeout(() => {
+        router.push('/login');
+      }, 500);
+      return;
+    }
 
     if (!product.inStock) {
       toast({
@@ -109,17 +138,39 @@ const ProductCard = memo(({ product }: ProductCardProps) => {
       return;
     }
 
+    // Normal add to cart logic
     addToCart({
       productId: product.id,
       variantId: firstAvailableVariant.id,
       quantity: 1,
       currency: 'EUR',
     });
-  }, [product, addToCart, toast]);
+  }, [product, addToCart, toast, router]);
 
   const handleLike = useCallback((e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+
+    // Check authentication
+    if (!isAuthenticated()) {
+      // Save the intended action
+      saveIntendedAction({
+        type: 'add-to-wishlist',
+        productId: product.id as string,
+      });
+
+      toast({
+        title: 'Login Required',
+        description: 'Redirecting to login...',
+        variant: 'default',
+      });
+
+      // Redirect to login
+      setTimeout(() => {
+        router.push('/login');
+      }, 500);
+      return;
+    }
 
     if (isLiked) {
       toast({
@@ -130,11 +181,11 @@ const ProductCard = memo(({ product }: ProductCardProps) => {
       return;
     }
 
+    // Normal wishlist logic
     addToWishList({
       productId: product.id
     });
-  }, [isLiked, product.id, addToWishList, toast]);
-
+  }, [isLiked, product.id, addToWishList, toast, router]);
   const handleImageLoad = useCallback(() => {
     setImageLoaded(true);
   }, []);

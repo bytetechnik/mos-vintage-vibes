@@ -8,9 +8,11 @@ import { useToast } from '@/hooks/use-toast';
 import { useAddToCartMutation } from '@/redux/api/cartApi';
 import { useProductQuery, useRelatedProductsQuery } from '@/redux/api/product/productApi';
 import { Product, ProductVariant } from '@/types/product';
+import { isAuthenticated, saveIntendedAction } from '@/utils/auth-helpers';
 import { ArrowLeft, Eye, Heart, Loader2, RotateCcw, Shield, ShoppingBag, ShoppingCart, Star, Truck } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { use, useEffect, useState } from 'react';
 
 interface ProductDetailPageProps {
@@ -53,12 +55,13 @@ const ProductDetailPage = ({ params }: ProductDetailPageProps) => {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
 
   const { toast } = useToast();
+  const router = useRouter();
   const { id } = use(params);
   const { data, isLoading: isProductLoading, error: productError } = useProductQuery(id);
   const product = data?.data;
 
   const [addToCart, { isLoading: isAddingToCart, isSuccess, error: cartError, reset }] = useAddToCartMutation();
-  const { data: relatedProducts } = useRelatedProductsQuery(id)
+  const { data: relatedProducts } = useRelatedProductsQuery(id);
 
   useEffect(() => {
     setSelectedVariant(product ? (product.variants.length > 0 ? product.variants[0] : null) : null);
@@ -72,7 +75,7 @@ const ProductDetailPage = ({ params }: ProductDetailPageProps) => {
         description: `${product?.name} (${selectedVariant?.size}) has been added to your cart.`,
         variant: 'success',
       });
-      reset(); // Reset mutation state
+      reset();
     }
   }, [isSuccess, product?.name, selectedVariant?.size, toast, reset]);
 
@@ -84,7 +87,7 @@ const ProductDetailPage = ({ params }: ProductDetailPageProps) => {
         description: 'Failed to add item to cart',
         variant: 'destructive',
       });
-      reset(); // Reset mutation state
+      reset();
     }
   }, [cartError, toast, reset]);
 
@@ -140,6 +143,38 @@ const ProductDetailPage = ({ params }: ProductDetailPageProps) => {
   }
 
   const handleAddToCart = () => {
+    // Check authentication first
+    if (!isAuthenticated()) {
+      if (!selectedVariant) {
+        toast({
+          title: 'Select a Size',
+          description: 'Please select a size before adding to cart.',
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      // Save the intended action with variant details
+      saveIntendedAction({
+        type: 'add-to-cart',
+        productId: product.id,
+        variantId: selectedVariant.id,
+        quantity,
+      });
+
+      toast({
+        title: 'Login Required',
+        description: 'Redirecting to login...',
+        variant: 'default',
+      });
+
+      // Redirect to login
+      setTimeout(() => {
+        router.push('/login');
+      }, 500);
+      return;
+    }
+
     if (!selectedVariant) {
       toast({
         title: 'Select a Size',
@@ -158,14 +193,47 @@ const ProductDetailPage = ({ params }: ProductDetailPageProps) => {
       return;
     }
 
+    // Normal add to cart logic
     addToCart({
       productId: product.id,
       variantId: selectedVariant.id,
       quantity,
       currency: 'EUR',
     });
-
   };
+
+  const handleLike = () => {
+    // Check authentication first
+    if (!isAuthenticated()) {
+      // Save the intended action
+      saveIntendedAction({
+        type: 'add-to-wishlist',
+        productId: product.id,
+      });
+
+      toast({
+        title: 'Login Required',
+        description: 'Redirecting to login...',
+        variant: 'default',
+      });
+
+      // Redirect to login
+      setTimeout(() => {
+        router.push('/login');
+      }, 500);
+      return;
+    }
+
+    setIsLiked(!isLiked);
+    if (!isLiked) {
+      toast({
+        title: 'Added to Wishlist',
+        description: `${product.name} has been added to your wishlist.`,
+        variant: 'success',
+      });
+    }
+  };
+
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!isZoomed) return;
@@ -185,7 +253,7 @@ const ProductDetailPage = ({ params }: ProductDetailPageProps) => {
       return;
     }
     setSelectedVariant(variant);
-    setQuantity(1); // Reset quantity when changing variant
+    setQuantity(1);
   };
 
   const getConditionColor = (rating: number) => {
@@ -428,7 +496,7 @@ const ProductDetailPage = ({ params }: ProductDetailPageProps) => {
               size="lg"
               onClick={handleAddToCart}
               className="flex-1 bg-orange-500 hover:bg-orange-600"
-              disabled={!isInStock || !selectedVariant || isAddingToCart}
+              disabled={(!isInStock || !selectedVariant) && isAuthenticated()}
             >
               {isAddingToCart ? (
                 <>
@@ -445,7 +513,7 @@ const ProductDetailPage = ({ params }: ProductDetailPageProps) => {
             <Button
               variant="outline"
               size="lg"
-              onClick={() => setIsLiked(!isLiked)}
+              onClick={handleLike}
             >
               <Heart className={`w-5 h-5 ${isLiked ? 'fill-red-500 text-red-500' : ''}`} />
             </Button>

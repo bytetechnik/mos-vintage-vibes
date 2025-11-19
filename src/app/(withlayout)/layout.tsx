@@ -1,4 +1,5 @@
 
+import { PendingActionWrapper } from "@/components/PendingActionWrapper";
 import Footer from "@/components/shared/Footer";
 import NavBar from "@/components/shared/NavBar";
 
@@ -18,6 +19,8 @@ export default function RootLayout({
         <main className="flex-1 pt-24">
           {children}
         </main>
+        <PendingActionWrapper />
+
         <Footer />
       </div>
     </div>

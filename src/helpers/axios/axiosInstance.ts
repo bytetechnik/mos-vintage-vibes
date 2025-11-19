@@ -1,5 +1,5 @@
 import { authKey, userDataKey } from "@/constants/storageKey";
-import { getNewAccessToken } from "@/services/auth.service";
+import { getNewAccessToken, logoutUser } from "@/services/auth.service";
 
 import { IGenericErrorResponse, ResponseSuccessType } from "@/types";
 import { getFromLocalStorage, setToLocalStorage } from "@/utils/local-storage";
@@ -50,8 +50,8 @@ instance.interceptors.response.use(
         setToLocalStorage(authKey, data.data.token);
         setToLocalStorage(userDataKey, data.data.user ? JSON.stringify(data.data.user) : "");
       } else {
-        // await logoutUser();
-        // window.location.href = "/login";
+        await logoutUser();
+        window.location.href = "/login";
         return Promise.reject(error);
       }
 
