@@ -37,15 +37,15 @@ export const whishlistApi = baseApi.injectEndpoints({
     }),
     defaultAddress: build.mutation({
       query: (id: string | undefined) => ({
-        url: `${addressUrl}/${id}`,
-        method: "PUT",
+        url: `${addressUrl}/${id}/default`,
+        method: "POST",
       }),
       invalidatesTags: [tagTypes.address],
     }),
     updateAddress: build.mutation({
       query: (data) => ({
         url: `${addressUrl}/${data.id}`,
-        method: "POST",
+        method: "PUT",
         data,
       }),
       invalidatesTags: [tagTypes.address],

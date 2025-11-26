@@ -34,6 +34,49 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 
+// EU Countries with phone codes for form validation
+export const EU_COUNTRIES = [
+  { name: 'Austria', code: 'AT', phoneCode: '+43' },
+  { name: 'Belgium', code: 'BE', phoneCode: '+32' },
+  { name: 'Bulgaria', code: 'BG', phoneCode: '+359' },
+  { name: 'Croatia', code: 'HR', phoneCode: '+385' },
+  { name: 'Cyprus', code: 'CY', phoneCode: '+357' },
+  { name: 'Czechia', code: 'CZ', phoneCode: '+420' },
+  { name: 'Denmark', code: 'DK', phoneCode: '+45' },
+  { name: 'Estonia', code: 'EE', phoneCode: '+372' },
+  { name: 'Finland', code: 'FI', phoneCode: '+358' },
+  { name: 'France', code: 'FR', phoneCode: '+33' },
+  { name: 'Germany', code: 'DE', phoneCode: '+49' },
+  { name: 'Greece', code: 'EL', phoneCode: '+30' },
+  { name: 'Hungary', code: 'HU', phoneCode: '+36' },
+  { name: 'Ireland', code: 'IE', phoneCode: '+353' },
+  { name: 'Italy', code: 'IT', phoneCode: '+39' },
+  { name: 'Latvia', code: 'LV', phoneCode: '+371' },
+  { name: 'Lithuania', code: 'LT', phoneCode: '+370' },
+  { name: 'Luxembourg', code: 'LU', phoneCode: '+352' },
+  { name: 'Malta', code: 'MT', phoneCode: '+356' },
+  { name: 'Netherlands', code: 'NL', phoneCode: '+31' },
+  { name: 'Poland', code: 'PL', phoneCode: '+48' },
+  { name: 'Portugal', code: 'PT', phoneCode: '+351' },
+  { name: 'Romania', code: 'RO', phoneCode: '+40' },
+  { name: 'Slovakia', code: 'SK', phoneCode: '+421' },
+  { name: 'Slovenia', code: 'SI', phoneCode: '+386' },
+  { name: 'Spain', code: 'ES', phoneCode: '+34' },
+  { name: 'Sweden', code: 'SE', phoneCode: '+46' },
+];
+
+// Helper to get country name from code
+export const getCountryName = (countryCode: string): string => {
+  const country = EU_COUNTRIES.find((c) => c.code === countryCode);
+  return country?.name || countryCode;
+};
+
+// Helper to get phone code from country code
+export const getPhoneCode = (countryCode: string): string => {
+  const country = EU_COUNTRIES.find((c) => c.code === countryCode);
+  return country?.phoneCode || '+49';
+};
+
 const Checkout = () => {
   const router = useRouter();
   const { toast } = useToast();
@@ -62,18 +105,26 @@ const Checkout = () => {
   const cart = useMemo(() => cartItemsData?.data, [cartItemsData]);
   const cartItems = cart?.items || [];
   const subtotal = cart?.subtotal || 0;
-  const total = cart?.total || 0;
   const currency = cart?.currency || 'EUR';
 
-  const defaultAddress = addresses.find((addr: any) => addr.default || addr.isDefault);
+  const defaultAddress = addresses.find((addr: any) => addr.default);
 
-  // Calculate shipping
-  const SHIPPING_THRESHOLD = 1000;
-  const SHIPPING_COST = 50;
-  const shippingCost = subtotal >= SHIPPING_THRESHOLD ? 0 : SHIPPING_COST;
-  const taxAmount = cart?.taxAmount || 0;
-  const discountAmount = cart?.discountAmount || 0;
-  const finalTotal = total + shippingCost;
+  // Get selected shipping address
+  const selectedShippingAddress = addresses.find(
+    (addr: any) => addr.id === selectedShippingAddressId
+  );
+
+  // Calculate shipping cost
+  const calculateShippingCost = () => {
+    if (subtotal >= 150) return 0;
+    if (!selectedShippingAddress) return 15.9;
+    return selectedShippingAddress.country === 'DE' ? 5.9 : 15.9;
+  };
+
+  const shippingCost = calculateShippingCost();
+  const TAX_RATE = 0.19;
+  const taxAmount = Number((subtotal * TAX_RATE).toFixed(2));
+  const finalTotal = Number((subtotal + shippingCost + taxAmount).toFixed(2));
 
   // Auto-select default address
   useEffect(() => {
@@ -82,7 +133,7 @@ const Checkout = () => {
     }
   }, [defaultAddress, selectedShippingAddressId]);
 
-  // Sync billing address when "same as shipping" is checked
+  // Sync billing with shipping
   useEffect(() => {
     if (sameAsShipping && selectedShippingAddressId) {
       setSelectedBillingAddressId(selectedShippingAddressId);
@@ -95,23 +146,23 @@ const Checkout = () => {
     setShowAddressForm(false);
   };
 
-  // Handle address form submit
+  // Handle address save
   const handleSaveAddress = async (data: AddressFormData) => {
     try {
-      const formattedAddress = [
-        data.addressLine1,
-        data.addressLine2,
-        data.city,
-        data.stateProvince,
-        data.postalCode,
-        data.countryCode,
-      ]
-        .filter(Boolean)
-        .join(', ');
-
       const payload = {
-        ...data,
-        formattedAddress,
+        firstName: data.firstName,
+        lastName: data.lastName,
+        company: data.company || '',
+        phoneNo: data.phoneNo,
+        email: data.email,
+        addressLine1: data.addressLine1,
+        addressLine2: data.addressLine2 || '',
+        city: data.city,
+        state: data.stateProvince || '',
+        postalCode: data.postalCode,
+        country: data.countryCode,
+        addressType: data.type,
+        default: data.isDefault,
       };
 
       if (editingAddress) {
@@ -164,13 +215,13 @@ const Checkout = () => {
     }
   };
 
-  // Handle edit address
+  // Handle edit
   const handleEditAddress = (address: any) => {
     setEditingAddress(address);
     setShowAddressForm(true);
   };
 
-  // Handle delete address
+  // Handle delete
   const handleDeleteAddress = async () => {
     if (!addressToDelete) return;
 
@@ -241,10 +292,10 @@ const Checkout = () => {
       if (result.success) {
         toast({
           title: 'Order Placed Successfully!',
-          description: `Order has been created.`,
+          description: 'Redirecting to payment...',
         });
         if (result.data?.approvalUrl) {
-          router.push(result.data?.approvalUrl);
+          router.push(result.data.approvalUrl);
         }
       }
     } catch (error: any) {
@@ -257,27 +308,23 @@ const Checkout = () => {
     }
   };
 
-  // Prepare initial data for editing
+  // Prepare edit data
   const getInitialEditData = (): Partial<AddressFormData> | undefined => {
     if (!editingAddress) return undefined;
-
     return {
-      type: editingAddress.addressType || editingAddress.type || 'SHIPPING',
+      type: editingAddress.addressType || 'SHIPPING',
       firstName: editingAddress.firstName || '',
       lastName: editingAddress.lastName || '',
       company: editingAddress.company || '',
       phoneNo: editingAddress.phoneNo || '',
       email: editingAddress.email || '',
-      addressLine1: editingAddress.addressLine1 || editingAddress.street || '',
+      addressLine1: editingAddress.addressLine1 || '',
       addressLine2: editingAddress.addressLine2 || '',
       city: editingAddress.city || '',
-      stateProvince: editingAddress.stateProvince || editingAddress.state || '',
+      stateProvince: editingAddress.state || '',
       postalCode: editingAddress.postalCode || '',
-      countryCode: editingAddress.countryCode || editingAddress.country || 'BD',
-      formattedAddress: editingAddress.formattedAddress || '',
-      isDefault: editingAddress.default || editingAddress.isDefault || false,
-      latitude: editingAddress.latitude,
-      longitude: editingAddress.longitude,
+      countryCode: editingAddress.country || 'DE',
+      isDefault: editingAddress.default || false,
     };
   };
 
@@ -300,9 +347,9 @@ const Checkout = () => {
   // Empty cart
   if (!cartItems.length) {
     return (
-      <div className="bg-gradient-to-b from-background to-muted/20 flex items-center justify-center">
+      <div className="bg-gradient-to-b from-background to-muted/20 min-h-screen flex items-center justify-center">
         <div className="container mx-auto px-4 text-center max-w-md">
-          <div className="w-24 rounded-full bg-muted mx-auto mb-6 flex items-center justify-center">
+          <div className="w-24 h-24 rounded-full bg-muted mx-auto mb-6 flex items-center justify-center">
             <ShoppingBag className="w-12 h-12 text-muted-foreground" />
           </div>
           <h1 className="text-3xl font-bold mb-4">Your cart is empty</h1>
@@ -321,8 +368,8 @@ const Checkout = () => {
   }
 
   return (
-    <div className="bg-gradient-to-b from-background to-muted/20">
-      <div className="container mx-auto px-4 py-8 max-w-7xl">
+    <div className="bg-gradient-to-b from-background to-muted/20 min-h-screen">
+      <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-8">
           <Button
@@ -382,7 +429,6 @@ const Checkout = () => {
 
                   {/* Shipping Address Tab */}
                   <TabsContent value="shipping" className="mt-0">
-
                     {showAddressForm ? (
                       <AddressForm
                         onSubmit={handleSaveAddress}
@@ -390,6 +436,7 @@ const Checkout = () => {
                         initialData={getInitialEditData()}
                         isLoading={isCreatingAddress || isUpdatingAddress}
                         isEditing={!!editingAddress}
+                        countries={EU_COUNTRIES}
                       />
                     ) : (
                       <>
@@ -500,14 +547,14 @@ const Checkout = () => {
           </div>
 
           {/* Order Summary */}
-          <div className="lg:col-span-1 pb-3">
+          <div className="lg:col-span-1">
             <div className="bg-card rounded-lg p-6 shadow-lg sticky top-8">
               <h2 className="text-xl font-semibold mb-6">Order Summary</h2>
 
               {/* Cart Items */}
-              <div className="space-y-3 mb-6 max-h-64 overflow-y-auto">
+              <div className="space-y-3 mb-6 pt-2  overflow-y-auto">
                 {cartItems.map((item: any) => (
-                  <div key={item.id} className="flex gap-3 mt-2">
+                  <div key={item.id} className="flex gap-3">
                     <div className="relative w-16 h-16 shrink-0">
                       <Image
                         src={item.image}
@@ -544,28 +591,32 @@ const Checkout = () => {
                     {currency} {subtotal.toFixed(2)}
                   </span>
                 </div>
+
                 <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Shipping</span>
-                  <span className={`font-medium ${shippingCost === 0 ? 'text-green-600' : ''}`}>
+                  <span className="text-muted-foreground">Tax (19%)</span>
+                  <span className="font-medium">
+                    {currency} {taxAmount.toFixed(2)}
+                  </span>
+                </div>
+
+                <div className="flex justify-between text-sm">
+                  <div className="text-muted-foreground">
+                    Shipping
+                    {selectedShippingAddress && (
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        {selectedShippingAddress.country === 'DE'
+                          ? 'To: Germany (2-4 working days)'
+                          : `To: ${getCountryName(selectedShippingAddress.country)} (2-8 working days)`}
+                      </p>
+                    )}
+                  </div>
+                  <span
+                    className={`font-medium ${shippingCost === 0 ? 'text-green-600' : ''}`}
+                  >
                     {shippingCost === 0 ? 'Free' : `${currency} ${shippingCost.toFixed(2)}`}
                   </span>
                 </div>
-                {taxAmount > 0 && (
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Tax</span>
-                    <span className="font-medium">
-                      {currency} {taxAmount.toFixed(2)}
-                    </span>
-                  </div>
-                )}
-                {discountAmount > 0 && (
-                  <div className="flex justify-between text-sm text-green-600">
-                    <span>Discount</span>
-                    <span className="font-medium">
-                      -{currency} {discountAmount.toFixed(2)}
-                    </span>
-                  </div>
-                )}
+
                 <div className="border-t pt-3">
                   <div className="flex justify-between items-center">
                     <span className="font-semibold">Total</span>

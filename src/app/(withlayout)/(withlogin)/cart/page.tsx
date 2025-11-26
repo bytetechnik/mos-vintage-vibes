@@ -42,13 +42,8 @@ const Cart = () => {
   const cartData = useMemo(() => (cartItemsData as CartResponse)?.data, [cartItemsData]);
   const cartItems: CartItem[] = useMemo(() => cartData?.items || [], [cartData]);
   const subtotal: number = cartData?.subtotal || 0;
-  const total: number = cartData?.total || 0;
-  const currency: string = cartData?.currency || 'BDT';
+  const currency: string = cartData?.currency || 'EUR';
 
-  const SHIPPING_THRESHOLD = 1000;
-  const SHIPPING_COST = 50;
-  const shippingCost = subtotal >= SHIPPING_THRESHOLD ? 0 : SHIPPING_COST;
-  const finalTotal = total + shippingCost;
   const totalItems = useMemo(
     () => cartItems.reduce((sum, item) => sum + item.quantity, 0),
     [cartItems]
@@ -422,52 +417,23 @@ const Cart = () => {
                 </span>
               </div>
 
-              <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">Shipping</span>
-                <span className={`font-medium ${shippingCost === 0 ? 'text-green-600' : ''}`}>
-                  {shippingCost === 0 ? 'Free' : `${currency} ${shippingCost.toFixed(2)}`}
-                </span>
-              </div>
-
-              {/* {cartData?.taxAmount && cartData.taxAmount > 0 && ( */}
-              <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">Tax</span>
-                <span className="font-medium">
-                  {currency} {cartData.taxAmount.toFixed(2)}
-                </span>
-              </div>
-              {/* )} */}
-
-              {/* {cartData?.discountAmount && cartData.discountAmount > 0 && ( */}
-              <div className="flex justify-between text-sm text-green-600">
-                <span>Discount</span>
-                <span className="font-medium">
-                  - {currency} {cartData.discountAmount.toFixed(2)}
-                </span>
-              </div>
-              {/* )} */}
-
               <div className="border-t pt-4 mt-4">
                 <div className="flex justify-between items-center">
                   <span className="font-semibold">Total</span>
                   <div className="text-right">
                     <div className="text-2xl font-bold">
-                      {currency} {finalTotal.toFixed(2)}
+                      {currency} {subtotal.toFixed(2)}
                     </div>
                   </div>
                 </div>
               </div>
             </div>
 
-
             <Link href="/checkout" className="block mt-6">
               <Button variant="street" size="lg" className="w-full">
                 Proceed to Checkout
               </Button>
             </Link>
-
-
-
           </div>
         </div>
       </div>
