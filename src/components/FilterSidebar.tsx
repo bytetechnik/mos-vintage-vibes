@@ -6,6 +6,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { useBrandsQuery } from '@/redux/api/brandsApi';
 
 interface FilterSidebarProps {
   selectedSizes: string[];
@@ -50,18 +51,18 @@ const FilterSidebar = ({
   selectedBrands = [],
   onBrandChange,
 }: FilterSidebarProps) => {
-  const [showMoreSizes, setShowMoreSizes] = useState(false);
+  // const [showMoreSizes, setShowMoreSizes] = useState(false);
   const [showMoreBrands, setShowMoreBrands] = useState(false);
-
   const sizes = [
     'XS', 'xS', 'S', 'M', 'L', 'XL', 'XXL',
     'ladies', 'Women\'s L'
   ];
 
-  // You can fetch this from an API or props
-  const availableBrands = ['Nike', 'Adidas', 'Puma', 'Reebok', 'New Balance', 'Converse', 'Vans'];
+  // Fetch brands from API
+  const { data: brandsData, isLoading: brandsLoading } = useBrandsQuery({});
+  const availableBrands = brandsData?.data || [];
 
-  const displayedSizes = showMoreSizes ? sizes : sizes.slice(0, 7);
+  // const displayedSizes = showMoreSizes ? sizes : sizes.slice(0, 7);
   const displayedBrands = showMoreBrands ? availableBrands : availableBrands.slice(0, 5);
 
   const getConditionLabel = (rating: number) => {
@@ -72,13 +73,13 @@ const FilterSidebar = ({
     return '(Good)';
   };
 
-  const handleBrandChange = (brand: string, checked: boolean) => {
+  const handleBrandChange = (brandId: string, checked: boolean) => {
     if (!onBrandChange) return;
 
     if (checked) {
-      onBrandChange([...selectedBrands, brand]);
+      onBrandChange([...selectedBrands, brandId]);
     } else {
-      onBrandChange(selectedBrands.filter(b => b !== brand));
+      onBrandChange(selectedBrands.filter(b => b !== brandId));
     }
   };
 
@@ -139,31 +140,37 @@ const FilterSidebar = ({
                 <div className="flex-1 border-t border-gray-200 ml-4"></div>
                 <div className="w-1 h-1 bg-gray-400 ml-2"></div>
               </div>
-              <div className="space-y-3">
-                {displayedBrands.map((brand) => (
-                  <div key={brand} className="flex items-center space-x-3">
-                    <Checkbox
-                      id={`brand-${brand}`}
-                      checked={selectedBrands.includes(brand)}
-                      onCheckedChange={(checked) => handleBrandChange(brand, checked as boolean)}
-                      className="border-gray-300"
-                    />
-                    <Label htmlFor={`brand-${brand}`} className="text-sm text-black cursor-pointer">
-                      {brand}
-                    </Label>
+              {brandsLoading ? (
+                <div className="text-sm text-gray-500">Loading brands...</div>
+              ) : (
+                <>
+                  <div className="space-y-3">
+                    {displayedBrands.map((brand: any) => (
+                      <div key={brand.id} className="flex items-center space-x-3">
+                        <Checkbox
+                          id={`brand-${brand.id}`}
+                          checked={selectedBrands.includes(brand.id)}
+                          onCheckedChange={(checked) => handleBrandChange(brand.id, checked as boolean)}
+                          className="border-gray-300"
+                        />
+                        <Label htmlFor={`brand-${brand.id}`} className="text-sm text-black cursor-pointer">
+                          {brand.name}
+                        </Label>
+                      </div>
+                    ))}
                   </div>
-                ))}
-              </div>
-              {availableBrands.length > 5 && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setShowMoreBrands(!showMoreBrands)}
-                  className="mt-2 text-sm text-blue-600 hover:text-blue-800 p-0 h-auto"
-                >
-                  {showMoreBrands ? 'SHOW LESS' : 'SHOW MORE'}
-                  {showMoreBrands ? <ChevronUp className="w-4 h-4 ml-1" /> : <ChevronDown className="w-4 h-4 ml-1" />}
-                </Button>
+                  {availableBrands.length > 5 && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setShowMoreBrands(!showMoreBrands)}
+                      className="mt-2 text-sm text-blue-600 hover:text-blue-800 p-0 h-auto"
+                    >
+                      {showMoreBrands ? 'SHOW LESS' : 'SHOW MORE'}
+                      {showMoreBrands ? <ChevronUp className="w-4 h-4 ml-1" /> : <ChevronDown className="w-4 h-4 ml-1" />}
+                    </Button>
+                  )}
+                </>
               )}
             </div>
           )}
@@ -263,74 +270,54 @@ const FilterSidebar = ({
         )}
       </div>
 
-      <div className="mb-6">
-        <h3 className="font-semibold text-gray-900 mb-3">VERFÜGBARKEIT</h3>
-        <div className="space-y-3">
-          <div className="flex items-center space-x-2">
-            <Checkbox
-              id="in-stock"
-              checked={inStockOnly}
-              onCheckedChange={onInStockChange}
-            />
-            <Label htmlFor="in-stock" className="text-sm text-gray-700 cursor-pointer">
-              Auf Lager
-            </Label>
-          </div>
-          <div className="flex items-center space-x-2">
-            <Checkbox
-              id="out-of-stock"
-              checked={outOfStock}
-              onCheckedChange={onOutOfStockChange}
-            />
-            <Label htmlFor="out-of-stock" className="text-sm text-gray-700 cursor-pointer">
-              Nicht vorrätig
-            </Label>
-          </div>
-        </div>
-      </div>
-
       {onBrandChange && (
         <div className="mb-6">
           <h3 className="font-semibold text-gray-900 mb-3">MARKE</h3>
-          <div className="space-y-2">
-            {displayedBrands.map((brand) => (
-              <div key={brand} className="flex items-center space-x-2">
-                <Checkbox
-                  id={`brand-${brand}`}
-                  checked={selectedBrands.includes(brand)}
-                  onCheckedChange={(checked) => handleBrandChange(brand, checked as boolean)}
-                />
-                <Label htmlFor={`brand-${brand}`} className="text-sm text-gray-700 cursor-pointer">
-                  {brand}
-                </Label>
+          {brandsLoading ? (
+            <div className="text-sm text-gray-500">Loading brands...</div>
+          ) : (
+            <>
+              <div className="space-y-2">
+                {displayedBrands.map((brand: any) => (
+                  <div key={brand.id} className="flex items-center space-x-2">
+                    <Checkbox
+                      id={`brand-${brand.id}`}
+                      checked={selectedBrands.includes(brand.id)}
+                      onCheckedChange={(checked) => handleBrandChange(brand.id, checked as boolean)}
+                    />
+                    <Label htmlFor={`brand-${brand.id}`} className="text-sm text-gray-700 cursor-pointer">
+                      {brand.name}
+                    </Label>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
 
-          {availableBrands.length > 5 && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setShowMoreBrands(!showMoreBrands)}
-              className="mt-2 text-sm text-blue-600 hover:text-blue-800 p-0 h-auto"
-            >
-              {showMoreBrands ? (
-                <>
-                  WENIGER ANZEIGEN
-                  <ChevronUp className="w-4 h-4 ml-1" />
-                </>
-              ) : (
-                <>
-                  MEHR ANZEIGEN
-                  <ChevronDown className="w-4 h-4 ml-1" />
-                </>
+              {availableBrands.length > 5 && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowMoreBrands(!showMoreBrands)}
+                  className="mt-2 text-sm text-blue-600 hover:text-blue-800 p-0 h-auto"
+                >
+                  {showMoreBrands ? (
+                    <>
+                      WENIGER ANZEIGEN
+                      <ChevronUp className="w-4 h-4 ml-1" />
+                    </>
+                  ) : (
+                    <>
+                      MEHR ANZEIGEN
+                      <ChevronDown className="w-4 h-4 ml-1" />
+                    </>
+                  )}
+                </Button>
               )}
-            </Button>
+            </>
           )}
         </div>
       )}
 
-      <div className="mb-6">
+      {/* <div className="mb-6">
         <h3 className="font-semibold text-gray-900 mb-3">GRÖSSE</h3>
         <div className="space-y-2">
           {displayedSizes.map((size) => (
@@ -367,7 +354,7 @@ const FilterSidebar = ({
             )}
           </Button>
         )}
-      </div>
+      </div> */}
 
       <div className="mb-6">
         <h4 className="font-semibold text-gray-900 mb-3">Condition</h4>

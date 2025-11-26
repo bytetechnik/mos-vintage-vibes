@@ -2,11 +2,12 @@
 
 import { Filter } from 'lucide-react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 import CategoryNavigation from '@/components/CategoryNavigation';
 import FilterSidebar from '@/components/FilterSidebar';
 import ProductCard from '@/components/shared/ProductCard';
+import SplashScreen from '@/components/SplashScreen';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -21,14 +22,19 @@ const Products = () => {
   const pathname = usePathname();
   const isMobile = useIsMobile();
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
+  const observerTarget = useRef<HTMLDivElement>(null);
+
+  // Pagination state
+  const [page, setPage] = useState(0);
+  const [allProducts, setAllProducts] = useState<any[]>([]);
+  const [hasMore, setHasMore] = useState(true);
 
   // Get all parameters from URL
-  const page = parseInt(searchParams.get('page') || '0');
-  const perPage = parseInt(searchParams.get('perPage') || '20');
-  const initialCategory = searchParams.get('category') as ProductCategory | null;
+  const perPage = 20;
+  const initialCategories = searchParams.get('category')?.split(',').filter(Boolean) || [];
   const initialSearch = searchParams.get('search') || '';
   const initialSize = searchParams.get('size');
-  const initialBrand = searchParams.get('brand') || '';
+  const initialBrands = searchParams.get('brand')?.split(',').filter(Boolean) || [];
   const initialFeatured = searchParams.get('featured') === 'true';
   const initialInStock = searchParams.get('in_stock') === 'true';
   const initialPriceMin = searchParams.get('priceMin') || '';
@@ -39,12 +45,8 @@ const Products = () => {
   const conditionParam = searchParams.get('condition');
   const initialConditions = conditionParam ? conditionParam.split(',').map(Number) : [];
 
-  const [selectedCategories, setSelectedCategories] = useState<ProductCategory[]>(
-    initialCategory ? [initialCategory] : []
-  );
-  const [selectedBrands, setSelectedBrands] = useState<string[]>(
-    initialBrand ? [initialBrand] : []
-  );
+  const [selectedCategories, setSelectedCategories] = useState<string[]>(initialCategories);
+  const [selectedBrands, setSelectedBrands] = useState<string[]>(initialBrands);
   const [selectedConditionRating, setSelectedConditionRating] = useState<number | null>(
     initialConditions.length > 0 ? initialConditions[0] : null
   );
@@ -68,8 +70,8 @@ const Products = () => {
     };
 
     if (searchQuery) params.search = searchQuery;
-    if (selectedCategories.length > 0) params.category = selectedCategories[0];
-    if (selectedBrands.length > 0) params.brand = selectedBrands[0];
+    if (selectedCategories.length > 0) params.category = selectedCategories;
+    if (selectedBrands.length > 0) params.brand = selectedBrands;
     if (selectedConditionRating !== null) params.condition = [selectedConditionRating];
     if (priceRange.min) params.priceMin = parseFloat(priceRange.min);
     if (priceRange.max) params.priceMax = parseFloat(priceRange.max);
@@ -78,18 +80,39 @@ const Products = () => {
     if (sortBy) params.sort = sortBy;
 
     return params;
-  }, [page, perPage, searchQuery, selectedCategories, selectedBrands, selectedConditionRating, priceRange, initialFeatured, inStockOnly, sortBy]);
+  }, [page, searchQuery, selectedCategories, selectedBrands, selectedConditionRating, priceRange, initialFeatured, inStockOnly, sortBy]);
 
   // Fetch data with dynamic parameters
-  const { data, isLoading, error } = useProductsQuery(apiParams);
+  const { data, isLoading, isFetching, error } = useProductsQuery(apiParams);
 
-  const productsData = useMemo(() => {
-    return data?.data?.data || [];
-  }, [data?.data?.data]);
+  // Reset products when filters change
+  useEffect(() => {
+    setPage(0);
+    setAllProducts([]);
+    setHasMore(true);
+  }, [searchQuery, selectedCategories, selectedBrands, selectedConditionRating, priceRange, inStockOnly, sortBy]);
+
+  // Append new products when data changes
+  useEffect(() => {
+    if (data?.data?.data) {
+      const newProducts = data.data.data;
+
+      if (page === 0) {
+        setAllProducts(newProducts);
+      } else {
+        setAllProducts(prev => [...prev, ...newProducts]);
+      }
+
+      // Check if there are more products
+      if (newProducts.length < perPage) {
+        setHasMore(false);
+      }
+    }
+  }, [data, page]);
 
   // Client-side filtering for additional filters not supported by API
   const filteredProducts = useMemo(() => {
-    let filtered = [...productsData];
+    let filtered = [...allProducts];
 
     // Additional client-side filters
     if (selectedSizes.length > 0) {
@@ -104,28 +127,40 @@ const Products = () => {
     }
 
     return filtered;
-  }, [productsData, selectedSizes, outOfStock]);
+  }, [allProducts, selectedSizes, outOfStock]);
 
-  const availableConditionRatings = useMemo(() => {
-    const uniqueRatings = Array.from(
-      new Set<number>(
-        productsData
-          .map((p: any) => p.conditionRating)
-          .filter((v: number | undefined): v is number => typeof v === 'number')
-      )
+  const availableConditionRatings = [10, 9, 8, 7];
+
+  // Infinite scroll observer
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasMore && !isFetching && !isLoading) {
+          setPage(prev => prev + 1);
+        }
+      },
+      { threshold: 0.1 }
     );
-    return uniqueRatings.sort((a, b) => b - a) as number[];
-  }, [productsData]);
+
+    const currentTarget = observerTarget.current;
+    if (currentTarget) {
+      observer.observe(currentTarget);
+    }
+
+    return () => {
+      if (currentTarget) {
+        observer.unobserve(currentTarget);
+      }
+    };
+  }, [hasMore, isFetching, isLoading]);
 
   // Update URL when filters change
   const updateURLParams = () => {
     const params = new URLSearchParams();
 
-    if (page > 0) params.set('page', page.toString());
-    if (perPage !== 20) params.set('perPage', perPage.toString());
     if (searchQuery) params.set('search', searchQuery);
-    if (selectedCategories.length > 0) params.set('category', selectedCategories[0]);
-    if (selectedBrands.length > 0) params.set('brand', selectedBrands[0]);
+    if (selectedCategories.length > 0) params.set('category', selectedCategories.join(','));
+    if (selectedBrands.length > 0) params.set('brand', selectedBrands.join(','));
     if (selectedConditionRating !== null) params.set('condition', selectedConditionRating.toString());
     if (selectedSizes.length > 0) params.set('size', selectedSizes.join(','));
     if (priceRange.min) params.set('priceMin', priceRange.min);
@@ -163,12 +198,8 @@ const Products = () => {
     setSortBy(value);
   };
 
-  const handleCategoryChange = (category: ProductCategory | null) => {
-    if (category) {
-      setSelectedCategories([category]);
-    } else {
-      setSelectedCategories([]);
-    }
+  const handleCategoryChange = (categories: string[]) => {
+    setSelectedCategories(categories);
   };
 
   const clearFilters = () => {
@@ -199,7 +230,9 @@ const Products = () => {
     <div className="w-full px-4 sm:px-6 lg:px-8 py-6 mt-12">
       <div className="mb-6">
         <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-4">
-          {initialCategory ? categoryNames[initialCategory] || 'All Products' : 'All Products'}
+          {selectedCategories.length === 1 && categoryNames[selectedCategories[0] as ProductCategory]
+            ? categoryNames[selectedCategories[0] as ProductCategory]
+            : 'All Products'}
         </h1>
         <p className="text-muted-foreground text-sm sm:text-base">
           Discover our curated collection of vintage and contemporary streetwear
@@ -208,7 +241,7 @@ const Products = () => {
 
       <CategoryNavigation
         totalProducts={filteredProducts.length}
-        selectedCategory={selectedCategories[0] || null}
+        selectedCategories={selectedCategories}
         onCategoryChange={handleCategoryChange}
       />
 
@@ -293,10 +326,8 @@ const Products = () => {
             </div>
           )}
 
-          {isLoading ? (
-            <div className="text-center py-16">
-              <p className="text-muted-foreground">Loading products...</p>
-            </div>
+          {isLoading && page === 0 ? (
+            <SplashScreen />
           ) : error ? (
             <div className="text-center py-16">
               <p className="text-red-500">Error loading products</p>
@@ -304,7 +335,7 @@ const Products = () => {
                 Retry
               </Button>
             </div>
-          ) : filteredProducts.length === 0 ? (
+          ) : filteredProducts.length === 0 && !isFetching ? (
             <div className="text-center py-8 sm:py-16">
               <Filter className="w-12 h-12 sm:w-16 sm:h-16 text-muted-foreground mx-auto mb-4" />
               <h3 className="text-lg sm:text-xl font-semibold mb-2">No products found</h3>
@@ -314,11 +345,23 @@ const Products = () => {
               <Button onClick={clearFilters}>Clear Filters</Button>
             </div>
           ) : (
-            <div className="grid gap-5 sm:gap-4 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-4 p-8">
-              {filteredProducts.map((product: any, idx: number) => (
-                <ProductCard key={product.id} product={product} imageIndex={idx} />
-              ))}
-            </div>
+            <>
+              <div className="grid gap-5 sm:gap-4 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-4 p-8">
+                {filteredProducts.map((product: any, idx: number) => (
+                  <ProductCard key={`${product.id}-${idx}`} product={product} imageIndex={idx} />
+                ))}
+              </div>
+
+              {/* Intersection Observer Target */}
+              <div ref={observerTarget} className="h-20 flex items-center justify-center">
+                {isFetching && hasMore && (
+                  <SplashScreen />
+                )}
+                {!hasMore && filteredProducts.length > 0 && (
+                  <p className="text-muted-foreground">No more products to load</p>
+                )}
+              </div>
+            </>
           )}
         </div>
       </div>
