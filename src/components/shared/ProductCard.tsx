@@ -1,8 +1,8 @@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { useAddToCartMutation } from '@/redux/api/cartApi';
-import { useAddToWishListMutation } from '@/redux/api/wishList';
+// import { useAddToCartMutation } from '@/redux/api/cartApi';
+import { useAddToWishListMutation } from '@/redux/api/wishListApi';
 import { Product } from '@/types/product';
 import { isAuthenticated, saveIntendedAction } from '@/utils/auth-helpers';
 import { Heart, Loader2, ShoppingCart } from 'lucide-react';
@@ -24,32 +24,32 @@ const ProductCard = memo(({ product }: ProductCardProps) => {
   const { toast } = useToast();
   const router = useRouter();
 
-  const [addToCart, { isLoading: isAddingToCart, isSuccess: isCartSuccess, error: cartError, reset: resetCart }] = useAddToCartMutation();
+  // const [addToCart, { isLoading: isAddingToCart, isSuccess: isCartSuccess, error: cartError, reset: resetCart }] = useAddToCartMutation();
   const [addToWishList, { isLoading: isAddingToWishList, isSuccess: isWishListSuccess, error: wishListError, reset: resetWishList }] = useAddToWishListMutation();
 
   // Handle add to cart success
-  useEffect(() => {
-    if (isCartSuccess) {
-      toast({
-        title: 'Added to Cart',
-        description: `${product.name} has been added to your cart.`,
-        variant: 'success',
-      });
-      resetCart();
-    }
-  }, [isCartSuccess, product.name, toast, resetCart]);
+  // useEffect(() => {
+  //   if (isCartSuccess) {
+  //     toast({
+  //       title: 'Added to Cart',
+  //       description: `${product.name} has been added to your cart.`,
+  //       variant: 'success',
+  //     });
+  //     resetCart();
+  //   }
+  // }, [isCartSuccess, product.name, toast, resetCart]);
 
   // Handle add to cart error
-  useEffect(() => {
-    if (cartError) {
-      toast({
-        title: 'Error',
-        description: 'Failed to add item to cart',
-        variant: 'destructive',
-      });
-      resetCart();
-    }
-  }, [cartError, toast, resetCart]);
+  // useEffect(() => {
+  //   if (cartError) {
+  //     toast({
+  //       title: 'Error',
+  //       description: 'Failed to add item to cart',
+  //       variant: 'destructive',
+  //     });
+  //     resetCart();
+  //   }
+  // }, [cartError, toast, resetCart]);
 
   // Handle add to wishlist success
   useEffect(() => {
@@ -76,76 +76,76 @@ const ProductCard = memo(({ product }: ProductCardProps) => {
     }
   }, [wishListError, toast, resetWishList]);
 
-  const handleAddToCart = useCallback((e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
+  // const handleAddToCart = useCallback((e: React.MouseEvent) => {
+  //   e.preventDefault();
+  //   e.stopPropagation();
 
-    // Check authentication
-    if (!isAuthenticated()) {
-      // Get first available variant
-      const firstAvailableVariant = product.variants?.find(v => v.stockQuantity > 0);
+  //   // Check authentication
+  //   if (!isAuthenticated()) {
+  //     // Get first available variant
+  //     const firstAvailableVariant = product.variants?.find(v => v.stockQuantity > 0);
 
-      if (firstAvailableVariant) {
-        // Save the intended action
-        saveIntendedAction({
-          type: 'add-to-cart',
-          productId: product.id as string,
-          variantId: firstAvailableVariant.id,
-          quantity: 1,
-        });
-      }
+  //     if (firstAvailableVariant) {
+  //       // Save the intended action
+  //       saveIntendedAction({
+  //         type: 'add-to-cart',
+  //         productId: product.id as string,
+  //         variantId: firstAvailableVariant.id,
+  //         quantity: 1,
+  //       });
+  //     }
 
-      toast({
-        title: 'Login Required',
-        description: 'Redirecting to login...',
-        variant: 'default',
-      });
+  //     toast({
+  //       title: 'Login Required',
+  //       description: 'Redirecting to login...',
+  //       variant: 'default',
+  //     });
 
-      // Redirect to login
-      setTimeout(() => {
-        router.push('/login');
-      }, 500);
-      return;
-    }
+  //     // Redirect to login
+  //     setTimeout(() => {
+  //       router.push('/login');
+  //     }, 500);
+  //     return;
+  //   }
 
-    if (!product.inStock) {
-      toast({
-        title: 'Out of Stock',
-        description: 'This item is currently out of stock.',
-        variant: 'destructive',
-      });
-      return;
-    }
+  //   if (!product.inStock) {
+  //     toast({
+  //       title: 'Out of Stock',
+  //       description: 'This item is currently out of stock.',
+  //       variant: 'destructive',
+  //     });
+  //     return;
+  //   }
 
-    if (!product.variants || product.variants.length === 0) {
-      toast({
-        title: 'No Variants Available',
-        description: 'Please view the product details to select a size.',
-        variant: 'destructive',
-      });
-      return;
-    }
+  //   if (!product.variants || product.variants.length === 0) {
+  //     toast({
+  //       title: 'No Variants Available',
+  //       description: 'Please view the product details to select a size.',
+  //       variant: 'destructive',
+  //     });
+  //     return;
+  //   }
 
-    // Get first available variant
-    const firstAvailableVariant = product.variants.find(v => v.stockQuantity > 0);
+  //   // Get first available variant
+  //   const firstAvailableVariant = product.variants.find(v => v.stockQuantity > 0);
 
-    if (!firstAvailableVariant) {
-      toast({
-        title: 'Out of Stock',
-        description: 'All sizes are currently out of stock.',
-        variant: 'destructive',
-      });
-      return;
-    }
+  //   if (!firstAvailableVariant) {
+  //     toast({
+  //       title: 'Out of Stock',
+  //       description: 'All sizes are currently out of stock.',
+  //       variant: 'destructive',
+  //     });
+  //     return;
+  //   }
 
-    // Normal add to cart logic
-    addToCart({
-      productId: product.id,
-      variantId: firstAvailableVariant.id,
-      quantity: 1,
-      currency: 'EUR',
-    });
-  }, [product, addToCart, toast, router]);
+  //   // Normal add to cart logic
+  //   addToCart({
+  //     productId: product.id,
+  //     variantId: firstAvailableVariant.id,
+  //     quantity: 1,
+  //     currency: 'EUR',
+  //   });
+  // }, [product, addToCart, toast, router]);
 
   const handleLike = useCallback((e: React.MouseEvent) => {
     e.preventDefault();
@@ -245,16 +245,18 @@ const ProductCard = memo(({ product }: ProductCardProps) => {
               <Button
                 variant="vintage"
                 size="icon"
-                onClick={handleAddToCart}
-                disabled={isAddingToCart}
+                // onClick={handleAddToCart}
+                // disabled={isAddingToCart}
                 className="rounded-full"
                 aria-label="Add to cart"
               >
-                {isAddingToCart ? (
+                <ShoppingCart className="w-4 h-4" />
+
+                {/* {isAddingToCart ? (
                   <Loader2 className="w-4 h-4 animate-spin" />
                 ) : (
                   <ShoppingCart className="w-4 h-4" />
-                )}
+                )} */}
               </Button>
               <Button
                 variant="ghost"
@@ -313,12 +315,7 @@ const ProductCard = memo(({ product }: ProductCardProps) => {
             </div>
           </div>
 
-          {/* Stock indicator */}
-          {product.inStock && product.variants && product.variants.length > 0 && (
-            <div className="text-xs text-muted-foreground mt-1">
-              {product.variants.filter(v => v.stockQuantity > 0).length} sizes available
-            </div>
-          )}
+
         </div>
       </div>
     </Link>

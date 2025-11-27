@@ -394,11 +394,7 @@ const Cart = () => {
               <Trash2 className="w-4 h-4 mr-2" />
               Clear Cart
             </Button>
-            <Link href="/products" className="w-full sm:w-auto">
-              <Button variant="outline" className="w-full">
-                Continue Shopping
-              </Button>
-            </Link>
+
           </div>
         </div>
 
@@ -437,7 +433,11 @@ const Cart = () => {
           </div>
         </div>
       </div>
-
+      <Link href="/products" className="mx-auto mt-5 flex justify-center">
+        <Button variant="outline" className="">
+          Continue Shopping
+        </Button>
+      </Link>
       {/* Clear Cart Confirmation Dialog */}
       <AlertDialog open={showClearDialog} onOpenChange={setShowClearDialog}>
         <AlertDialogContent>

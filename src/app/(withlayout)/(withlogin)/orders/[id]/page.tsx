@@ -169,7 +169,7 @@ const OrderConfirmation = () => {
               <div className="space-y-2 p-4 rounded-lg bg-warm-beige">
                 <p className="text-sm text-muted-foreground font-medium">Total Amount</p>
                 <p className="text-2xl font-bold text-foreground">
-                  EUR {orderData.totalAmount.toFixed(2)}
+                  € {orderData.totalAmount.toFixed(2)}
                 </p>
               </div>
             </div>
@@ -212,7 +212,7 @@ const OrderConfirmation = () => {
                         </span>
                         <span className="text-muted-foreground">×</span>
                         <span className="font-semibold text-foreground">
-                          EUR {item.price.toFixed(2)}
+                          € {item.price.toFixed(2)}
                         </span>
                       </div>
                     </div>
@@ -220,7 +220,7 @@ const OrderConfirmation = () => {
                     <div className="text-right">
                       <p className="text-sm text-muted-foreground mb-1">Subtotal</p>
                       <p className="font-bold text-xl text-foreground">
-                        EUR {(item.price * item.quantity).toFixed(2)}
+                        € {(item.price * item.quantity).toFixed(2)}
                       </p>
                     </div>
                   </div>

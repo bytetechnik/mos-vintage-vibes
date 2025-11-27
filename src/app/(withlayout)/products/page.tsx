@@ -78,9 +78,10 @@ const Products = () => {
     if (initialFeatured) params.featured = true;
     if (inStockOnly) params.in_stock = true;
     if (sortBy) params.sort = sortBy;
+    if (selectedSizes.length > 0) params.size = selectedSizes;
 
     return params;
-  }, [page, searchQuery, selectedCategories, selectedBrands, selectedConditionRating, priceRange, initialFeatured, inStockOnly, sortBy]);
+  }, [page, searchQuery, selectedCategories, selectedBrands, selectedConditionRating, priceRange, initialFeatured, inStockOnly, sortBy, selectedSizes]);
 
   // Fetch data with dynamic parameters
   const { data, isLoading, isFetching, error } = useProductsQuery(apiParams);
@@ -110,24 +111,19 @@ const Products = () => {
     }
   }, [data, page]);
 
+
+  const availableSizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL', '2XL', '3XL', '4XL'];
   // Client-side filtering for additional filters not supported by API
   const filteredProducts = useMemo(() => {
     let filtered = [...allProducts];
 
-    // Additional client-side filters
-    if (selectedSizes.length > 0) {
-      filtered = filtered.filter((product: any) => {
-        const productSizes = product.variants.map((v: any) => v.size).filter(Boolean);
-        return productSizes.some((size: string) => selectedSizes.includes(size));
-      });
-    }
 
     if (outOfStock) {
       filtered = filtered.filter((product: any) => !product.inStock);
     }
 
     return filtered;
-  }, [allProducts, selectedSizes, outOfStock]);
+  }, [allProducts, outOfStock]);
 
   const availableConditionRatings = [10, 9, 8, 7];
 
@@ -294,6 +290,7 @@ const Products = () => {
             isMobile={false}
             selectedBrands={selectedBrands}
             onBrandChange={setSelectedBrands}
+            availableSizes={availableSizes}
           />
         )}
 
@@ -388,6 +385,7 @@ const Products = () => {
           onSortByChange={handleSortByChange}
           selectedBrands={selectedBrands}
           onBrandChange={setSelectedBrands}
+          availableSizes={availableSizes}
         />
       )}
     </div>

@@ -25,10 +25,9 @@ import {
   useRemoveAddressMutation,
   useUpdateAddressMutation,
 } from '@/redux/api/addressApi';
-import { useAddToCartMutation } from '@/redux/api/cartApi';
 import { useOrdersQuery } from '@/redux/api/orderApi';
 import { useProfileQuery, useUpdateProfileMutation } from '@/redux/api/userApi';
-import { useRemoveFromWishListMutation, useWhishlistQuery } from '@/redux/api/wishList';
+import { useRemoveFromWishListMutation, useWhishlistQuery } from '@/redux/api/wishListApi';
 import { AddressFormData } from '@/schemas/address';
 import { UpdateProfileRequest } from '@/types/api';
 import {
@@ -51,6 +50,7 @@ import {
 import Image from 'next/image';
 import Link from 'next/link';
 import { useState } from 'react';
+import { EU_COUNTRIES } from '../checkout/page';
 
 const Dashboard = () => {
   const { toast } = useToast();
@@ -63,7 +63,7 @@ const Dashboard = () => {
   const [updateProfile, { isLoading: isUpdatingProfile }] = useUpdateProfileMutation();
   const [removeFromWishlist, { isLoading: isRemovingWishlist }] =
     useRemoveFromWishListMutation();
-  const [addToCart, { isLoading: isAddingToCart }] = useAddToCartMutation();
+
   const [addToAddress, { isLoading: isCreatingAddress }] = useAddToAddressMutation();
   const [updateAddress, { isLoading: isUpdatingAddress }] = useUpdateAddressMutation();
   const [removeAddress, { isLoading: isDeletingAddress }] = useRemoveAddressMutation();
@@ -87,7 +87,7 @@ const Dashboard = () => {
   // Extract data
   const userProfile = profileData?.data;
   const orders = Array.isArray(ordersData?.data?.orders) ? ordersData.data?.orders : [];
-  const wishlistItems = Array.isArray(wishlistData?.data) ? wishlistData.data : [];
+  const wishlistItems = Array.isArray(wishlistData?.data?.items) ? wishlistData.data.items : [];
   const addresses = Array.isArray(addressData?.data) ? addressData.data : [];
 
   // Handle profile update
@@ -153,28 +153,6 @@ const Dashboard = () => {
       toast({
         title: 'Error',
         description: error?.data?.message || 'Failed to remove item.',
-        variant: 'destructive',
-      });
-    }
-  };
-
-  const handleAddToCart = async (productId: string, variantId: string) => {
-    try {
-      const result = await addToCart({
-        productId,
-        variantId,
-        quantity: 1,
-      }).unwrap();
-      if (result.success) {
-        toast({
-          title: 'Added to Cart',
-          description: 'Item has been added to your cart.',
-        });
-      }
-    } catch (error: any) {
-      toast({
-        title: 'Error',
-        description: error?.data?.message || 'Failed to add to cart.',
         variant: 'destructive',
       });
     }
@@ -520,7 +498,7 @@ const Dashboard = () => {
                       )}
 
                       {/* Order Actions */}
-                      {/* <div className="p-6 pt-0 flex gap-3">
+                      <div className="p-6  flex gap-3">
                         <Link href={`/orders/${order.id}`} className="flex-1">
                           <Button variant="outline" size="sm" className="w-full">
                             View Details
@@ -531,7 +509,7 @@ const Dashboard = () => {
                             Reorder
                           </Button>
                         )}
-                      </div> */}
+                      </div>
                     </div>
                   );
                 })}
@@ -581,64 +559,120 @@ const Dashboard = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {wishlistItems.map((item: any) => (
                   <div
-                    key={item.id}
-                    className="bg-card rounded-lg overflow-hidden border hover:shadow-lg transition-all duration-200 group"
+                    key={item.productId}
+                    className="bg-white dark:bg-gray-800 rounded-xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 group border border-gray-100 dark:border-gray-700"
                   >
-                    <div className="relative w-full h-64 bg-muted overflow-hidden">
+                    {/* Image Section */}
+                    <div className="relative w-full h-72 bg-gray-100 dark:bg-gray-900 overflow-hidden">
                       <Image
-                        src={item.product?.images?.[0] || item.image || '/placeholder.png'}
-                        alt={item.product?.name || item.productName || 'Product'}
+                        src={item.image || '/placeholder.png'}
+                        alt={item.productName || 'Product'}
                         fill
-                        className="object-cover group-hover:scale-105 transition-transform duration-300"
+                        className="object-cover group-hover:scale-110 transition-transform duration-500"
                       />
+
+                      {/* Discount Badge */}
+                      {item.basePrice && item.basePrice > item.sellingPrice && (
+                        <div className="absolute top-3 left-3 bg-red-500 text-white px-3 py-1 rounded-full text-sm font-semibold">
+                          {Math.round(((item.basePrice - item.sellingPrice) / item.basePrice) * 100)}% OFF
+                        </div>
+                      )}
+
+                      {/* Wishlist Button */}
                       <button
-                        onClick={() => handleRemoveFromWishlist(item.id)}
+                        onClick={() => handleRemoveFromWishlist(item.productId)}
                         disabled={isRemovingWishlist}
-                        className="absolute top-3 right-3 w-9 h-9 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center hover:bg-white transition-colors shadow-md"
+                        className="absolute top-3 right-3 w-10 h-10 rounded-full bg-white dark:bg-gray-800 shadow-lg flex items-center justify-center hover:scale-110 transition-transform duration-200 disabled:opacity-50"
                       >
                         <Heart className="w-5 h-5 fill-red-500 text-red-500" />
                       </button>
-                    </div>
-                    <div className="p-5">
-                      <h3 className="font-semibold text-foreground mb-1 line-clamp-2 min-h-[3rem]">
-                        {item.product?.name || item.productName}
-                      </h3>
-                      {(item.product?.brand || item.brand) && (
-                        <p className="text-sm text-muted-foreground mb-3">
-                          {item.product?.brand || item.brand}
-                        </p>
+
+                      {/* Stock Badge */}
+                      {!item.inStock && (
+                        <div className="absolute bottom-3 left-3 bg-gray-900 bg-opacity-90 text-white px-3 py-1 rounded-full text-sm font-medium">
+                          Out of Stock
+                        </div>
                       )}
-                      <div className="flex items-center justify-between mb-4">
-                        <span className="text-2xl font-bold text-foreground">
-                          {item.product?.currency || 'EUR'}{' '}
-                          {(item.product?.price || item.price)?.toFixed(2)}
-                        </span>
+                    </div>
+
+                    {/* Content Section */}
+                    <div className="p-6">
+                      <div className="flex justify-between gap-4 mb-4">
+                        {/* Left: Brand and Product Name */}
+                        <div className="flex-1 min-w-0">
+                          {/* Brand */}
+                          {item.brandName && (
+                            <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
+                              {item.brandName}
+                            </p>
+                          )}
+
+                          {/* Product Name */}
+                          <h3 className="font-bold text-lg text-gray-900 dark:text-white line-clamp-2 leading-tight">
+                            {item.productName}
+                          </h3>
+                        </div>
+
+                        {/* Right: Price and Rating */}
+                        <div className="flex flex-col items-end justify-start flex-shrink-0">
+                          {/* Price */}
+                          <div className="text-right mb-2">
+                            <div className="text font-bold text-gray-900 dark:text-white whitespace-nowrap">
+                              €{item.sellingPrice?.toFixed(2)}
+                            </div>
+                            {item.basePrice && item.basePrice > item.sellingPrice && (
+                              <div className="text-sm text-gray-400 line-through whitespace-nowrap">
+                                €{item.basePrice?.toFixed(2)}
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Condition Rating */}
+                          {item.conditionRating && (
+                            <div className="flex flex-col items-end gap-1">
+                              <div className="flex items-center gap-0.5">
+                                {[...Array(10)].map((_, i) => (
+                                  <div
+                                    key={i}
+                                    className={`w-1 h-3 rounded-sm ${i < item.conditionRating
+                                      ? 'bg-green-500'
+                                      : 'bg-gray-200 dark:bg-gray-700'
+                                      }`}
+                                  />
+                                ))}
+                              </div>
+                              <span className="text-xs text-gray-600 dark:text-gray-400 font-medium">
+                                {item.conditionRating}/10
+                              </span>
+                            </div>
+                          )}
+                        </div>
                       </div>
-                      <div className="flex gap-2">
+
+
+
+                      {/* Action Buttons */}
+                      <div className="flex gap-3">
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => handleRemoveFromWishlist(item.id)}
+                          onClick={() => handleRemoveFromWishlist(item.productId)}
                           disabled={isRemovingWishlist}
-                          className="flex-1"
+                          className="flex-none px-4 border-2 hover:bg-gray-50 dark:hover:bg-gray-700"
                         >
-                          <X className="w-4 h-4 mr-1" />
-                          Remove
+                          <X className="w-4 h-4" />
                         </Button>
                         <Button
                           variant="street"
                           size="sm"
-                          onClick={() =>
-                            handleAddToCart(
-                              item.productId || item.product?.id,
-                              item.variantId || item.product?.variants?.[0]?.id
-                            )
-                          }
-                          disabled={isAddingToCart}
-                          className="flex-1"
+                          asChild
+                          disabled={!item.inStock}
+                          className="flex-1 font-semibold"
                         >
-                          <ShoppingBag className="w-4 h-4 mr-1" />
-                          Add to Cart
+                          <a href={`/products/${item.productId}`}>
+                            <ShoppingBag className="w-4 h-4 mr-2" />
+                            {item.inStock ? 'View Product' : 'Out of Stock'}
+                          </a>
                         </Button>
                       </div>
                     </div>
@@ -947,6 +981,7 @@ const Dashboard = () => {
                   initialData={getInitialEditData()}
                   isLoading={isCreatingAddress || isUpdatingAddress}
                   isEditing={!!editingAddress}
+                  countries={EU_COUNTRIES}
                 />
               </div>
             ) : addresses.length === 0 ? (

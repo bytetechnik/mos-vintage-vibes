@@ -29,6 +29,7 @@ interface FilterSidebarProps {
   onSortByChange?: (value: string) => void;
   selectedBrands?: string[];
   onBrandChange?: (brands: string[]) => void;
+  availableSizes?: string[]; // Add this prop
 }
 
 const FilterSidebar = ({
@@ -50,19 +51,16 @@ const FilterSidebar = ({
   isMobileOpen = false,
   selectedBrands = [],
   onBrandChange,
+  availableSizes = [], // Add this
 }: FilterSidebarProps) => {
-  // const [showMoreSizes, setShowMoreSizes] = useState(false);
+  const [showMoreSizes, setShowMoreSizes] = useState(false);
   const [showMoreBrands, setShowMoreBrands] = useState(false);
-  const sizes = [
-    'XS', 'xS', 'S', 'M', 'L', 'XL', 'XXL',
-    'ladies', 'Women\'s L'
-  ];
 
   // Fetch brands from API
   const { data: brandsData, isLoading: brandsLoading } = useBrandsQuery({});
   const availableBrands = brandsData?.data || [];
 
-  // const displayedSizes = showMoreSizes ? sizes : sizes.slice(0, 7);
+  const displayedSizes = showMoreSizes ? availableSizes : availableSizes.slice(0, 7);
   const displayedBrands = showMoreBrands ? availableBrands : availableBrands.slice(0, 5);
 
   const getConditionLabel = (rating: number) => {
@@ -175,28 +173,41 @@ const FilterSidebar = ({
             </div>
           )}
 
-          <div className="space-y-4">
-            <div className="flex items-center">
-              <h4 className="font-bold text-black text-sm uppercase">size</h4>
-              <div className="flex-1 border-t border-gray-200 ml-4"></div>
-              <div className="w-1 h-1 bg-gray-400 ml-2"></div>
+          {availableSizes.length > 0 && (
+            <div className="space-y-4">
+              <div className="flex items-center">
+                <h4 className="font-bold text-black text-sm uppercase">size</h4>
+                <div className="flex-1 border-t border-gray-200 ml-4"></div>
+                <div className="w-1 h-1 bg-gray-400 ml-2"></div>
+              </div>
+              <div className="space-y-3">
+                {displayedSizes.map((size) => (
+                  <div key={size} className="flex items-center space-x-3">
+                    <Checkbox
+                      id={`size-${size}`}
+                      checked={selectedSizes.includes(size)}
+                      onCheckedChange={(checked) => onSizeChange(size, checked as boolean)}
+                      className="border-gray-300"
+                    />
+                    <Label htmlFor={`size-${size}`} className="text-sm text-black cursor-pointer">
+                      {size}
+                    </Label>
+                  </div>
+                ))}
+              </div>
+              {availableSizes.length > 7 && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowMoreSizes(!showMoreSizes)}
+                  className="mt-2 text-sm text-blue-600 hover:text-blue-800 p-0 h-auto"
+                >
+                  {showMoreSizes ? 'SHOW LESS' : 'SHOW MORE'}
+                  {showMoreSizes ? <ChevronUp className="w-4 h-4 ml-1" /> : <ChevronDown className="w-4 h-4 ml-1" />}
+                </Button>
+              )}
             </div>
-            <div className="space-y-3">
-              {sizes.map((size) => (
-                <div key={size} className="flex items-center space-x-3">
-                  <Checkbox
-                    id={`size-${size}`}
-                    checked={selectedSizes.includes(size)}
-                    onCheckedChange={(checked) => onSizeChange(size, checked as boolean)}
-                    className="border-gray-300"
-                  />
-                  <Label htmlFor={`size-${size}`} className="text-sm text-black cursor-pointer">
-                    {size}
-                  </Label>
-                </div>
-              ))}
-            </div>
-          </div>
+          )}
 
           <div className="space-y-4">
             <div className="flex items-center">
@@ -317,44 +328,46 @@ const FilterSidebar = ({
         </div>
       )}
 
-      {/* <div className="mb-6">
-        <h3 className="font-semibold text-gray-900 mb-3">GRÖSSE</h3>
-        <div className="space-y-2">
-          {displayedSizes.map((size) => (
-            <div key={size} className="flex items-center space-x-2">
-              <Checkbox
-                id={`size-${size}`}
-                checked={selectedSizes.includes(size)}
-                onCheckedChange={(checked) => onSizeChange(size, checked as boolean)}
-              />
-              <Label htmlFor={`size-${size}`} className="text-sm text-gray-700 cursor-pointer">
-                {size}
-              </Label>
-            </div>
-          ))}
-        </div>
+      {availableSizes.length > 0 && (
+        <div className="mb-6">
+          <h3 className="font-semibold text-gray-900 mb-3">GRÖSSE</h3>
+          <div className="space-y-2">
+            {displayedSizes.map((size) => (
+              <div key={size} className="flex items-center space-x-2">
+                <Checkbox
+                  id={`size-${size}`}
+                  checked={selectedSizes.includes(size)}
+                  onCheckedChange={(checked) => onSizeChange(size, checked as boolean)}
+                />
+                <Label htmlFor={`size-${size}`} className="text-sm text-gray-700 cursor-pointer">
+                  {size}
+                </Label>
+              </div>
+            ))}
+          </div>
 
-        {sizes.length > 7 && (
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setShowMoreSizes(!showMoreSizes)}
-            className="mt-2 text-sm text-blue-600 hover:text-blue-800 p-0 h-auto"
-          >
-            {showMoreSizes ? (
-              <>
-                WENIGER ANZEIGEN
-                <ChevronUp className="w-4 h-4 ml-1" />
-              </>
-            ) : (
-              <>
-                MEHR ANZEIGEN
-                <ChevronDown className="w-4 h-4 ml-1" />
-              </>
-            )}
-          </Button>
-        )}
-      </div> */}
+          {availableSizes.length > 7 && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowMoreSizes(!showMoreSizes)}
+              className="mt-2 text-sm text-blue-600 hover:text-blue-800 p-0 h-auto"
+            >
+              {showMoreSizes ? (
+                <>
+                  WENIGER ANZEIGEN
+                  <ChevronUp className="w-4 h-4 ml-1" />
+                </>
+              ) : (
+                <>
+                  MEHR ANZEIGEN
+                  <ChevronDown className="w-4 h-4 ml-1" />
+                </>
+              )}
+            </Button>
+          )}
+        </div>
+      )}
 
       <div className="mb-6">
         <h4 className="font-semibold text-gray-900 mb-3">Condition</h4>

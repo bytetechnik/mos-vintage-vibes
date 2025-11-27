@@ -1,32 +1,40 @@
-'use client';
+'use client'
+
 import { Filter } from 'lucide-react';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useMemo, useState } from 'react';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 import CategoryNavigation from '@/components/CategoryNavigation';
 import FilterSidebar from '@/components/FilterSidebar';
 import ProductCard from '@/components/shared/ProductCard';
+import SplashScreen from '@/components/SplashScreen';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { categoryNames } from '@/data/products';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useLatestProductsQuery } from '@/redux/api/product/productApi';
-import { Product, ProductCategory } from '@/types/product';
+import { ProductCategory } from '@/types/product';
 
-export default function LatestDropsPage() {
+const LatestDrops = () => {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
+  const pathname = usePathname();
   const isMobile = useIsMobile();
+  const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
+  const observerTarget = useRef<HTMLDivElement>(null);
+
+  // Pagination state
+  const [page, setPage] = useState(0);
+  const [allProducts, setAllProducts] = useState<any[]>([]);
+  const [hasMore, setHasMore] = useState(true);
 
   // Get all parameters from URL
-  const page = parseInt(searchParams.get('page') || '0');
-  const perPage = parseInt(searchParams.get('perPage') || '20');
-  const initialCategory = searchParams.get('category') as ProductCategory | null;
+  const perPage = 20;
+  const initialCategories = searchParams.get('category')?.split(',').filter(Boolean) || [];
   const initialSearch = searchParams.get('search') || '';
-  const initialBrand = searchParams.get('brand') || '';
-  const initialFeatured = searchParams.get('featured') === 'true';
+  const initialSize = searchParams.get('size');
+  const initialBrands = searchParams.get('brand')?.split(',').filter(Boolean) || [];
   const initialInStock = searchParams.get('in_stock') === 'true';
   const initialPriceMin = searchParams.get('priceMin') || '';
   const initialPriceMax = searchParams.get('priceMax') || '';
@@ -36,16 +44,14 @@ export default function LatestDropsPage() {
   const conditionParam = searchParams.get('condition');
   const initialConditions = conditionParam ? conditionParam.split(',').map(Number) : [];
 
-  const [selectedCategories, setSelectedCategories] = useState<ProductCategory[]>(
-    initialCategory ? [initialCategory] : []
-  );
-  const [selectedBrands, setSelectedBrands] = useState<string[]>(
-    initialBrand ? [initialBrand] : []
-  );
+  const [selectedCategories, setSelectedCategories] = useState<string[]>(initialCategories);
+  const [selectedBrands, setSelectedBrands] = useState<string[]>(initialBrands);
   const [selectedConditionRating, setSelectedConditionRating] = useState<number | null>(
     initialConditions.length > 0 ? initialConditions[0] : null
   );
-  const [selectedSizes, setSelectedSizes] = useState<string[]>([]);
+  const [selectedSizes, setSelectedSizes] = useState<string[]>(
+    initialSize ? initialSize.split(',') : []
+  );
   const [inStockOnly, setInStockOnly] = useState(initialInStock);
   const [outOfStock, setOutOfStock] = useState(false);
   const [priceRange, setPriceRange] = useState({
@@ -63,63 +69,104 @@ export default function LatestDropsPage() {
     };
 
     if (searchQuery) params.search = searchQuery;
-    if (selectedCategories.length > 0) params.category = selectedCategories[0];
-    if (selectedBrands.length > 0) params.brand = selectedBrands[0];
+    if (selectedCategories.length > 0) params.category = selectedCategories;
+    if (selectedBrands.length > 0) params.brand = selectedBrands;
     if (selectedConditionRating !== null) params.condition = [selectedConditionRating];
     if (priceRange.min) params.priceMin = parseFloat(priceRange.min);
     if (priceRange.max) params.priceMax = parseFloat(priceRange.max);
-    if (initialFeatured) params.featured = true;
     if (inStockOnly) params.in_stock = true;
     if (sortBy) params.sort = sortBy;
 
     return params;
-  }, [page, perPage, searchQuery, selectedCategories, selectedBrands, selectedConditionRating, priceRange, initialFeatured, inStockOnly, sortBy]);
+  }, [page, searchQuery, selectedCategories, selectedBrands, selectedConditionRating, priceRange, inStockOnly, sortBy]);
 
-  // Fetch data with dynamic parameters
-  const { data: latestProductsData, isLoading } = useLatestProductsQuery(apiParams);
-  console.log(apiParams);
-  const latestDropsProducts = useMemo(() => latestProductsData?.data || [], [latestProductsData]);
+  // Fetch data with dynamic parameters (using latest products query)
+  const { data, isLoading, isFetching, error } = useLatestProductsQuery(apiParams);
 
-  const availableConditionRatings = Array.from(new Set(latestDropsProducts.map((p: any) => p.conditionRating)))
-    .filter((n): n is number => typeof n === 'number')
-    .sort((a, b) => b - a);
+  // Reset products when filters change
+  useEffect(() => {
+    setPage(0);
+    setAllProducts([]);
+    setHasMore(true);
+  }, [searchQuery, selectedCategories, selectedBrands, selectedConditionRating, priceRange, inStockOnly, sortBy]);
+
+  // Append new products when data changes
+  useEffect(() => {
+    if (data?.data) {
+      const newProducts = Array.isArray(data.data) ? data.data : data.data.data || [];
+
+      if (page === 0) {
+        setAllProducts(newProducts);
+      } else {
+        setAllProducts(prev => [...prev, ...newProducts]);
+      }
+
+      // Check if there are more products
+      if (newProducts.length < perPage) {
+        setHasMore(false);
+      }
+    }
+  }, [data, page]);
 
   // Client-side filtering for additional filters not supported by API
   const filteredProducts = useMemo(() => {
-    let filtered = [...latestDropsProducts];
+    let filtered = [...allProducts];
 
     // Additional client-side filters
     if (selectedSizes.length > 0) {
-      filtered = filtered.filter((product: Product) => {
-        const productSizes = product.variants.map(v => v.size).filter(Boolean);
-        return productSizes.some(size => selectedSizes.includes(size!));
+      filtered = filtered.filter((product: any) => {
+        const productSizes = product.variants?.map((v: any) => v.size).filter(Boolean) || [];
+        return productSizes.some((size: string) => selectedSizes.includes(size));
       });
     }
 
     if (outOfStock) {
-      filtered = filtered.filter((product: Product) => !product.inStock);
+      filtered = filtered.filter((product: any) => !product.inStock);
     }
 
     return filtered;
-  }, [latestDropsProducts, selectedSizes, outOfStock]);
+  }, [allProducts, selectedSizes, outOfStock]);
+
+  const availableConditionRatings = [10, 9, 8, 7];
+
+  // Infinite scroll observer
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasMore && !isFetching && !isLoading) {
+          setPage(prev => prev + 1);
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    const currentTarget = observerTarget.current;
+    if (currentTarget) {
+      observer.observe(currentTarget);
+    }
+
+    return () => {
+      if (currentTarget) {
+        observer.unobserve(currentTarget);
+      }
+    };
+  }, [hasMore, isFetching, isLoading]);
 
   // Update URL when filters change
   const updateURLParams = () => {
     const params = new URLSearchParams();
 
-    if (page > 0) params.set('page', page.toString());
-    if (perPage !== 20) params.set('perPage', perPage.toString());
     if (searchQuery) params.set('search', searchQuery);
-    if (selectedCategories.length > 0) params.set('category', selectedCategories[0]);
-    if (selectedBrands.length > 0) params.set('brand', selectedBrands[0]);
+    if (selectedCategories.length > 0) params.set('category', selectedCategories.join(','));
+    if (selectedBrands.length > 0) params.set('brand', selectedBrands.join(','));
     if (selectedConditionRating !== null) params.set('condition', selectedConditionRating.toString());
+    if (selectedSizes.length > 0) params.set('size', selectedSizes.join(','));
     if (priceRange.min) params.set('priceMin', priceRange.min);
     if (priceRange.max) params.set('priceMax', priceRange.max);
-    if (initialFeatured) params.set('featured', 'true');
     if (inStockOnly) params.set('in_stock', 'true');
     if (sortBy !== 'newest') params.set('sort', sortBy);
 
-    router.push(`/latest-drops?${params.toString()}`, { scroll: false });
+    router.push(`${pathname}?${params.toString()}`, { scroll: false });
   };
 
   // Debounced URL update
@@ -130,7 +177,7 @@ export default function LatestDropsPage() {
 
     return () => clearTimeout(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchQuery, selectedCategories, selectedBrands, selectedConditionRating, priceRange, inStockOnly, sortBy]);
+  }, [searchQuery, selectedCategories, selectedBrands, selectedConditionRating, selectedSizes, priceRange, inStockOnly, sortBy]);
 
   const handleConditionRatingChange = (rating: number | null) => {
     setSelectedConditionRating(rating);
@@ -148,6 +195,10 @@ export default function LatestDropsPage() {
     setSortBy(value);
   };
 
+  const handleCategoryChange = (categories: string[]) => {
+    setSelectedCategories(categories);
+  };
+
   const clearFilters = () => {
     setSelectedCategories([]);
     setSelectedBrands([]);
@@ -158,35 +209,37 @@ export default function LatestDropsPage() {
     setPriceRange({ min: '', max: '' });
     setSearchQuery('');
     setSortBy('newest');
-    router.push('/latest-drops');
+    router.push(pathname, { scroll: false });
   };
 
-  const activeFiltersCount = selectedCategories.length + selectedBrands.length +
-    (selectedConditionRating !== null ? 1 : 0) + selectedSizes.length +
-    (inStockOnly ? 1 : 0) + (outOfStock ? 1 : 0) +
-    (priceRange.min ? 1 : 0) + (priceRange.max ? 1 : 0) + (searchQuery ? 1 : 0);
+  const activeFiltersCount =
+    selectedCategories.length +
+    selectedBrands.length +
+    (selectedConditionRating !== null ? 1 : 0) +
+    selectedSizes.length +
+    (inStockOnly ? 1 : 0) +
+    (outOfStock ? 1 : 0) +
+    (priceRange.min ? 1 : 0) +
+    (priceRange.max ? 1 : 0) +
+    (searchQuery ? 1 : 0);
 
   return (
     <div className="w-full px-4 sm:px-6 lg:px-8 py-6 mt-12">
       <div className="mb-6">
         <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-4">
-          {initialCategory ? categoryNames[initialCategory] : 'Latest Drops'}
+          {selectedCategories.length === 1 && categoryNames[selectedCategories[0] as ProductCategory]
+            ? `Latest ${categoryNames[selectedCategories[0] as ProductCategory]}`
+            : 'Latest Drops'}
         </h1>
         <p className="text-muted-foreground text-sm sm:text-base">
-          Check out the freshest arrivals and exclusive drops!
+          Fresh arrivals from the most recent drops
         </p>
       </div>
 
       <CategoryNavigation
         totalProducts={filteredProducts.length}
-        selectedCategory={selectedCategories[0] || null}
-        onCategoryChange={(category) => {
-          if (category) {
-            setSelectedCategories([category]);
-          } else {
-            setSelectedCategories([]);
-          }
-        }}
+        selectedCategories={selectedCategories}
+        onCategoryChange={handleCategoryChange}
       />
 
       <div className="flex flex-col sm:flex-row gap-2 md:gap-4 mb-6">
@@ -203,17 +256,17 @@ export default function LatestDropsPage() {
 
       <div className="hidden sm:flex justify-end mb-4">
         <div className="flex items-center gap-2">
-          <span className="text-sm font-medium text-gray-700">Sortieren nach</span>
+          <span className="text-sm font-medium text-gray-700">Sort by</span>
           <Select value={sortBy} onValueChange={handleSortByChange}>
             <SelectTrigger className="w-32 border-0 bg-transparent p-0 h-auto">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="newest">Neueste</SelectItem>
-              <SelectItem value="price-low">Preis: Niedrig zu Hoch</SelectItem>
-              <SelectItem value="price-high">Preis: Hoch zu Niedrig</SelectItem>
+              <SelectItem value="newest">Newest</SelectItem>
+              <SelectItem value="price-low">Price: Low to High</SelectItem>
+              <SelectItem value="price-high">Price: High to Low</SelectItem>
               <SelectItem value="name">Name A-Z</SelectItem>
-              <SelectItem value="condition">Beste Qualität</SelectItem>
+              <SelectItem value="condition">Best Quality</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -250,11 +303,11 @@ export default function LatestDropsPage() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="newest">Neueste</SelectItem>
-                    <SelectItem value="price-low">Preis: Niedrig zu Hoch</SelectItem>
-                    <SelectItem value="price-high">Preis: Hoch zu Niedrig</SelectItem>
+                    <SelectItem value="newest">Newest</SelectItem>
+                    <SelectItem value="price-low">Price: Low to High</SelectItem>
+                    <SelectItem value="price-high">Price: High to Low</SelectItem>
                     <SelectItem value="name">Name A-Z</SelectItem>
-                    <SelectItem value="condition">Beste Qualität</SelectItem>
+                    <SelectItem value="condition">Best Quality</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -270,25 +323,42 @@ export default function LatestDropsPage() {
             </div>
           )}
 
-          {isLoading ? (
-            <div className="text-center py-8 sm:py-16">
-              <p className="text-muted-foreground">Loading products...</p>
+          {isLoading && page === 0 ? (
+            <SplashScreen />
+          ) : error ? (
+            <div className="text-center py-16">
+              <p className="text-red-500">Error loading products</p>
+              <Button onClick={() => window.location.reload()} className="mt-4">
+                Retry
+              </Button>
             </div>
-          ) : filteredProducts.length === 0 ? (
+          ) : filteredProducts.length === 0 && !isFetching ? (
             <div className="text-center py-8 sm:py-16">
               <Filter className="w-12 h-12 sm:w-16 sm:h-16 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-lg sm:text-xl font-semibold mb-2">No drops found</h3>
+              <h3 className="text-lg sm:text-xl font-semibold mb-2">No products found</h3>
               <p className="text-muted-foreground mb-4">
                 Try adjusting your filters or search terms
               </p>
               <Button onClick={clearFilters}>Clear Filters</Button>
             </div>
           ) : (
-            <div className="grid gap-3 sm:gap-4 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-4">
-              {filteredProducts.map((product: Product, idx: number) => (
-                <ProductCard key={product.id} product={product} imageIndex={idx} />
-              ))}
-            </div>
+            <>
+              <div className="grid gap-5 sm:gap-4 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-4 p-8">
+                {filteredProducts.map((product: any, idx: number) => (
+                  <ProductCard key={`${product.id}-${idx}`} product={product} imageIndex={idx} />
+                ))}
+              </div>
+
+              {/* Intersection Observer Target */}
+              <div ref={observerTarget} className="h-20 flex items-center justify-center">
+                {isFetching && hasMore && (
+                  <SplashScreen />
+                )}
+                {!hasMore && filteredProducts.length > 0 && (
+                  <p className="text-muted-foreground">No more products to load</p>
+                )}
+              </div>
+            </>
           )}
         </div>
       </div>
@@ -319,4 +389,6 @@ export default function LatestDropsPage() {
       )}
     </div>
   );
-}
+};
+
+export default LatestDrops;

@@ -3,7 +3,7 @@
 
 import { useToast } from '@/hooks/use-toast';
 import { useAddToCartMutation } from '@/redux/api/cartApi';
-import { useAddToWishListMutation } from '@/redux/api/wishList';
+import { useAddToWishListMutation } from '@/redux/api/wishListApi';
 import { clearPendingAction, getPendingAction, isAuthenticated } from '@/utils/auth-helpers';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
