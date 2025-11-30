@@ -163,7 +163,7 @@ const NavBar = () => {
               size="icon"
               className="relative"
             >
-              <Search className={`w-5 h-5 transition-colors duration-300 ${pathname === '/' ? (isScrolled ? 'text-black' : 'text-white') : 'text-black'}`} />
+              {/* <Search className={`w-5 h-5 transition-colors duration-300 ${pathname === '/' ? (isScrolled ? 'text-black' : 'text-white') : 'text-black'}`} /> */}
             </Button>
 
             {/* Cart Button */}
