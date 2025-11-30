@@ -6,6 +6,7 @@ import ProductCard from '@/components/shared/ProductCard';
 import SplashScreen from '@/components/SplashScreen';
 import { Button } from '@/components/ui/button';
 import { useLatestProductsQuery } from '@/redux/api/product/productApi';
+import Link from 'next/link';
 
 const LatestDrops = () => {
   const { data, isLoading, error } = useLatestProductsQuery({});
@@ -49,6 +50,13 @@ const LatestDrops = () => {
             </div>
           )}
         </div>
+      </div>
+      <div className="text-center mt-5">
+        <Link href="/products">
+          <Button variant="street" size="lg">
+            See More Products
+          </Button>
+        </Link>
       </div>
     </div>
   );

@@ -1,7 +1,7 @@
 import { tagTypes } from "@/redux/tag-types";
 import { baseApi } from "./baseApi";
 
-const userUrl = "user";
+const userUrl = "/user";
 
 export const orderApi = baseApi.injectEndpoints({
   endpoints: (build) => ({

@@ -1,7 +1,7 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 
 import { logoutUser } from '@/services/auth.service';
-import { LogOut, Minus, Plus, Settings, User } from 'lucide-react';
+import { LogOut, Settings, User } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -14,34 +14,21 @@ interface MobileSidebarProps {
 
 const MobileSidebar = ({ isOpen, user, isAuthenticated, onClose }: MobileSidebarProps) => {
   const sidebarRef = useRef<HTMLDivElement>(null);
-  const [expandedCategories, setExpandedCategories] = useState(false);
-  const [expandedSizes, setExpandedSizes] = useState(false);
+  // const [expandedCategories, setExpandedCategories] = useState(false);
+  // const [expandedSizes, setExpandedSizes] = useState(false);
 
-  // Updated categories to match actual product categories
-  const kategorien = [
-    { name: 'TRACKPANTS', href: '/products?category=trackpants' },
-    { name: 'JACKEN', href: '/products?category=jackets' },
-    { name: 'TRACKSUITS', href: '/products?category=tracksuits' },
-    { name: 'PULLIS & HOODIES', href: '/products?category=hoodies' },
-    { name: 'SHIRTS & POLOS', href: '/products?category=shirts' },
-    { name: 'JEANS', href: '/products?category=jeans' },
-    { name: 'SHORTS', href: '/products?category=shorts' },
-    { name: 'WESTEN', href: '/products?category=vests' },
-    { name: 'SCHUHE', href: '/products?category=shoes' },
-    { name: 'ACCESSOIRES', href: '/products?category=accessories' }
-  ];
 
   // Updated sizes to match actual size filters
-  const groessen = [
-    { name: 'FRAUEN', href: '/products?gender=women' },
-    { name: 'KINDER', href: '/products?gender=kids' },
-    { name: 'XS', href: '/products?size=xs' },
-    { name: 'S', href: '/products?size=s' },
-    { name: 'M', href: '/products?size=m' },
-    { name: 'L', href: '/products?size=l' },
-    { name: 'XL', href: '/products?size=xl' },
-    { name: 'XXL', href: '/products?size=xxl' }
-  ];
+  // const groessen = [
+  //   { name: 'FRAUEN', href: '/products?gender=women' },
+  //   { name: 'KINDER', href: '/products?gender=kids' },
+  //   { name: 'XS', href: '/products?size=xs' },
+  //   { name: 'S', href: '/products?size=s' },
+  //   { name: 'M', href: '/products?size=m' },
+  //   { name: 'L', href: '/products?size=l' },
+  //   { name: 'XL', href: '/products?size=xl' },
+  //   { name: 'XXL', href: '/products?size=xxl' }
+  // ];
 
   // Handle escape key to close sidebar
   useEffect(() => {
@@ -99,13 +86,13 @@ const MobileSidebar = ({ isOpen, user, isAuthenticated, onClose }: MobileSidebar
   //   onClose();
   // };
 
-  const toggleCategories = () => {
-    setExpandedCategories(!expandedCategories);
-  };
+  // const toggleCategories = () => {
+  //   setExpandedCategories(!expandedCategories);
+  // };
 
-  const toggleSizes = () => {
-    setExpandedSizes(!expandedSizes);
-  };
+  // const toggleSizes = () => {
+  //   setExpandedSizes(!expandedSizes);
+  // };
 
   return (
     <>
@@ -184,7 +171,7 @@ const MobileSidebar = ({ isOpen, user, isAuthenticated, onClose }: MobileSidebar
             </div>
 
             {/* Categories Section */}
-            <div className="space-y-2">
+            {/* <div className="space-y-2">
               <button
                 onClick={toggleCategories}
                 className="flex items-center justify-between w-full text-lg font-semibold text-black hover:text-gray-600 transition-colors"
@@ -211,10 +198,10 @@ const MobileSidebar = ({ isOpen, user, isAuthenticated, onClose }: MobileSidebar
                   ))}
                 </div>
               )}
-            </div>
+            </div> */}
 
             {/* Sizes Section */}
-            <div className="space-y-2">
+            {/* <div className="space-y-2">
               <button
                 onClick={toggleSizes}
                 className="flex items-center justify-between w-full text-lg font-semibold text-black hover:text-gray-600 transition-colors"
@@ -241,17 +228,17 @@ const MobileSidebar = ({ isOpen, user, isAuthenticated, onClose }: MobileSidebar
                   ))}
                 </div>
               )}
-            </div>
+            </div> */}
 
             {/* Additional Links */}
             <div className="space-y-4">
-              <Link
+              {/* <Link
                 href="/gift-cards"
                 className="block text-lg font-semibold text-black hover:text-gray-600 transition-colors"
                 onClick={handleLinkClick}
               >
                 GUTSCHEINKARTEN
-              </Link>
+              </Link> */}
 
               <Link
                 href="/archive"

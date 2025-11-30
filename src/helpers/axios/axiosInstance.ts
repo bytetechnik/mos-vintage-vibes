@@ -45,7 +45,6 @@ instance.interceptors.response.use(
       console.log(error.response?.data?.message || "Forbidden");
 
       const data = await getNewAccessToken()
-      console.log(data);
       if (data?.data?.token) {
         setToLocalStorage(authKey, data.data.token);
         setToLocalStorage(userDataKey, data.data.user ? JSON.stringify(data.data.user) : "");

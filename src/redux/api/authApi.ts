@@ -1,6 +1,6 @@
 import { tagTypes } from "../tag-types";
 import { baseApi } from "./baseApi";
-const AUTH_URL = "public/auth";
+const AUTH_URL = "/public/auth";
 export const authApi = baseApi.injectEndpoints({
   endpoints: (build) => ({
     userLogin: build.mutation({

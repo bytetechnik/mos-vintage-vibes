@@ -1,7 +1,7 @@
 import { tagTypes } from "@/redux/tag-types";
 import { baseApi } from "./baseApi";
 
-const searchUrl = 'public/products/search/autocomplete';
+const searchUrl = '/public/products/search/autocomplete';
 
 export const orderApi = baseApi.injectEndpoints({
   endpoints: (build) => ({

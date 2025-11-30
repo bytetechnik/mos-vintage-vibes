@@ -1,7 +1,7 @@
 import { tagTypes } from "@/redux/tag-types";
 import { baseApi } from "./baseApi";
 
-const categoryUrl = 'public/categories';
+const categoryUrl = '/public/categories';
 const categoriesApi = baseApi.injectEndpoints({
   endpoints: (build) => ({
     categories: build.query({

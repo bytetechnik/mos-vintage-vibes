@@ -17,6 +17,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { getPaymentReturnUrl } from '@/helpers/config/envConfig';
 import { useToast } from '@/hooks/use-toast';
 import {
   useAddressesQuery,
@@ -283,7 +284,7 @@ const Checkout = () => {
           addressId: sameAsShipping ? selectedShippingAddressId : selectedBillingAddressId,
         },
         paymentMethod: 'MOLLIE',
-        paymentConfirmationUrl: 'https://bytetechnik.de',
+        paymentConfirmationUrl: getPaymentReturnUrl(),
         createAccount: false,
       };
 

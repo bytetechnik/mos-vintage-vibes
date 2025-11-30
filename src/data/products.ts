@@ -1,4 +1,4 @@
-import { Product, Brand } from '@/types/product';
+import { Brand, Product } from '@/types/product';
 
 export const brands: Brand[] = [
   { id: '1', name: 'Nike', logo: '/src/assets/brands/nike-logo.png' },

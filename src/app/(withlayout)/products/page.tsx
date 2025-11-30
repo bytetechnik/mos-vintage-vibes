@@ -69,6 +69,8 @@ const Products = () => {
       perPage,
     };
 
+    //! TODO to re-enable in_stock filter in API
+    // params.in_stock = true
     if (searchQuery) params.search = searchQuery;
     if (selectedCategories.length > 0) params.category = selectedCategories;
     if (selectedBrands.length > 0) params.brand = selectedBrands;

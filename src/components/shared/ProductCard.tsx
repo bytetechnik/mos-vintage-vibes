@@ -240,40 +240,40 @@ const ProductCard = memo(({ product }: ProductCardProps) => {
           )}
 
           {/* Overlay actions */}
-          {product.inStock && (
-            <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center space-x-2">
-              <Button
-                variant="vintage"
-                size="icon"
-                // onClick={handleAddToCart}
-                // disabled={isAddingToCart}
-                className="rounded-full"
-                aria-label="Add to cart"
-              >
-                <ShoppingCart className="w-4 h-4" />
+          {/* {product.inStock && ( */}
+          <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center space-x-2">
+            <Button
+              variant="vintage"
+              size="icon"
+              // onClick={handleAddToCart}
+              // disabled={isAddingToCart}
+              className="rounded-full"
+              aria-label="Add to cart"
+            >
+              <ShoppingCart className="w-4 h-4" />
 
-                {/* {isAddingToCart ? (
+              {/* {isAddingToCart ? (
                   <Loader2 className="w-4 h-4 animate-spin" />
                 ) : (
                   <ShoppingCart className="w-4 h-4" />
                 )} */}
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={handleLike}
-                disabled={isAddingToWishList}
-                className="rounded-full text-white hover:bg-white/20"
-                aria-label={isLiked ? 'Remove from wishlist' : 'Add to wishlist'}
-              >
-                {isAddingToWishList ? (
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                ) : (
-                  <Heart className={`w-4 h-4 ${isLiked ? 'fill-red-500 text-red-500' : ''}`} />
-                )}
-              </Button>
-            </div>
-          )}
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={handleLike}
+              disabled={isAddingToWishList}
+              className="rounded-full text-white hover:bg-white/20"
+              aria-label={isLiked ? 'Remove from wishlist' : 'Add to wishlist'}
+            >
+              {isAddingToWishList ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <Heart className={`w-4 h-4 ${isLiked ? 'fill-red-500 text-red-500' : ''}`} />
+              )}
+            </Button>
+          </div>
+          {/* )} */}
 
           {/* Badges */}
           <div className="absolute top-2 left-2 flex flex-col space-y-1">

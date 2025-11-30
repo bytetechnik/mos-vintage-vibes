@@ -1,10 +1,11 @@
 import { axiosBaseQuery } from "@/helpers/axios/axiosBaseQuery";
+import { getOAuthBaseUrl } from "@/helpers/config/envConfig";
 import { createApi } from '@reduxjs/toolkit/query/react';
 import { tagTypes, tagTypesList } from "../tag-types";
-const AUTH_URL = "oauth2/public";
+const AUTH_URL = "/oauth2/public";
 export const oAuth2Api = createApi({
   reducerPath: 'oAuth2Api',
-  baseQuery: axiosBaseQuery({ baseUrl: 'http://localhost:8080/oauth2/public/login' }),
+  baseQuery: axiosBaseQuery({ baseUrl: getOAuthBaseUrl() }),
   endpoints: () => ({}),
   tagTypes: tagTypesList
 }).injectEndpoints({

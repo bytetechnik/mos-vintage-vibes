@@ -1,7 +1,7 @@
 import { tagTypes } from "@/redux/tag-types";
 import { baseApi } from "./baseApi";
 
-const addressUrl = 'addresses';
+const addressUrl = '/addresses';
 
 export const whishlistApi = baseApi.injectEndpoints({
   endpoints: (build) => ({

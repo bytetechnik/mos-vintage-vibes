@@ -1,7 +1,7 @@
 import { tagTypes } from "@/redux/tag-types";
 import { baseApi } from "./baseApi";
 
-const cartUrl = 'wishlist';
+const cartUrl = '/wishlist';
 
 export const whishlistApi = baseApi.injectEndpoints({
   endpoints: (build) => ({
