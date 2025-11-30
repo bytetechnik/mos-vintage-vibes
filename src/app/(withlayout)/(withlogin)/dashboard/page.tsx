@@ -499,7 +499,7 @@ const Dashboard = () => {
 
                       {/* Order Actions */}
                       <div className="p-6  flex gap-3">
-                        <Link href={`/orders/${order.id}`} className="flex-1">
+                        <Link href={`/orders/details/${order.id}`} className="flex-1">
                           <Button variant="outline" size="sm" className="w-full">
                             View Details
                           </Button>

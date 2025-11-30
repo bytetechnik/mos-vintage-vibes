@@ -524,7 +524,7 @@ const ProductDetailPage = ({ params }: ProductDetailPageProps) => {
             <div className="text-center">
               <Truck className="w-6 h-6 mx-auto mb-2 text-orange-500" />
               <div className="text-sm font-medium">Free Shipping</div>
-              <div className="text-xs text-muted-foreground">Orders over €50</div>
+              <div className="text-xs text-muted-foreground">Orders over €150</div>
             </div>
             <div className="text-center">
               <Shield className="w-6 h-6 mx-auto mb-2 text-orange-500" />
