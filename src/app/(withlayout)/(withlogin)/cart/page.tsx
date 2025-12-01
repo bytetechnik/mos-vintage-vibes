@@ -42,7 +42,7 @@ const Cart = () => {
   const cartData = useMemo(() => (cartItemsData as CartResponse)?.data, [cartItemsData]);
   const cartItems: CartItem[] = useMemo(() => cartData?.items || [], [cartData]);
   const subtotal: number = cartData?.subtotal || 0;
-  const currency: string = cartData?.currency || 'EUR';
+  const currency: string = cartData?.currency || '€';
 
   const totalItems = useMemo(
     () => cartItems.reduce((sum, item) => sum + item.quantity, 0),

@@ -49,7 +49,7 @@ export const usePendingAction = () => {
             productId: pendingAction.productId,
             variantId: pendingAction.variantId,
             quantity: pendingAction.quantity || 1,
-            currency: 'EUR',
+            currency: '€',
           }).unwrap();
 
           toast({

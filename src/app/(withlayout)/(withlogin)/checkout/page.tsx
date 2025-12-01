@@ -106,7 +106,7 @@ const Checkout = () => {
   const cart = useMemo(() => cartItemsData?.data, [cartItemsData]);
   const cartItems = cart?.items || [];
   const subtotal = cart?.subtotal || 0;
-  const currency = cart?.currency || 'EUR';
+  const currency = cart?.currency || '€';
 
   const defaultAddress = addresses.find((addr: any) => addr.default);
 

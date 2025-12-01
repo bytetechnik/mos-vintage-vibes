@@ -444,7 +444,7 @@ const Dashboard = () => {
                             <div className="text-right">
                               <p className="text-sm text-muted-foreground mb-1">Total Amount</p>
                               <p className="text-2xl font-bold text-foreground">
-                                {order.currency || 'EUR'} {(order.totalAmount || order.total)?.toFixed(2)}
+                                {order.currency || '€'} {(order.totalAmount || order.total)?.toFixed(2)}
                               </p>
                             </div>
                           </div>
@@ -478,7 +478,7 @@ const Dashboard = () => {
                                     <span>Qty: {item.quantity}</span>
                                     {item.price && (
                                       <span className="font-medium">
-                                        {order.currency || 'EUR'} {item.price.toFixed(2)}
+                                        {order.currency || '€'} {item.price.toFixed(2)}
                                       </span>
                                     )}
                                   </div>

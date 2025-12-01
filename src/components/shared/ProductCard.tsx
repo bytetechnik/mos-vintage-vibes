@@ -143,7 +143,7 @@ const ProductCard = memo(({ product }: ProductCardProps) => {
   //     productId: product.id,
   //     variantId: firstAvailableVariant.id,
   //     quantity: 1,
-  //     currency: 'EUR',
+  //     currency: '€',
   //   });
   // }, [product, addToCart, toast, router]);
 

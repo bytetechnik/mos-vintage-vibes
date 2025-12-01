@@ -198,7 +198,7 @@ const ProductDetailPage = ({ params }: ProductDetailPageProps) => {
       productId: product.id,
       variantId: selectedVariant.id,
       quantity,
-      currency: 'EUR',
+      currency: '€',
     });
   };
 
