@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import { ProductCategory } from '@/types/product';
 import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
 
@@ -30,8 +30,8 @@ const mockApi = {
       filtered = filtered.filter(product =>
         product.name.toLowerCase().includes(query) ||
         product.brand.toLowerCase().includes(query) ||
-        product.category.toLowerCase().includes(query) ||
-        product.tags.some(tag => tag.toLowerCase().includes(query))
+        product.category.toLowerCase().includes(query)
+        // product.tags.some(tag => tag.toLowerCase().includes(query))
       );
     }
 

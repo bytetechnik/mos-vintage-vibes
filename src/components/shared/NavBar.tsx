@@ -89,21 +89,21 @@ const NavBar = () => {
       return;
     }
 
-    const query = searchQuery.toLowerCase();
-    const results = products.filter(product =>
-      product.name.toLowerCase().includes(query) ||
-      product.brand.toLowerCase().includes(query) ||
-      product.category.toLowerCase().includes(query) ||
-      product.tags.some(tag => tag.toLowerCase().includes(query))
-    );
-    setSearchResults(results);
+    // const query = searchQuery.toLowerCase();
+    // const results = products.filter(product =>
+    //   product.name.toLowerCase().includes(query) ||
+    //   product?.brand.toLowerCase().includes(query) ||
+    //   product?.category.toLowerCase().includes(query) ||
+    //   product?.tags.some(tag => tag.toLowerCase().includes(query))
+    // );
+    // setSearchResults(results);
   }, [searchQuery]);
 
-  const handleProductClick = (productId: string) => {
-    router.push(`/products/${productId}`);
-    setIsSearchOpen(false);
-    setSearchQuery('');
-  };
+  // const handleProductClick = (productId: string) => {
+  //   router.push(`/products/${productId}`);
+  //   setIsSearchOpen(false);
+  //   setSearchQuery('');
+  // };
 
   // Only fetch cart data if authenticated
   const { data: cartItemsData } = useCartsQuery({}, {
@@ -302,7 +302,7 @@ const NavBar = () => {
                     <div className="mb-4 text-sm text-muted-foreground font-medium">
                       Found {searchResults.length} product{searchResults.length !== 1 ? 's' : ''}
                     </div>
-                    <div className="space-y-3">
+                    {/* <div className="space-y-3">
                       {searchResults.slice(0, 15).map((product) => (
                         <div
                           key={product.id}
@@ -341,7 +341,7 @@ const NavBar = () => {
                           </Button>
                         </div>
                       )}
-                    </div>
+                    </div> */}
                   </div>
                 )}
               </div>
