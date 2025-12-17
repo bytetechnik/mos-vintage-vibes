@@ -16,7 +16,7 @@ const LatestDrops = () => {
 
   const { data: latestProductsData } = useLatestProductsQuery({});
 
-  const latestProducts = latestProductsData?.data.slice(0, 6) || [];
+  const latestProducts = latestProductsData?.data?.slice(0, 6) ?? [];
   const duplicatedProducts = [...latestProducts, ...latestProducts];
 
   useEffect(() => {

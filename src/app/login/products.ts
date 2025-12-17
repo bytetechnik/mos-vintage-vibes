@@ -21,7 +21,6 @@ export const products: any[] = [
   {
     id: '1',
     name: 'Vintage Nike Swoosh Hoodie',
-    brand: 'Nike',
     price: 89.99,
     originalPrice: 120.00,
     description: 'Classic Nike hoodie with embroidered swoosh logo. Perfect for streetwear enthusiasts.',

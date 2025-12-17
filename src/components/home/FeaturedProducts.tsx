@@ -9,7 +9,8 @@ import ProductCard from '../shared/ProductCard';
 const FeaturedProducts = () => {
   const { data: products } = useFeatureProductsQuery({});
 
-  const featuredProducts = products?.data.slice(0, 6) || [];
+  const featuredProducts = products?.data?.slice(0, 6) ?? [];
+
 
   return (
     <section className="py-8 sm:py-16 px-2 sm:px-4">

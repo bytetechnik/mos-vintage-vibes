@@ -1,16 +1,15 @@
 "use client";
 import { Button } from '@/components/ui/button';
-import { products } from '@/data/products';
+// import { products } from '@/data/products';
 import { useCartsQuery } from '@/redux/api/cartApi';
 import { getUserInfo, logoutUser } from '@/services/auth.service';
 import { CartResponse } from '@/types/cart';
 import { isAuthenticated } from '@/utils/auth-helpers';
-import { LogOut, Menu, Search, Settings, ShoppingCart, User, X } from 'lucide-react';
+import { LogOut, Menu, Settings, ShoppingCart, User, X } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
-import SearchAutocomplete from '../SearchAutocomplete';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '../ui/dropdown-menu';
 import MobileSidebar from './nav/MobileSidebar';
 import NavigationMenu from './nav/NavigationMenu';
@@ -19,8 +18,8 @@ const NavBar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [searchResults, setSearchResults] = useState<typeof products>([]);
+  // const [searchQuery, setSearchQuery] = useState('');
+  // const [searchResults, setSearchResults] = useState<typeof products>([]);
   const [isAuthenticatedState, setIsAuthenticatedState] = useState(false);
   const [user, setUser] = useState<{ firstName?: string; lastName?: string; email?: string } | null>(null);
 
@@ -45,7 +44,7 @@ const NavBar = () => {
   }, []);
 
   const pathname = usePathname();
-  const router = useRouter();
+  // const router = useRouter();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -83,27 +82,27 @@ const NavBar = () => {
   }, [isSearchOpen]);
 
   // Search functionality
-  useEffect(() => {
-    if (searchQuery.trim() === '') {
-      setSearchResults([]);
-      return;
-    }
+  // useEffect(() => {
+  //   if (searchQuery.trim() === '') {
+  //     setSearchResults([]);
+  //     return;
+  //   }
 
-    const query = searchQuery.toLowerCase();
-    const results = products.filter(product =>
-      product.name.toLowerCase().includes(query) ||
-      product.brand.toLowerCase().includes(query) ||
-      product.category.toLowerCase().includes(query) ||
-      product.tags.some(tag => tag.toLowerCase().includes(query))
-    );
-    setSearchResults(results);
-  }, [searchQuery]);
+  //   const query = searchQuery.toLowerCase();
+  //   const results = products.filter(product =>
+  //     product.name.toLowerCase().includes(query)
+  //     // product.brand.toLowerCase().includes(query) ||
+  //     // product.category.toLowerCase().includes(query) ||
+  //     // product.tags.some(tag => tag.toLowerCase().includes(query))
+  //   );
+  //   setSearchResults(results);
+  // }, [searchQuery]);
 
-  const handleProductClick = (productId: string) => {
-    router.push(`/products/${productId}`);
-    setIsSearchOpen(false);
-    setSearchQuery('');
-  };
+  // const handleProductClick = (productId: string) => {
+  //   router.push(`/products/${productId}`);
+  //   setIsSearchOpen(false);
+  //   setSearchQuery('');
+  // };
 
   // Only fetch cart data if authenticated
   const { data: cartItemsData } = useCartsQuery({}, {
@@ -260,7 +259,7 @@ const NavBar = () => {
                   size="icon"
                   onClick={() => {
                     setIsSearchOpen(false);
-                    setSearchQuery('');
+                    // setSearchQuery('');
                   }}
                 >
                   <X className="w-5 h-5" />
@@ -269,7 +268,7 @@ const NavBar = () => {
 
               {/* Search Input */}
               <div className="p-4 flex-shrink-0">
-                <SearchAutocomplete
+                {/* <SearchAutocomplete
                   onSearch={(query) => {
                     router.push(`/products?search=${encodeURIComponent(query)}`);
                     setIsSearchOpen(false);
@@ -280,11 +279,11 @@ const NavBar = () => {
                   }}
                   placeholder="Search for products, brands, categories..."
                   className="w-full"
-                />
+                /> */}
               </div>
 
               {/* Search Results */}
-              <div className="flex-1 overflow-y-auto min-h-0 p-4">
+              {/* <div className="flex-1 overflow-y-auto min-h-0 p-4">
                 {searchQuery.trim() === '' ? (
                   <div className="text-center text-muted-foreground py-8">
                     <Search className="w-12 h-12 mx-auto mb-4 text-muted-foreground/50" />
@@ -344,7 +343,7 @@ const NavBar = () => {
                     </div>
                   </div>
                 )}
-              </div>
+              </div> */}
             </div>
           </div>
         </div>
