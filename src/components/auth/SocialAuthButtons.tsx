@@ -1,4 +1,5 @@
 import { Button } from '@/components/ui/button';
+import { getBackendURL } from '@/helpers/config/envConfig';
 import Link from 'next/link';
 
 interface SocialAuthButtonsProps {
@@ -23,7 +24,7 @@ export function SocialAuthButtons({ mode }: SocialAuthButtonsProps) {
       <div className="grid grid-cols-1 gap-3">
         <Button variant="outline" className="w-full">
           <Link
-            href="http://localhost:8080/oauth2/authorization/google"
+            href={`${getBackendURL}/oauth2/authorization/google`}
             className="flex items-center justify-center w-full"
           >
             <svg className="w-4 h-4 mr-2" viewBox="0 0 24 24">

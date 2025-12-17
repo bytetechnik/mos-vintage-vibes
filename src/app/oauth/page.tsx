@@ -1,5 +1,6 @@
 'use client';
 
+import { getBackendURL } from "@/helpers/config/envConfig";
 import { toast } from "@/hooks/use-toast";
 import { useOAuth2LoginMutation } from "@/redux/api/OAuthApi";
 import { storeUserInfo } from "@/services/auth.service";
@@ -22,7 +23,7 @@ const OAuth = () => {
 
       // const res: any = await oAuth2Login({ oAuthUserTokenId: tokenId }).unwrap();
 
-      const res = await axios.post("http://localhost:8080/oauth2/public/login", {
+      const res = await axios.post(`${getBackendURL}/oauth2/public/login`, {
         oAuthUserTokenId: tokenId,
       });
 
