@@ -16,8 +16,8 @@ const LatestDrops = () => {
 
   const { data: latestProductsData } = useLatestProductsQuery({});
 
-  const latestProducts = latestProductsData?.data?.slice(0, 6) ?? [];
-  const duplicatedProducts = [...latestProducts, ...latestProducts];
+  const latestProducts = latestProductsData?.data ?? [];
+
 
   useEffect(() => {
     const scrollContainer = scrollRef.current;
@@ -101,7 +101,7 @@ const LatestDrops = () => {
           onTouchEnd={handleTouchEnd}
         >
           <div className="flex space-x-4 sm:space-x-6 transition-transform duration-300 select-none scroll-smooth p-4">
-            {duplicatedProducts.map((product, index) => (
+            {latestProducts.map((product: any, index: any) => (
               <div
                 key={`${product.id}-${index}`}
                 className="shrink-0 w-48 sm:w-56 md:w-64 transform hover:scale-105 transition-transform duration-300"
