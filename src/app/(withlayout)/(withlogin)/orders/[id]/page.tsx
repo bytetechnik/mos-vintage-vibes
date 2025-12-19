@@ -188,7 +188,7 @@ const OrderConfirmation = () => {
                     className="flex items-center gap-4 p-4 rounded-lg bg-warm-beige border hover:shadow-card-custom transition-shadow duration-200"
                   >
                     {item.image ? (
-                      <div className="relative w-20 h-20 rounded-md overflow-hidden flex-shrink-0 bg-background border">
+                      <div className="relative w-20 h-20 rounded-md overflow-hidden shrink-0 bg-background border">
                         <Image
                           src={item.image}
                           alt={item.productName}
@@ -197,7 +197,7 @@ const OrderConfirmation = () => {
                         />
                       </div>
                     ) : (
-                      <div className="w-20 h-20 rounded-md bg-muted flex items-center justify-center flex-shrink-0 border">
+                      <div className="w-20 h-20 rounded-md bg-muted flex items-center justify-center shrink-0 border">
                         <Package className="w-8 h-8 text-muted-foreground" />
                       </div>
                     )}
@@ -238,7 +238,7 @@ const OrderConfirmation = () => {
 
             <div className="space-y-5">
               <div className="flex gap-4">
-                <div className="w-10 h-10 rounded-full bg-vintage-orange text-white flex items-center justify-center flex-shrink-0 font-semibold text-lg">
+                <div className="w-10 h-10 rounded-full bg-vintage-orange text-white flex items-center justify-center shrink-0 font-semibold text-lg">
                   1
                 </div>
                 <div className="flex-1 pt-1">
@@ -252,7 +252,7 @@ const OrderConfirmation = () => {
               </div>
 
               <div className="flex gap-4">
-                <div className="w-10 h-10 rounded-full bg-vintage-orange text-white flex items-center justify-center flex-shrink-0 font-semibold text-lg">
+                <div className="w-10 h-10 rounded-full bg-vintage-orange text-white flex items-center justify-center shrink-0 font-semibold text-lg">
                   2
                 </div>
                 <div className="flex-1 pt-1">
@@ -266,7 +266,7 @@ const OrderConfirmation = () => {
               </div>
 
               <div className="flex gap-4">
-                <div className="w-10 h-10 rounded-full bg-vintage-orange text-white flex items-center justify-center flex-shrink-0 font-semibold text-lg">
+                <div className="w-10 h-10 rounded-full bg-vintage-orange text-white flex items-center justify-center shrink-0 font-semibold text-lg">
                   3
                 </div>
                 <div className="flex-1 pt-1">
@@ -341,7 +341,7 @@ const OrderConfirmation = () => {
 
           <ul className="space-y-4">
             <li className="flex gap-4 p-4 rounded-lg bg-warm-beige">
-              <div className="w-2 h-2 rounded-full bg-red-500 mt-2 flex-shrink-0" />
+              <div className="w-2 h-2 rounded-full bg-red-500 mt-2 shrink-0" />
               <div>
                 <p className="font-semibold mb-1">Payment Not Completed</p>
                 <p className="text-sm text-muted-foreground leading-relaxed">
@@ -350,7 +350,7 @@ const OrderConfirmation = () => {
               </div>
             </li>
             <li className="flex gap-4 p-4 rounded-lg bg-warm-beige">
-              <div className="w-2 h-2 rounded-full bg-red-500 mt-2 flex-shrink-0" />
+              <div className="w-2 h-2 rounded-full bg-red-500 mt-2 shrink-0" />
               <div>
                 <p className="font-semibold mb-1">Insufficient Funds</p>
                 <p className="text-sm text-muted-foreground leading-relaxed">
@@ -359,7 +359,7 @@ const OrderConfirmation = () => {
               </div>
             </li>
             <li className="flex gap-4 p-4 rounded-lg bg-warm-beige">
-              <div className="w-2 h-2 rounded-full bg-red-500 mt-2 flex-shrink-0" />
+              <div className="w-2 h-2 rounded-full bg-red-500 mt-2 shrink-0" />
               <div>
                 <p className="font-semibold mb-1">Invalid Payment Reference</p>
                 <p className="text-sm text-muted-foreground leading-relaxed">
@@ -368,7 +368,7 @@ const OrderConfirmation = () => {
               </div>
             </li>
             <li className="flex gap-4 p-4 rounded-lg bg-warm-beige">
-              <div className="w-2 h-2 rounded-full bg-red-500 mt-2 flex-shrink-0" />
+              <div className="w-2 h-2 rounded-full bg-red-500 mt-2 shrink-0" />
               <div>
                 <p className="font-semibold mb-1">Technical Issue</p>
                 <p className="text-sm text-muted-foreground leading-relaxed">

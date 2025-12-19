@@ -121,7 +121,7 @@ const OrderDetailsPage = () => {
                       {item.conditionRating && <span>Condition: {item.conditionRating}</span>}
                     </div>
                   </div>
-                  <div className="text-right flex-shrink-0">
+                  <div className="text-right shrink-0">
                     <p className="font-semibold text-gray-900">
                       {order.currency} {item.price.toFixed(2)}
                     </p>

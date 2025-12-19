@@ -286,17 +286,17 @@ export const AddressForm = ({
       {/* Default Address Checkbox */}
       <div className="flex items-center space-x-2 pt-2">
         <Controller
-          name="isDefault"
+          name="default"
           control={control}
           render={({ field }) => (
             <Checkbox
-              id="isDefault"
+              id="default"
               checked={field.value}
               onCheckedChange={field.onChange}
             />
           )}
         />
-        <Label htmlFor="isDefault" className="cursor-pointer font-normal">
+        <Label htmlFor="default" className="cursor-pointer font-normal">
           Set as default address
         </Label>
       </div>
@@ -308,7 +308,7 @@ export const AddressForm = ({
           size="lg"
           onClick={handleFormSubmit}
           disabled={isLoading}
-          className="min-w-[140px]"
+          className="min-w-35"
         >
           {isLoading ? (
             <>

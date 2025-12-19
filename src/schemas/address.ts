@@ -43,7 +43,7 @@ export const addressFormSchema = yup.object().shape({
     .max(3, 'Country code must be at most 3 characters')
     .required('Country code is required'),
   formattedAddress: yup.string().optional(),
-  isDefault: yup.boolean().default(false),
+  default: yup.boolean().default(false),
   latitude: yup.number().optional(),
   longitude: yup.number().optional(),
 });
@@ -64,7 +64,7 @@ export const defaultAddressValues: AddressFormData = {
   postalCode: '',
   countryCode: 'DE',
   formattedAddress: '',
-  isDefault: false,
+  default: false,
   latitude: undefined,
   longitude: undefined,
 };

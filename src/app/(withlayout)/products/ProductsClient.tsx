@@ -11,10 +11,8 @@ import SplashScreen from '@/components/SplashScreen';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { categoryNames } from '@/data/products';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useProductsQuery } from '@/redux/api/product/productApi';
-import { ProductCategory } from '@/types/product';
 
 const Products = () => {
   const searchParams = useSearchParams();
@@ -228,12 +226,10 @@ const Products = () => {
     <div className="w-full px-4 sm:px-6 lg:px-8 py-6 mt-12">
       <div className="mb-6">
         <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-4">
-          {selectedCategories.length === 1 && categoryNames[selectedCategories[0] as ProductCategory]
-            ? categoryNames[selectedCategories[0] as ProductCategory]
-            : 'All Products'}
+          All Products
         </h1>
         <p className="text-muted-foreground text-sm sm:text-base">
-          Discover our curated collection of vintage and contemporary streetwear
+          Discover our curated collection of vintage and contemporary street wear
         </p>
       </div>
 

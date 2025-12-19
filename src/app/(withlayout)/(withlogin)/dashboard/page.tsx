@@ -192,7 +192,7 @@ const Dashboard = () => {
             title: 'Address Updated',
             description: 'Your address has been updated successfully.',
           });
-          if (data.isDefault && !editingAddress.default) {
+          if (data.default && !editingAddress.default) {
             await setDefaultAddress(editingAddress.id);
           }
         }
@@ -203,7 +203,7 @@ const Dashboard = () => {
             title: 'Address Added',
             description: 'Your new address has been saved.',
           });
-          if (data.isDefault && result.data?.id) {
+          if (data.default && result.data?.id) {
             await setDefaultAddress(result.data.id);
           }
         }
@@ -264,7 +264,7 @@ const Dashboard = () => {
       postalCode: editingAddress.postalCode || '',
       countryCode: editingAddress.countryCode || editingAddress.country || 'BD',
       formattedAddress: editingAddress.formattedAddress || '',
-      isDefault: editingAddress.default || editingAddress.isDefault || false,
+      default: editingAddress.default || editingAddress.default || false,
       latitude: editingAddress.latitude,
       longitude: editingAddress.longitude,
     };
@@ -461,7 +461,7 @@ const Dashboard = () => {
                                 className="flex items-center gap-4 p-3 rounded-lg bg-muted/50 border"
                               >
                                 {item.image && (
-                                  <div className="relative w-16 h-16 rounded-md overflow-hidden flex-shrink-0 bg-background">
+                                  <div className="relative w-16 h-16 rounded-md overflow-hidden shrink-0 bg-background">
                                     <Image
                                       src={item.image}
                                       alt={item.productName || 'Product'}
@@ -614,7 +614,7 @@ const Dashboard = () => {
                         </div>
 
                         {/* Right: Price and Rating */}
-                        <div className="flex flex-col items-end justify-start flex-shrink-0">
+                        <div className="flex flex-col items-end justify-start shrink-0">
                           {/* Price */}
                           <div className="text-right mb-2">
                             <div className="text font-bold text-gray-900 dark:text-white whitespace-nowrap">

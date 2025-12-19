@@ -157,13 +157,13 @@ const NavBar = () => {
           {/* Right: Search, Cart, and Profile/Login */}
           <div className="flex items-center justify-end flex-1 space-x-2">
             {/* Search Button */}
-            <Button
+            {/* <Button
               variant="ghost"
               size="icon"
               className="relative"
             >
-              {/* <Search className={`w-5 h-5 transition-colors duration-300 ${pathname === '/' ? (isScrolled ? 'text-black' : 'text-white') : 'text-black'}`} /> */}
-            </Button>
+              <Search className={`w-5 h-5 transition-colors duration-300 ${pathname === '/' ? (isScrolled ? 'text-black' : 'text-white') : 'text-black'}`} />
+            </Button> */}
 
             {/* Cart Button */}
             <Link href="/cart">
@@ -252,7 +252,7 @@ const NavBar = () => {
           <div className="fixed inset-0 z-50 flex items-start justify-center pt-2 sm:pt-4 md:pt-8 lg:pt-20 px-2 sm:px-4">
             <div className="bg-background rounded-lg shadow-lg w-full max-w-2xl h-[95vh] sm:h-[90vh] md:h-[80vh] flex flex-col overflow-hidden">
               {/* Search Header */}
-              <div className="flex items-center justify-between p-4 border-b flex-shrink-0">
+              <div className="flex items-center justify-between p-4 border-b shrink-0">
                 <h2 className="text-lg font-semibold">Search Products</h2>
                 <Button
                   variant="ghost"
@@ -267,7 +267,7 @@ const NavBar = () => {
               </div>
 
               {/* Search Input */}
-              <div className="p-4 flex-shrink-0">
+              <div className="p-4 shrink-0">
                 {/* <SearchAutocomplete
                   onSearch={(query) => {
                     router.push(`/products?search=${encodeURIComponent(query)}`);

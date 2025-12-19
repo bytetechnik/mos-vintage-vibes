@@ -22,7 +22,7 @@ import { useToast } from '@/hooks/use-toast';
 import {
   useAddressesQuery,
   useAddToAddressMutation,
-  useDefaultAddressMutation,
+  // useDefaultAddressMutation,
   useRemoveAddressMutation,
   useUpdateAddressMutation,
 } from '@/redux/api/addressApi';
@@ -88,7 +88,7 @@ const Checkout = () => {
   const [addToAddress, { isLoading: isCreatingAddress }] = useAddToAddressMutation();
   const [updateAddress, { isLoading: isUpdatingAddress }] = useUpdateAddressMutation();
   const [removeAddress, { isLoading: isDeletingAddress }] = useRemoveAddressMutation();
-  const [setDefaultAddress] = useDefaultAddressMutation();
+  // const [setDefaultAddress] = useDefaultAddressMutation();
   const [makeOrder, { isLoading: isCreatingOrder }] = useMakeOrderMutation();
 
   // Local state
@@ -163,7 +163,7 @@ const Checkout = () => {
         postalCode: data.postalCode,
         country: data.countryCode,
         addressType: data.type,
-        default: data.isDefault,
+        default: data.default,
       };
 
       if (editingAddress) {
@@ -179,9 +179,9 @@ const Checkout = () => {
             description: 'Your address has been updated successfully.',
           });
 
-          if (data.isDefault && !editingAddress.default) {
-            await setDefaultAddress(editingAddress.id);
-          }
+          // if (data.default && !editingAddress.default) {
+          //   await setDefaultAddress(editingAddress.id);
+          // }
         }
       } else {
         const result = await addToAddress(payload).unwrap();
@@ -198,9 +198,9 @@ const Checkout = () => {
               setSelectedShippingAddressId(result.data.id);
             }
 
-            if (data.isDefault) {
-              await setDefaultAddress(result.data.id);
-            }
+            // if (data.default) {
+            //   await setDefaultAddress(result.data.id);
+            // }
           }
         }
       }
@@ -325,7 +325,7 @@ const Checkout = () => {
       stateProvince: editingAddress.state || '',
       postalCode: editingAddress.postalCode || '',
       countryCode: editingAddress.country || 'DE',
-      isDefault: editingAddress.default || false,
+      default: editingAddress.default || false,
     };
   };
 
@@ -348,7 +348,7 @@ const Checkout = () => {
   // Empty cart
   if (!cartItems.length) {
     return (
-      <div className="bg-gradient-to-b from-background to-muted/20 min-h-screen flex items-center justify-center">
+      <div className="bg-linear-to-b from-background to-muted/20 min-h-screen flex items-center justify-center">
         <div className="container mx-auto px-4 text-center max-w-md">
           <div className="w-24 h-24 rounded-full bg-muted mx-auto mb-6 flex items-center justify-center">
             <ShoppingBag className="w-12 h-12 text-muted-foreground" />
@@ -369,7 +369,7 @@ const Checkout = () => {
   }
 
   return (
-    <div className="bg-gradient-to-b from-background to-muted/20 min-h-screen">
+    <div className="bg-linear-to-b from-background to-muted/20 min-h-screen">
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-8">

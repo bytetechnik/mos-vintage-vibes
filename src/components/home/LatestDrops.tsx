@@ -80,7 +80,7 @@ const LatestDrops = () => {
   }, []);
 
   return (
-    <section className="py-8 sm:py-16 px-2 sm:px-4 bg-gradient-to-b from-background to-muted/20">
+    <section className="py-8 sm:py-16 px-2 sm:px-4 bg-linear-to-b from-background to-muted/20">
       <div className="container mx-auto">
         <div className="text-center mb-8 sm:mb-12">
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-2 sm:mb-4">
@@ -104,15 +104,15 @@ const LatestDrops = () => {
             {duplicatedProducts.map((product, index) => (
               <div
                 key={`${product.id}-${index}`}
-                className="flex-shrink-0 w-48 sm:w-56 md:w-64 transform hover:scale-105 transition-transform duration-300"
+                className="shrink-0 w-48 sm:w-56 md:w-64 transform hover:scale-105 transition-transform duration-300"
               >
                 <ProductCard product={product} />
               </div>
             ))}
           </div>
 
-          <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-background to-transparent pointer-events-none z-10"></div>
-          <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-background to-transparent pointer-events-none z-10"></div>
+          <div className="absolute left-0 top-0 bottom-0 w-8 bg-linear-to-r from-background to-transparent pointer-events-none z-10"></div>
+          <div className="absolute right-0 top-0 bottom-0 w-8 bg-linear-to-l from-background to-transparent pointer-events-none z-10"></div>
         </div>
       </div>
 

@@ -75,7 +75,7 @@ export default function LoginClient() {
 
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-warm-beige to-background p-4">
+    <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-warm-beige to-background p-4">
       <div className="w-full max-w-md">
         <AuthHeader />
 
