@@ -265,7 +265,7 @@ const OrderDetailsPage = () => {
                 <div className="flex justify-between">
                   <span className="font-semibold text-gray-900">Total</span>
                   <span className="font-bold text-gray-900 text-lg">
-                    {order.currency} ${order.totalAmount.toFixed(2)}
+                    {order.currency} {order.totalAmount.toFixed(2)}
                   </span>
                 </div>
               </div>
