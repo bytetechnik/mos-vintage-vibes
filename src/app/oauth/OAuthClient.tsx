@@ -21,7 +21,7 @@ const OAuth = () => {
 
       // const res: any = await oAuth2Login({ oAuthUserTokenId: tokenId }).unwrap();
 
-      const res = await axios.post(`${getBackendURL}/oauth2/public/login`, {
+      const res = await axios.post(`${getBackendURL()}/oauth2/public/login`, {
         oAuthUserTokenId: tokenId,
       });
 
